@@ -239,6 +239,19 @@ def _send_html_email(to_email: str, subject: str, text: str, html: str) -> Tuple
         _last_smtp_error = f"SMTP auth failed: {exc}"
         logger.error("[Email] %s (user=%s)", _last_smtp_error, cfg["user"])
         return False, "Gmail rejected the login — use a Google App Password (not your normal password)."
+    except OSError as exc:
+        err = str(exc)
+        if "unreachable" in err.lower() or getattr(exc, "errno", None) == 101:
+            _last_smtp_error = err
+            msg = (
+                "SMTP blocked on Render free tier (ports 587/465). "
+                "Add RESEND_API_KEY in Render, or set up EmailJS on the landing page — see DEPLOY.md."
+            )
+            logger.error("[Email] %s", msg)
+            return False, msg
+        _last_smtp_error = err
+        logger.error("[Email] failed to %s: %s", to_email, exc)
+        return False, err
     except Exception as exc:
         _last_smtp_error = str(exc)
         logger.error("[Email] failed to %s: %s", to_email, exc)

@@ -70,6 +70,23 @@ Render **blocks outbound SMTP** (ports 25, 465, 587) on free web services. Gmail
 
 **Alternative:** upgrade the Render web service to **Starter** ($7/mo) — then Gmail SMTP works with `SMTP_*` vars.
 
+**Alternative (uses your Gmail, no Render change):** [EmailJS](https://www.emailjs.com) from the landing page:
+
+1. Create EmailJS account → add **Gmail** service → note `serviceId`
+2. Create template: **To** = `{{to_email}}`, subject/body use `{{access_code}}` and `{{user_name}}`
+3. Copy **Public Key** and **Template ID**
+4. Edit `static/config.js` (then `python scripts/build_ghpages.py` and push):
+
+```js
+window.FRONTIEROS_EMAILJS = {
+  publicKey: 'YOUR_PUBLIC_KEY',
+  serviceId: 'YOUR_SERVICE_ID',
+  templateId: 'YOUR_TEMPLATE_ID',
+};
+```
+
+When the API cannot SMTP-send, the landing page sends the code via EmailJS automatically.
+
 ## 6. Free tier notes
 
 - Render free services **sleep** after ~15 min idle; first request may take ~30s.

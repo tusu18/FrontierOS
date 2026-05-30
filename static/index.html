@@ -6,6 +6,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="config.js"></script>
 <script src="ghpages-bridge.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <style>/* ============================================================
    FrontierOS — shared design system
    Light editorial (marketing) + dark terminal (app)
@@ -371,6 +372,7 @@ body { margin: 0; font-family: var(--font-body); }
 
   /* trust strip */
   .team { padding: 64px 0 30px; text-align: center; }
+  .team.team-end { padding: 48px 0 72px; border-top: 1px solid var(--hairline); margin-top: 0; }
   .team .lbl { color: var(--ink-mute); margin-bottom: 24px; letter-spacing: .06em; text-transform: uppercase; font-family: var(--font-mono); font-size: 12px; }
   .team-card { display: inline-block; text-align: center; padding: 28px 40px; border: 1px solid var(--hairline); border-radius: var(--radius-md); background: var(--stone); }
   .team-name { font-family: var(--font-display); font-weight: 600; font-size: 26px; letter-spacing: -.02em; color: var(--ink); margin: 0 0 6px; }
@@ -764,15 +766,6 @@ body { margin: 0; font-family: var(--font-body); }
     </div>
   </header>
 
-  <section class="team wrap" id="team">
-    <div class="lbl">Team &amp; creator</div>
-    <div class="team-card">
-      <div class="team-name">Tushar Singh</div>
-      <div class="team-role">Creator · FrontierOS</div>
-      <a class="team-link" href="https://www.linkedin.com/in/tushar-singh-4326b7188" target="_blank" rel="noopener noreferrer">LinkedIn →</a>
-    </div>
-  </section>
-
   <section class="pillars wrap" id="how">
     <div class="sec-head">
       <div class="mono-label" style="color:var(--green-700);margin-bottom:18px;">The loop</div>
@@ -989,6 +982,15 @@ body { margin: 0; font-family: var(--font-body); }
     <div class="hero-cta">
       <a class="pill-cta pill-dark" href="#" onclick="openAccessModal();return false;">Request early access →</a>
       <a class="pill-cta pill-light" href="https://github.com/tusu18/FrontierOS" target="_blank" rel="noopener noreferrer">View on GitHub</a>
+    </div>
+  </section>
+
+  <section class="team wrap team-end" id="team">
+    <div class="lbl">Team &amp; creator</div>
+    <div class="team-card">
+      <div class="team-name">Tushar Singh</div>
+      <div class="team-role">Creator · FrontierOS</div>
+      <a class="team-link" href="https://www.linkedin.com/in/tushar-singh-4326b7188" target="_blank" rel="noopener noreferrer">LinkedIn →</a>
     </div>
   </section>
 
@@ -1355,13 +1357,9 @@ function showRequestSuccess(email, data) {
     title.textContent = "You're registered.";
     body.textContent = 'We emailed your access code to ' + email + '. Save it for when FrontierOS launches — no dashboard link until then.';
     codeWrap.style.display = 'none';
-  } else if (data && data.email_error && !code) {
-    title.textContent = "You're registered.";
-    body.textContent = 'We saved your signup but email failed: ' + data.email_error + '. Contact support or try again later.';
-    codeWrap.style.display = 'none';
   } else if (code) {
     title.textContent = "You're registered.";
-    body.textContent = 'Email could not be sent. Save this code for launch day:';
+    body.textContent = 'Save this access code for launch day:';
     codeEl.textContent = code;
     codeWrap.style.display = '';
   } else {
@@ -1373,7 +1371,22 @@ function showRequestSuccess(email, data) {
   document.getElementById('reqSuccess').style.display = '';
 }
 
-function submitRequest() {
+function sendAccessCodeViaEmailJS(email, name, code) {
+  const ej = window.FRONTIEROS_EMAILJS || {};
+  if (!ej.publicKey || !ej.serviceId || !ej.templateId || typeof emailjs === 'undefined') {
+    return Promise.resolve(false);
+  }
+  return emailjs.send(ej.serviceId, ej.templateId, {
+    to_email: email,
+    user_name: name,
+    access_code: code,
+    reply_to: 'tsingh98@umd.edu',
+  }, { publicKey: ej.publicKey })
+    .then(() => true)
+    .catch((err) => { console.warn('[EmailJS]', err); return false; });
+}
+
+async function submitRequest() {
   const name = document.getElementById('reqName').value.trim();
   const email = document.getElementById('reqEmail').value.trim();
   const affil = document.getElementById('reqAffil').value.trim();
@@ -1383,20 +1396,24 @@ function submitRequest() {
   if (!/^[^@]+@[^@]+\.[^@]+$/.test(email)) { alert('Please enter a valid email address.'); return; }
   const btn = document.getElementById('reqSubmit');
   btn.disabled = true; btn.textContent = 'Sending…';
-  fetch(frontierApi('/api/waitlist'), {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ name, email, affiliation: affil, research_area: area, use_case: use }),
-  })
-  .then(r => r.json().then(d => ({ ok: r.ok, d })))
-  .then(({ ok, d }) => {
-    if (!ok) throw new Error((d && d.detail) || 'Signup failed');
+  try {
+    const res = await fetch(frontierApi('/api/waitlist'), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email, affiliation: affil, research_area: area, use_case: use }),
+    });
+    const d = await res.json();
+    if (!res.ok) throw new Error((d && d.detail) || 'Signup failed');
+    const code = d.access_code || d.demo_code;
+    if (!d.email_sent && code) {
+      const viaJs = await sendAccessCodeViaEmailJS(email, name, code);
+      if (viaJs) d.email_sent = true;
+    }
     showRequestSuccess(email, d);
-  })
-  .catch((err) => {
+  } catch (err) {
     alert(err.message || 'Could not reach the API. Check FRONTIEROS_API in config.js.');
     btn.disabled = false; btn.textContent = 'Request access';
-  });
+  }
 }
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeAccessModal(); });
 </script>

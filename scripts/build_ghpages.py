@@ -23,22 +23,38 @@ def main() -> None:
 
     api = os.getenv("FRONTIEROS_API", "").strip().rstrip("/")
     app = os.getenv("FRONTIEROS_APP", "").strip().rstrip("/") or (f"{api}/app" if api else "")
+    ej_pub = os.getenv("FRONTIEROS_EMAILJS_PUBLIC_KEY", "").strip()
+    ej_svc = os.getenv("FRONTIEROS_EMAILJS_SERVICE_ID", "").strip()
+    ej_tpl = os.getenv("FRONTIEROS_EMAILJS_TEMPLATE_ID", "").strip()
 
     CONFIG_EXAMPLE.write_text(
         f"""// Copy to config.js and set your deployed FastAPI backend.
 window.FRONTIEROS_API = '{api or "https://YOUR-API.example.com"}';
 window.FRONTIEROS_APP = '{app or "https://YOUR-API.example.com/app"}';
+window.FRONTIEROS_EMAILJS = {{ publicKey: '', serviceId: '', templateId: '' }};
 """,
         encoding="utf-8",
     )
 
     config_path = DOCS / "config.js"
-    if api:
-        config_path.write_text(
-            f"window.FRONTIEROS_API = '{api}';\n"
-            f"window.FRONTIEROS_APP = '{app}';\n",
-            encoding="utf-8",
+    if api or ej_pub:
+        lines = []
+        if api:
+            lines.append(f"window.FRONTIEROS_API = '{api}';")
+            lines.append(f"window.FRONTIEROS_APP = '{app}';")
+        ej_block = (
+            f"window.FRONTIEROS_EMAILJS = {{ publicKey: '{ej_pub}', "
+            f"serviceId: '{ej_svc}', templateId: '{ej_tpl}' }};"
         )
+        if ej_pub:
+            lines.append(ej_block)
+        elif config_path.exists():
+            existing = config_path.read_text(encoding="utf-8")
+            if "FRONTIEROS_EMAILJS" in existing:
+                for line in existing.splitlines():
+                    if "FRONTIEROS_EMAILJS" in line:
+                        lines.append(line)
+        config_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
     elif not config_path.exists():
         shutil.copy2(CONFIG_EXAMPLE, config_path)
 
