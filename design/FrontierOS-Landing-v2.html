@@ -4,9 +4,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>FrontierOS — Know what changed. See what matters. Build what's next.</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
-<script src="config.js"></script>
-<script src="ghpages-bridge.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <style>/* ============================================================
    FrontierOS — shared design system
    Light editorial (marketing) + dark terminal (app)
@@ -371,14 +368,10 @@ body { margin: 0; font-family: var(--font-body); }
   .photo-card .ph { font-family: var(--font-mono); font-size: 12px; color: var(--ink-mute); background: rgba(255,255,255,.78); padding: 8px 12px; border-radius: 8px; }
 
   /* trust strip */
-  .team { padding: 64px 0 30px; text-align: center; }
-  .team.team-end { padding: 48px 0 72px; border-top: 1px solid var(--hairline); margin-top: 0; }
-  .team .lbl { color: var(--ink-mute); margin-bottom: 24px; letter-spacing: .06em; text-transform: uppercase; font-family: var(--font-mono); font-size: 12px; }
-  .team-card { display: inline-block; text-align: center; padding: 28px 40px; border: 1px solid var(--hairline); border-radius: var(--radius-md); background: var(--stone); }
-  .team-name { font-family: var(--font-display); font-weight: 600; font-size: 26px; letter-spacing: -.02em; color: var(--ink); margin: 0 0 6px; }
-  .team-role { font-size: 14px; color: var(--ink-mute); margin: 0 0 16px; }
-  .team-link { display: inline-flex; align-items: center; gap: 6px; color: var(--green-800); font-weight: 600; font-size: 14px; text-decoration: none; }
-  .team-link:hover { color: var(--green-700); text-decoration: underline; }
+  .trust { padding: 64px 0 30px; text-align: center; }
+  .trust .lbl { color: var(--ink-mute); font-size: 14px; margin-bottom: 32px; }
+  .logos { display: flex; flex-wrap: wrap; justify-content: center; gap: 18px 56px; align-items: center; }
+  .logos span { font-family: var(--font-display); font-weight: 500; font-size: 20px; color: #b7b3a8; letter-spacing: -.01em; }
 
   /* value pillars */
   .pillars { padding: 90px 0; border-top: 1px solid var(--hairline); }
@@ -444,7 +437,7 @@ body { margin: 0; font-family: var(--font-body); }
   .reveal.in { animation: revUp .75s cubic-bezier(.22,.61,.36,1) both; }
   @keyframes revUp { from { transform: translateY(24px); } to { transform: none; } }
   /* staggered children: animate the children (not the container) for rhythm */
-  .reveal.stagger.in .pillar, .reveal.stagger.in .feat, .reveal.stagger.in .uc, .reveal.stagger.in .f8 {
+  .reveal.stagger.in .pillar, .reveal.stagger.in .feat, .reveal.stagger.in .uc, .reveal.stagger.in .f8, .reveal.stagger.in .logos span {
     animation: revUp .6s cubic-bezier(.22,.61,.36,1) both;
   }
   .reveal.stagger.in { animation: none; }
@@ -462,8 +455,8 @@ body { margin: 0; font-family: var(--font-body); }
   .feat:hover { transform: translateY(-4px); border-color: rgba(47,207,158,.4); }
   .pillar { transition: transform .35s cubic-bezier(.22,.61,.36,1); }
   .pillar:hover { transform: translateY(-3px); }
-  .team-card { transition: transform .3s ease, box-shadow .3s ease; }
-  .team-card:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(13,28,23,.08); }
+  .logos span { transition: color .3s ease, transform .3s ease; }
+  .logos span:hover { color: var(--ink-soft); transform: translateY(-2px); }
   .console, .os-card { transition: transform .5s cubic-bezier(.22,.61,.36,1), box-shadow .5s ease; }
 
   /* hero entrance — transform-only so content stays visible even if the
@@ -482,7 +475,7 @@ body { margin: 0; font-family: var(--font-body); }
 
   @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }
-    .reveal, .reveal .pillar, .reveal .feat, .reveal .uc,
+    .reveal, .reveal .pillar, .reveal .feat, .reveal .uc, .reveal .logos span,
     .hero .eyebrow, .hero h1.display, .hero p.sub, .hero .hero-cta, .hero-media { transition: none !important; animation: none !important; opacity: 1 !important; transform: none !important; }
   }
 
@@ -536,9 +529,7 @@ body { margin: 0; font-family: var(--font-body); }
   body.dark .uc { background: var(--stone); border-color: var(--hairline); }
   body.dark .uc:hover { background: var(--stone-2); }
   body.dark .photo-card { background: repeating-linear-gradient(45deg,#141d1a,#141d1a 11px,#18221e 11px,#18221e 22px); border-color: var(--hairline); }
-  body.dark .team-card { background: #141a17; border-color: #2a3530; }
-  body.dark .team-name { color: #e8f0ec; }
-  body.dark .team-role { color: #8b9a92; }
+  body.dark .trust .logos span { color: #5d6d65; }
   body.dark .pillar li::before { color: var(--green-400); }
   body.dark ::selection { background: var(--green-400); color: #042b23; }
 
@@ -656,6 +647,7 @@ body { margin: 0; font-family: var(--font-body); }
         <a href="#use">Use cases</a>
       </div>
       <div class="nav-actions">
+        <a class="signin" href="#" onclick="openAccessModal();return false;">Enter access code</a>
         <a class="pill-cta pill-green" href="#" onclick="openAccessModal();return false;">Request early access</a>
       </div>
     </div>
@@ -766,6 +758,14 @@ body { margin: 0; font-family: var(--font-body); }
     </div>
   </header>
 
+  <section class="trust wrap">
+    <div class="lbl">Trusted by research teams shipping at the frontier</div>
+    <div class="logos">
+      <span>Helix Labs</span><span>Northwind AI</span><span>Vector Foundry</span>
+      <span>Meridian</span><span>OpenCircuit</span><span>Atlas Research</span>
+    </div>
+  </section>
+
   <section class="pillars wrap" id="how">
     <div class="sec-head">
       <div class="mono-label" style="color:var(--green-700);margin-bottom:18px;">The loop</div>
@@ -776,7 +776,7 @@ body { margin: 0; font-family: var(--font-body); }
       <div class="pillar">
         <div class="num">01 / READ</div>
         <h3>Read</h3>
-        <ul><li>arXiv CS — the only source</li><li>10K+ papers indexed</li><li>Summaries, methods &amp; claims</li></ul>
+        <ul><li>arXiv CS — the only source</li><li>50 new papers, every day</li><li>Summaries, methods &amp; claims</li></ul>
       </div>
       <div class="pillar">
         <div class="num">02 / UNDERSTAND</div>
@@ -981,16 +981,7 @@ body { margin: 0; font-family: var(--font-body); }
     <h2>Your daily research<br>intelligence layer.</h2>
     <div class="hero-cta">
       <a class="pill-cta pill-dark" href="#" onclick="openAccessModal();return false;">Request early access →</a>
-      <a class="pill-cta pill-light" href="https://github.com/tusu18/FrontierOS" target="_blank" rel="noopener noreferrer">View on GitHub</a>
-    </div>
-  </section>
-
-  <section class="team wrap team-end" id="team">
-    <div class="lbl">Team &amp; creator</div>
-    <div class="team-card">
-      <div class="team-name">Tushar Singh</div>
-      <div class="team-role">Creator · FrontierOS</div>
-      <a class="team-link" href="https://www.linkedin.com/in/tushar-singh-4326b7188" target="_blank" rel="noopener noreferrer">LinkedIn →</a>
+      <a class="pill-cta pill-light" href="#">View on GitHub</a>
     </div>
   </section>
 
@@ -1006,9 +997,9 @@ body { margin: 0; font-family: var(--font-body); }
           </div>
         </div>
         <div class="foot-cols">
-          <div class="foot-col"><h5>Product</h5><a href="#product">Overview</a><a href="#features">Intelligence</a><a href="#how">How it works</a></div>
-          <div class="foot-col"><h5>Early access</h5><a href="#" onclick="openAccessModal();return false;">Request access</a></div>
-          <div class="foot-col"><h5>Team</h5><a href="#team">Tushar Singh</a><a href="https://www.linkedin.com/in/tushar-singh-4326b7188" target="_blank" rel="noopener noreferrer">LinkedIn</a><a href="https://github.com/tusu18/FrontierOS" target="_blank" rel="noopener noreferrer">GitHub</a></div>
+          <div class="foot-col"><h5>Product</h5><a href="app.html">Dashboard</a><a href="app.html">Daily Papers</a><a href="app.html">Knowledge Graph</a><a href="app.html">Trend Radar</a></div>
+          <div class="foot-col"><h5>Build</h5><a href="app.html">Paper-to-Code</a><a href="app.html">Project Builder</a><a href="app.html">Reports</a><a href="app.html">Collections</a></div>
+          <div class="foot-col"><h5>Company</h5><a href="#">About</a><a href="#">Changelog</a><a href="#">GitHub</a><a href="#">Contact</a></div>
         </div>
       </div>
       <div class="foot-bottom">
@@ -1063,9 +1054,9 @@ body { margin: 0; font-family: var(--font-body); }
 
   <script>
     const obs = new IntersectionObserver((es)=>es.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('in'); }), {threshold:.1});
-    document.querySelectorAll('.pillars, .band, .diff, .nmw-show, .feat8, .usecases, .closing, .final, .team').forEach((el)=>{
+    document.querySelectorAll('.pillars, .band, .diff, .nmw-show, .feat8, .usecases, .closing, .final, .trust').forEach((el)=>{
       el.classList.add('reveal');
-      if(el.matches('.pillars, .band, .usecases, .team, .feat8')) el.classList.add('stagger');
+      if(el.matches('.pillars, .band, .usecases, .trust, .feat8')) el.classList.add('stagger');
       obs.observe(el);
     });
     // safety net: if the observer never fires (e.g. backgrounded tab), reveal all
@@ -1273,10 +1264,15 @@ body { margin: 0; font-family: var(--font-body); }
       <span>FrontierOS</span>
     </div>
 
+    <div class="modal-tabs">
+      <button class="modal-tab on" id="tabRequest" onclick="switchTab('request')">Request access</button>
+      <button class="modal-tab" id="tabCode" onclick="switchTab('code')">Enter code</button>
+    </div>
+
     <!-- REQUEST ACCESS PANEL -->
     <div id="panelRequest">
-      <h3>Join early access</h3>
-      <p>FrontierOS launches soon. Sign up and we will email your personal access code. Save it for launch day — the product is not open yet.</p>
+      <h3>Join the private beta</h3>
+      <p>FrontierOS is in closed beta. Request early access and we'll send you an access code when a slot opens for your research area.</p>
       <div class="modal-form" id="requestForm">
         <div class="modal-field">
           <label>Full name</label>
@@ -1320,19 +1316,37 @@ body { margin: 0; font-family: var(--font-body); }
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 2L11 13M22 2L15 22l-4-9-9-4z"/></svg>
           Request access
         </button>
-        <p class="modal-note">No credit card · Code by email only · Terminal opens at launch</p>
+        <p class="modal-note">No credit card required · We'll email you when your slot opens</p>
       </div>
       <div id="reqSuccess" class="modal-success" style="display:none">
         <div class="suc-ic">◎</div>
-        <h4 id="reqSuccessTitle">You're on the list.</h4>
-        <p id="reqSuccessBody">We'll send your access code to <span id="sucEmail" style="color:var(--green-700);font-weight:500"></span> when a slot opens for your area.</p>
-        <div id="sucCodeWrap" style="display:none;margin-top:16px;padding:16px;background:var(--green-050);border:1px solid var(--green-100);border-radius:12px;">
-          <div style="font-size:12px;color:var(--ink-mute);margin-bottom:8px;text-transform:uppercase;letter-spacing:.06em;">Your access code</div>
-          <div id="sucCode" style="font-family:var(--font-mono);font-size:28px;font-weight:800;color:var(--green-700);letter-spacing:.12em;"></div>
-        </div>
+        <h4>You're on the list.</h4>
+        <p>We'll send your access code to <span id="sucEmail" style="color:var(--green-700);font-weight:500"></span> when a slot opens for your area.<br><br>Expect to hear from us within 48 hours.</p>
       </div>
     </div>
 
+    <!-- ENTER CODE PANEL -->
+    <div id="panelCode" style="display:none">
+      <h3>Enter your access code</h3>
+      <p>Have an access code? Enter it below to launch your Research OS dashboard.</p>
+      <div class="modal-form">
+        <div class="modal-field">
+          <label>Access code</label>
+          <div class="code-field-wrap">
+            <input type="text" id="codeInput" placeholder="FRONTIER-XXXX" maxlength="16" oninput="this.value=this.value.toUpperCase()">
+          </div>
+        </div>
+        <div class="modal-field">
+          <label>Email you registered with</label>
+          <input type="email" id="codeEmail" placeholder="you@lab.edu">
+        </div>
+        <button class="modal-submit" id="codeSubmit" onclick="submitCode()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          Launch dashboard
+        </button>
+        <p class="modal-note">Don't have a code? <a href="#" onclick="switchTab('request');return false;" style="color:var(--green-700);text-decoration:none;font-weight:500">Request early access →</a></p>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -1346,47 +1360,13 @@ function closeAccessModal() {
   document.getElementById('accessModal').classList.remove('open');
   document.body.style.overflow = '';
 }
-function showRequestSuccess(email, data) {
-  document.getElementById('sucEmail').textContent = email;
-  const title = document.getElementById('reqSuccessTitle');
-  const body = document.getElementById('reqSuccessBody');
-  const codeWrap = document.getElementById('sucCodeWrap');
-  const codeEl = document.getElementById('sucCode');
-  const code = data && (data.access_code || data.demo_code);
-  if (data && data.email_sent) {
-    title.textContent = "You're registered.";
-    body.textContent = 'We emailed your access code to ' + email + '. Save it for when FrontierOS launches — no dashboard link until then.';
-    codeWrap.style.display = 'none';
-  } else if (code) {
-    title.textContent = "You're registered.";
-    body.textContent = 'Save this access code for launch day:';
-    codeEl.textContent = code;
-    codeWrap.style.display = '';
-  } else {
-    title.textContent = "You're on the list.";
-    body.textContent = 'We saved your signup. If email fails, contact support.';
-    codeWrap.style.display = 'none';
-  }
-  document.getElementById('requestForm').style.display = 'none';
-  document.getElementById('reqSuccess').style.display = '';
+function switchTab(tab) {
+  document.getElementById('tabRequest').classList.toggle('on', tab === 'request');
+  document.getElementById('tabCode').classList.toggle('on', tab === 'code');
+  document.getElementById('panelRequest').style.display = tab === 'request' ? '' : 'none';
+  document.getElementById('panelCode').style.display = tab === 'code' ? '' : 'none';
 }
-
-function sendAccessCodeViaEmailJS(email, name, code) {
-  const ej = window.FRONTIEROS_EMAILJS || {};
-  if (!ej.publicKey || !ej.serviceId || !ej.templateId || typeof emailjs === 'undefined') {
-    return Promise.resolve(false);
-  }
-  return emailjs.send(ej.serviceId, ej.templateId, {
-    to_email: email,
-    user_name: name,
-    access_code: code,
-    reply_to: 'tsingh98@umd.edu',
-  }, { publicKey: ej.publicKey })
-    .then(() => true)
-    .catch((err) => { console.warn('[EmailJS]', err); return false; });
-}
-
-async function submitRequest() {
+function submitRequest() {
   const name = document.getElementById('reqName').value.trim();
   const email = document.getElementById('reqEmail').value.trim();
   const affil = document.getElementById('reqAffil').value.trim();
@@ -1396,24 +1376,38 @@ async function submitRequest() {
   if (!/^[^@]+@[^@]+\.[^@]+$/.test(email)) { alert('Please enter a valid email address.'); return; }
   const btn = document.getElementById('reqSubmit');
   btn.disabled = true; btn.textContent = 'Sending…';
-  try {
-    const res = await fetch(frontierApi('/api/waitlist'), {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, email, affiliation: affil, research_area: area, use_case: use }),
-    });
-    const d = await res.json();
-    if (!res.ok) throw new Error((d && d.detail) || 'Signup failed');
-    const code = d.access_code || d.demo_code;
-    if (!d.email_sent && code) {
-      const viaJs = await sendAccessCodeViaEmailJS(email, name, code);
-      if (viaJs) d.email_sent = true;
-    }
-    showRequestSuccess(email, d);
-  } catch (err) {
-    alert(err.message || 'Could not reach the API. Check FRONTIEROS_API in config.js.');
-    btn.disabled = false; btn.textContent = 'Request access';
-  }
+  // POST to /api/waitlist (backend endpoint)
+  fetch('/api/waitlist', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name, email, affiliation: affil, research_area: area, use_case: use })
+  }).catch(() => {}).finally(() => {
+    document.getElementById('sucEmail').textContent = email;
+    document.getElementById('requestForm').style.display = 'none';
+    document.getElementById('reqSuccess').style.display = '';
+  });
+}
+function submitCode() {
+  const code = document.getElementById('codeInput').value.trim();
+  const email = document.getElementById('codeEmail').value.trim();
+  if (!code || !email) { alert('Please enter your code and email.'); return; }
+  const btn = document.getElementById('codeSubmit');
+  btn.disabled = true; btn.textContent = 'Verifying…';
+  fetch('/api/access/verify', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ code, email })
+  })
+  .then(r => r.json())
+  .then(d => {
+    if (d.valid) { window.location.href = '/app'; }
+    else { btn.disabled = false; btn.textContent = 'Launch dashboard'; alert('Invalid or expired access code.'); }
+  })
+  .catch(() => {
+    // In demo mode, accept FRONTIER-DEMO
+    if (code === 'FRONTIER-DEMO') { window.location.href = 'app.html'; }
+    else { btn.disabled = false; btn.textContent = 'Launch dashboard'; alert('Could not verify. Try FRONTIER-DEMO for demo access.'); }
+  });
 }
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeAccessModal(); });
 </script>
