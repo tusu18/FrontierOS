@@ -1322,14 +1322,6 @@ body { margin: 0; font-family: var(--font-body); }
     </div>
   </header>
 
-  <section class="trust wrap">
-    <div class="lbl">Trusted by research teams shipping at the frontier</div>
-    <div class="logos">
-      <span>Helix Labs</span><span>Northwind AI</span><span>Vector Foundry</span>
-      <span>Meridian</span><span>OpenCircuit</span><span>Atlas Research</span>
-    </div>
-  </section>
-
   <!-- LIVE MVP STATUS -->
   <div class="wrap">
     <section class="mvp" id="status">
@@ -1943,9 +1935,9 @@ body { margin: 0; font-family: var(--font-body); }
 
   <script>
     const obs = new IntersectionObserver((es)=>es.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('in'); }), {threshold:.1});
-    document.querySelectorAll('.pillars, .band, .diff, .nmw-show, .feat8, .usecases, .closing, .final, .trust').forEach((el)=>{
+    document.querySelectorAll('.pillars, .band, .diff, .nmw-show, .feat8, .usecases, .closing, .final').forEach((el)=>{
       el.classList.add('reveal');
-      if(el.matches('.pillars, .band, .usecases, .trust, .feat8')) el.classList.add('stagger');
+      if(el.matches('.pillars, .band, .usecases, .feat8')) el.classList.add('stagger');
       obs.observe(el);
     });
     // safety net: if the observer never fires (e.g. backgrounded tab), reveal all
@@ -2033,12 +2025,21 @@ body { margin: 0; font-family: var(--font-body); }
           console.warn('[EmailJS] Missing keys in config.js');
           return { ok: false, err: 'EmailJS not configured in config.js' };
         }
-        return emailjs.send(ej.serviceId, ej.templateId, {
+        if (!email || !/^[^@]+@[^@]+\.[^@]+$/.test(email)) {
+          return { ok: false, err: 'Invalid email address' };
+        }
+        const params = {
           to_email: email,
+          email: email,
+          user_email: email,
+          recipient: email,
           user_name: name,
+          name: name,
           access_code: code,
+          code: code,
           reply_to: 'tsingh98@umd.edu',
-        }, { publicKey: ej.publicKey })
+        };
+        return emailjs.send(ej.serviceId, ej.templateId, params, { publicKey: ej.publicKey })
           .then(() => ({ ok: true, err: '' }))
           .catch((err) => {
             const msg = (err && (err.text || err.message)) || String(err);
@@ -2051,7 +2052,9 @@ body { margin: 0; font-family: var(--font-body); }
         const sent = data && data.email_sent;
         let extra = '';
         if (!sent && code) {
+          const errHint = (data && data.email_error) ? ('<div class="ea-fine" style="margin-top:8px;color:#b45309;">'+data.email_error+'</div>') : '';
           extra = '<div class="ea-code-cap">Your access code</div><div class="ea-code">'+code+'</div>'+
+            errHint +
             '<div class="ea-fine" style="margin-top:16px;">Email could not be sent — save this code for launch day.</div>';
         } else if (sent) {
           extra = '<div class="ea-fine" style="margin-top:16px;">Check your inbox (and spam) for your access code.</div>';
@@ -2086,8 +2089,13 @@ body { margin: 0; font-family: var(--font-body); }
             const d = await res.json();
             if (!res.ok) throw new Error((d && d.detail) || 'Signup failed');
             const code = d.access_code || d.demo_code;
+            d.email_error = '';
             if (code && emailJsReady()) {
-              d.email_sent = await sendEmailJS(email, name, code);
+              const ejResult = await sendEmailJS(email, name, code);
+              d.email_sent = ejResult.ok;
+              d.email_error = ejResult.err || '';
+            } else if (code && !emailJsReady()) {
+              d.email_error = 'EmailJS not loaded — check config.js on GitHub Pages';
             }
             showSuccess(email, d);
           } catch (err) {

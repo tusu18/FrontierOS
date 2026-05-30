@@ -62,12 +62,18 @@ EA_MODAL_SCRIPT = r"""
           console.warn('[EmailJS] Missing keys in config.js');
           return { ok: false, err: 'EmailJS not configured in config.js' };
         }
-        return emailjs.send(ej.serviceId, ej.templateId, {
+        const params = {
           to_email: email,
+          email: email,
+          user_email: email,
+          recipient: email,
           user_name: name,
+          name: name,
           access_code: code,
+          code: code,
           reply_to: 'tsingh98@umd.edu',
-        }, { publicKey: ej.publicKey })
+        };
+        return emailjs.send(ej.serviceId, ej.templateId, params, { publicKey: ej.publicKey })
           .then(() => ({ ok: true, err: '' }))
           .catch((err) => {
             const msg = (err && (err.text || err.message)) || String(err);

@@ -30,7 +30,7 @@ Use this when your API runs on **Render free tier** (SMTP blocked). The landing 
 | Field | Value |
 |--------|--------|
 | **Name** | `FrontierOS Early Access` |
-| **To Email** | `{{to_email}}` |
+| **To Email** | `{{email}}` (or `{{to_email}}` — must match a variable we send) |
 | **From Name** | `FrontierOS` |
 | **Reply To** | `tsingh98@umd.edu` |
 | **Subject** | `Your FrontierOS access code: {{access_code}}` |
@@ -57,7 +57,7 @@ These names must match exactly — the landing page sends them:
 
 | Variable | Description |
 |----------|-------------|
-| `{{to_email}}` | Signup email (recipient) |
+| `{{email}}` or `{{to_email}}` | Signup email (recipient) — set **To Email** in template to match |
 | `{{user_name}}` | Name from the form |
 | `{{access_code}}` | Code from API, e.g. `FO-ABC123` |
 | `{{reply_to}}` | Optional; sent as `tsingh98@umd.edu` |
