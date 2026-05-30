@@ -2028,13 +2028,23 @@ body { margin: 0; font-family: var(--font-body); }
         return !!(ej.publicKey && ej.serviceId && ej.templateId && typeof emailjs !== 'undefined');
       }
       function sendEmailJS(email, name, code) {
-        const ej = window.FRONTIEROS_EMAILJS;
+        const ej = window.FRONTIEROS_EMAILJS || {};
+        if (!ej.publicKey || !ej.serviceId || !ej.templateId) {
+          console.warn('[EmailJS] Missing keys in config.js');
+          return { ok: false, err: 'EmailJS not configured in config.js' };
+        }
         return emailjs.send(ej.serviceId, ej.templateId, {
           to_email: email,
           user_name: name,
           access_code: code,
           reply_to: 'tsingh98@umd.edu',
-        }, { publicKey: ej.publicKey }).then(() => true).catch((err) => { console.warn('[EmailJS]', err); return false; });
+        }, { publicKey: ej.publicKey })
+          .then(() => ({ ok: true, err: '' }))
+          .catch((err) => {
+            const msg = (err && (err.text || err.message)) || String(err);
+            console.warn('[EmailJS]', msg);
+            return { ok: false, err: msg };
+          });
       }
       function showSuccess(email, data) {
         const code = (data && (data.access_code || data.demo_code)) || '';

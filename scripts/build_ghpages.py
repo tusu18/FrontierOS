@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+import re
 import shutil
 from pathlib import Path
 
@@ -10,6 +11,38 @@ ROOT = Path(__file__).resolve().parent.parent
 STATIC = ROOT / "static"
 DOCS = ROOT / "docs"
 CONFIG_EXAMPLE = DOCS / "config.example.js"
+STATIC_CONFIG = STATIC / "config.js"
+
+
+def _patch_config(text: str, api: str, app: str, ej_pub: str, ej_svc: str, ej_tpl: str) -> str:
+    if api:
+        text = re.sub(
+            r"window\.FRONTIEROS_API\s*=\s*[^;]+;",
+            f"window.FRONTIEROS_API = '{api}';",
+            text,
+            count=1,
+        )
+        text = re.sub(
+            r"window\.FRONTIEROS_APP\s*=\s*[^;]+;",
+            f"window.FRONTIEROS_APP = '{app}';",
+            text,
+            count=1,
+        )
+    if ej_pub:
+        block = (
+            "window.FRONTIEROS_EMAILJS = {\n"
+            f"  publicKey: '{ej_pub}',\n"
+            f"  serviceId: '{ej_svc}',\n"
+            f"  templateId: '{ej_tpl}',\n"
+            "};"
+        )
+        text = re.sub(
+            r"window\.FRONTIEROS_EMAILJS\s*=\s*[\s\S]*?};",
+            block,
+            text,
+            count=1,
+        )
+    return text
 
 
 def main() -> None:
@@ -34,40 +67,33 @@ def main() -> None:
     ej_svc = os.getenv("FRONTIEROS_EMAILJS_SERVICE_ID", "").strip()
     ej_tpl = os.getenv("FRONTIEROS_EMAILJS_TEMPLATE_ID", "").strip()
 
+    base_config = STATIC_CONFIG.read_text(encoding="utf-8") if STATIC_CONFIG.exists() else ""
     CONFIG_EXAMPLE.write_text(
-        f"""// Copy to config.js and set your deployed FastAPI backend.
-window.FRONTIEROS_API = '{api or "https://YOUR-API.example.com"}';
-window.FRONTIEROS_APP = '{app or "https://YOUR-API.example.com/app"}';
-window.FRONTIEROS_EMAILJS = {{ publicKey: '', serviceId: '', templateId: '' }};
-""",
+        _patch_config(
+            base_config
+            or "// Copy to config.js\nwindow.FRONTIEROS_API = '';\nwindow.FRONTIEROS_APP = '';\n"
+            "window.FRONTIEROS_EMAILJS = { publicKey: '', serviceId: '', templateId: '' };\n",
+            api or "https://YOUR-API.example.com",
+            app or "https://YOUR-API.example.com/app",
+            "",
+            "",
+            "",
+        ),
         encoding="utf-8",
     )
 
     config_path = DOCS / "config.js"
-    if api or ej_pub:
-        lines = []
-        if api:
-            lines.append(f"window.FRONTIEROS_API = '{api}';")
-            lines.append(f"window.FRONTIEROS_APP = '{app}';")
-        ej_block = (
-            f"window.FRONTIEROS_EMAILJS = {{ publicKey: '{ej_pub}', "
-            f"serviceId: '{ej_svc}', templateId: '{ej_tpl}' }};"
-        )
-        if ej_pub:
-            lines.append(ej_block)
-        elif config_path.exists():
-            existing = config_path.read_text(encoding="utf-8")
-            if "FRONTIEROS_EMAILJS" in existing:
-                for line in existing.splitlines():
-                    if "FRONTIEROS_EMAILJS" in line:
-                        lines.append(line)
-        config_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
-    elif not config_path.exists():
-        shutil.copy2(CONFIG_EXAMPLE, config_path)
+    if STATIC_CONFIG.exists():
+        config_text = STATIC_CONFIG.read_text(encoding="utf-8")
+    else:
+        config_text = CONFIG_EXAMPLE.read_text(encoding="utf-8")
+    config_path.write_text(
+        _patch_config(config_text, api, app, ej_pub, ej_svc, ej_tpl),
+        encoding="utf-8",
+    )
 
     (DOCS / ".nojekyll").touch(exist_ok=True)
 
-    # Inject bridge scripts if not already present
     html = (DOCS / "index.html").read_text(encoding="utf-8")
     inject = (
         '<script src="config.js"></script>\n'

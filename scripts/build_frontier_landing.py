@@ -57,20 +57,32 @@ EA_MODAL_SCRIPT = r"""
         return !!(ej.publicKey && ej.serviceId && ej.templateId && typeof emailjs !== 'undefined');
       }
       function sendEmailJS(email, name, code) {
-        const ej = window.FRONTIEROS_EMAILJS;
+        const ej = window.FRONTIEROS_EMAILJS || {};
+        if (!ej.publicKey || !ej.serviceId || !ej.templateId) {
+          console.warn('[EmailJS] Missing keys in config.js');
+          return { ok: false, err: 'EmailJS not configured in config.js' };
+        }
         return emailjs.send(ej.serviceId, ej.templateId, {
           to_email: email,
           user_name: name,
           access_code: code,
           reply_to: 'tsingh98@umd.edu',
-        }, { publicKey: ej.publicKey }).then(() => true).catch((err) => { console.warn('[EmailJS]', err); return false; });
+        }, { publicKey: ej.publicKey })
+          .then(() => ({ ok: true, err: '' }))
+          .catch((err) => {
+            const msg = (err && (err.text || err.message)) || String(err);
+            console.warn('[EmailJS]', msg);
+            return { ok: false, err: msg };
+          });
       }
       function showSuccess(email, data) {
         const code = (data && (data.access_code || data.demo_code)) || '';
         const sent = data && data.email_sent;
         let extra = '';
         if (!sent && code) {
+          const errHint = (data && data.email_error) ? ('<div class="ea-fine" style="margin-top:8px;color:#b45309;">'+data.email_error+'</div>') : '';
           extra = '<div class="ea-code-cap">Your access code</div><div class="ea-code">'+code+'</div>'+
+            errHint +
             '<div class="ea-fine" style="margin-top:16px;">Email could not be sent — save this code for launch day.</div>';
         } else if (sent) {
           extra = '<div class="ea-fine" style="margin-top:16px;">Check your inbox (and spam) for your access code.</div>';
@@ -105,8 +117,13 @@ EA_MODAL_SCRIPT = r"""
             const d = await res.json();
             if (!res.ok) throw new Error((d && d.detail) || 'Signup failed');
             const code = d.access_code || d.demo_code;
+            d.email_error = '';
             if (code && emailJsReady()) {
-              d.email_sent = await sendEmailJS(email, name, code);
+              const ejResult = await sendEmailJS(email, name, code);
+              d.email_sent = ejResult.ok;
+              d.email_error = ejResult.err || '';
+            } else if (code && !emailJsReady()) {
+              d.email_error = 'EmailJS not loaded — check config.js on GitHub Pages';
             }
             showSuccess(email, d);
           } catch (err) {
