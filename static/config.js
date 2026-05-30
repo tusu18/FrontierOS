@@ -11,7 +11,3 @@ window.FRONTIEROS_EMAILJS = window.FRONTIEROS_EMAILJS || {
   serviceId: '',
   templateId: '',
 };
-/** Logo URL used in EmailJS access-code emails */
-window.FRONTIEROS_EMAIL_LOGO = window.FRONTIEROS_EMAIL_LOGO || (
-  'https://tusu18.github.io/FrontierOS/assets/logo-mark.svg'
-);

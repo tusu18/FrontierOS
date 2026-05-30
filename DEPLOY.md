@@ -73,10 +73,7 @@ Render **blocks outbound SMTP** (ports 25, 465, 587) on free web services. Gmail
 **Alternative (uses your Gmail, no Render change):** [EmailJS](https://www.emailjs.com) from the landing page:
 
 1. Create EmailJS account → add **Gmail** service → note `serviceId`
-2. Create template — copy HTML from **`docs/EMAILJS_TEMPLATE.html`** into the template **Content** field:
-   - **To Email:** `{{to_email}}`
-   - **Subject:** `Your FrontierOS access code: {{access_code}}`
-   - Uses: `{{user_name}}`, `{{access_code}}`, `{{logo_url}}`, `{{tagline}}`, `{{message}}`
+2. Create template: **To** = `{{to_email}}`, **Subject** = `Your FrontierOS access code: {{access_code}}`, body uses `{{user_name}}` and `{{access_code}}` (see `docs/EMAILJS_TEMPLATE.html`)
 3. Copy **Public Key** and **Template ID**
 4. Edit `static/config.js` (then `python scripts/build_ghpages.py` and push):
 
