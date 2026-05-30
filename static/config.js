@@ -7,7 +7,7 @@
 window.FRONTIEROS_API = window.FRONTIEROS_API || 'https://frontieros-api.onrender.com';
 window.FRONTIEROS_APP = window.FRONTIEROS_APP || '';
 window.FRONTIEROS_EMAILJS = window.FRONTIEROS_EMAILJS || {
-  publicKey: '',
-  serviceId: '',
-  templateId: '',
+  publicKey: 'Epu1KSsDXAaH9hYO2',
+  serviceId: 'service_n3bba3m',
+  templateId: 'template_gqdmoda',
 };
