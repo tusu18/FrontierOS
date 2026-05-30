@@ -70,20 +70,10 @@ Render **blocks outbound SMTP** (ports 25, 465, 587) on free web services. Gmail
 
 **Alternative:** upgrade the Render web service to **Starter** ($7/mo) — then Gmail SMTP works with `SMTP_*` vars.
 
-**Alternative (uses your Gmail, no Render change):** [EmailJS](https://www.emailjs.com) from the landing page:
+**Alternative (uses your Gmail, no Render change):** [EmailJS](https://www.emailjs.com) from the landing page.
 
-1. Create EmailJS account → add **Gmail** service → note `serviceId`
-2. Create template: **To** = `{{to_email}}`, **Subject** = `Your FrontierOS access code: {{access_code}}`, body uses `{{user_name}}` and `{{access_code}}` (see `docs/EMAILJS_TEMPLATE.html`)
-3. Copy **Public Key** and **Template ID**
-4. Edit `static/config.js` (then `python scripts/build_ghpages.py` and push):
-
-```js
-window.FRONTIEROS_EMAILJS = {
-  publicKey: 'YOUR_PUBLIC_KEY',
-  serviceId: 'YOUR_SERVICE_ID',
-  templateId: 'YOUR_TEMPLATE_ID',
-};
-```
+**Full step-by-step:** [docs/EMAILJS_SETUP.md](docs/EMAILJS_SETUP.md)  
+**Template HTML:** [docs/EMAILJS_TEMPLATE.html](docs/EMAILJS_TEMPLATE.html)
 
 When the API cannot SMTP-send, the landing page sends the code via EmailJS automatically.
 
