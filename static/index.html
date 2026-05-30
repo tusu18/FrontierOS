@@ -370,10 +370,13 @@ body { margin: 0; font-family: var(--font-body); }
   .photo-card .ph { font-family: var(--font-mono); font-size: 12px; color: var(--ink-mute); background: rgba(255,255,255,.78); padding: 8px 12px; border-radius: 8px; }
 
   /* trust strip */
-  .trust { padding: 64px 0 30px; text-align: center; }
-  .trust .lbl { color: var(--ink-mute); font-size: 14px; margin-bottom: 32px; }
-  .logos { display: flex; flex-wrap: wrap; justify-content: center; gap: 18px 56px; align-items: center; }
-  .logos span { font-family: var(--font-display); font-weight: 500; font-size: 20px; color: #b7b3a8; letter-spacing: -.01em; }
+  .team { padding: 64px 0 30px; text-align: center; }
+  .team .lbl { color: var(--ink-mute); margin-bottom: 24px; letter-spacing: .06em; text-transform: uppercase; font-family: var(--font-mono); font-size: 12px; }
+  .team-card { display: inline-block; text-align: center; padding: 28px 40px; border: 1px solid var(--hairline); border-radius: var(--radius-md); background: var(--stone); }
+  .team-name { font-family: var(--font-display); font-weight: 600; font-size: 26px; letter-spacing: -.02em; color: var(--ink); margin: 0 0 6px; }
+  .team-role { font-size: 14px; color: var(--ink-mute); margin: 0 0 16px; }
+  .team-link { display: inline-flex; align-items: center; gap: 6px; color: var(--green-800); font-weight: 600; font-size: 14px; text-decoration: none; }
+  .team-link:hover { color: var(--green-700); text-decoration: underline; }
 
   /* value pillars */
   .pillars { padding: 90px 0; border-top: 1px solid var(--hairline); }
@@ -439,7 +442,7 @@ body { margin: 0; font-family: var(--font-body); }
   .reveal.in { animation: revUp .75s cubic-bezier(.22,.61,.36,1) both; }
   @keyframes revUp { from { transform: translateY(24px); } to { transform: none; } }
   /* staggered children: animate the children (not the container) for rhythm */
-  .reveal.stagger.in .pillar, .reveal.stagger.in .feat, .reveal.stagger.in .uc, .reveal.stagger.in .f8, .reveal.stagger.in .logos span {
+  .reveal.stagger.in .pillar, .reveal.stagger.in .feat, .reveal.stagger.in .uc, .reveal.stagger.in .f8 {
     animation: revUp .6s cubic-bezier(.22,.61,.36,1) both;
   }
   .reveal.stagger.in { animation: none; }
@@ -457,8 +460,8 @@ body { margin: 0; font-family: var(--font-body); }
   .feat:hover { transform: translateY(-4px); border-color: rgba(47,207,158,.4); }
   .pillar { transition: transform .35s cubic-bezier(.22,.61,.36,1); }
   .pillar:hover { transform: translateY(-3px); }
-  .logos span { transition: color .3s ease, transform .3s ease; }
-  .logos span:hover { color: var(--ink-soft); transform: translateY(-2px); }
+  .team-card { transition: transform .3s ease, box-shadow .3s ease; }
+  .team-card:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(13,28,23,.08); }
   .console, .os-card { transition: transform .5s cubic-bezier(.22,.61,.36,1), box-shadow .5s ease; }
 
   /* hero entrance — transform-only so content stays visible even if the
@@ -477,7 +480,7 @@ body { margin: 0; font-family: var(--font-body); }
 
   @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }
-    .reveal, .reveal .pillar, .reveal .feat, .reveal .uc, .reveal .logos span,
+    .reveal, .reveal .pillar, .reveal .feat, .reveal .uc,
     .hero .eyebrow, .hero h1.display, .hero p.sub, .hero .hero-cta, .hero-media { transition: none !important; animation: none !important; opacity: 1 !important; transform: none !important; }
   }
 
@@ -531,7 +534,9 @@ body { margin: 0; font-family: var(--font-body); }
   body.dark .uc { background: var(--stone); border-color: var(--hairline); }
   body.dark .uc:hover { background: var(--stone-2); }
   body.dark .photo-card { background: repeating-linear-gradient(45deg,#141d1a,#141d1a 11px,#18221e 11px,#18221e 22px); border-color: var(--hairline); }
-  body.dark .trust .logos span { color: #5d6d65; }
+  body.dark .team-card { background: #141a17; border-color: #2a3530; }
+  body.dark .team-name { color: #e8f0ec; }
+  body.dark .team-role { color: #8b9a92; }
   body.dark .pillar li::before { color: var(--green-400); }
   body.dark ::selection { background: var(--green-400); color: #042b23; }
 
@@ -759,11 +764,12 @@ body { margin: 0; font-family: var(--font-body); }
     </div>
   </header>
 
-  <section class="trust wrap">
-    <div class="lbl">Trusted by research teams shipping at the frontier</div>
-    <div class="logos">
-      <span>Helix Labs</span><span>Northwind AI</span><span>Vector Foundry</span>
-      <span>Meridian</span><span>OpenCircuit</span><span>Atlas Research</span>
+  <section class="team wrap" id="team">
+    <div class="lbl">Team &amp; creator</div>
+    <div class="team-card">
+      <div class="team-name">Tushar Singh</div>
+      <div class="team-role">Creator · FrontierOS</div>
+      <a class="team-link" href="https://www.linkedin.com/in/tushar-singh-4326b7188" target="_blank" rel="noopener noreferrer">LinkedIn →</a>
     </div>
   </section>
 
@@ -982,7 +988,7 @@ body { margin: 0; font-family: var(--font-body); }
     <h2>Your daily research<br>intelligence layer.</h2>
     <div class="hero-cta">
       <a class="pill-cta pill-dark" href="#" onclick="openAccessModal();return false;">Request early access →</a>
-      <a class="pill-cta pill-light" href="#">View on GitHub</a>
+      <a class="pill-cta pill-light" href="https://github.com/tusu18/FrontierOS" target="_blank" rel="noopener noreferrer">View on GitHub</a>
     </div>
   </section>
 
@@ -1000,7 +1006,7 @@ body { margin: 0; font-family: var(--font-body); }
         <div class="foot-cols">
           <div class="foot-col"><h5>Product</h5><a href="#product">Overview</a><a href="#features">Intelligence</a><a href="#how">How it works</a></div>
           <div class="foot-col"><h5>Early access</h5><a href="#" onclick="openAccessModal();return false;">Request access</a></div>
-          <div class="foot-col"><h5>Company</h5><a href="#">About</a><a href="#">Changelog</a><a href="#">GitHub</a><a href="#">Contact</a></div>
+          <div class="foot-col"><h5>Team</h5><a href="#team">Tushar Singh</a><a href="https://www.linkedin.com/in/tushar-singh-4326b7188" target="_blank" rel="noopener noreferrer">LinkedIn</a><a href="https://github.com/tusu18/FrontierOS" target="_blank" rel="noopener noreferrer">GitHub</a></div>
         </div>
       </div>
       <div class="foot-bottom">
@@ -1055,9 +1061,9 @@ body { margin: 0; font-family: var(--font-body); }
 
   <script>
     const obs = new IntersectionObserver((es)=>es.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('in'); }), {threshold:.1});
-    document.querySelectorAll('.pillars, .band, .diff, .nmw-show, .feat8, .usecases, .closing, .final, .trust').forEach((el)=>{
+    document.querySelectorAll('.pillars, .band, .diff, .nmw-show, .feat8, .usecases, .closing, .final, .team').forEach((el)=>{
       el.classList.add('reveal');
-      if(el.matches('.pillars, .band, .usecases, .trust, .feat8')) el.classList.add('stagger');
+      if(el.matches('.pillars, .band, .usecases, .team, .feat8')) el.classList.add('stagger');
       obs.observe(el);
     });
     // safety net: if the observer never fires (e.g. backgrounded tab), reveal all

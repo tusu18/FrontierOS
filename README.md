@@ -1,189 +1,344 @@
-# FrontierOS — Research Intelligence Terminal
+# ◎ FrontierOS
+### Research Terminal
 
-FrontierOS fetches, summarizes, and connects CS arXiv papers into a shared
-research-memory knowledge graph, then surfaces personalized recommendations,
-trend spikes, research gaps, evidence-backed summaries, and paper-to-code
-scaffolding. It runs as a single FastAPI process that also serves a React
-single-page app (no build step — JSX is compiled in-browser via Babel).
+> Know when the frontier moves near your work.
 
----
+FrontierOS is an agentic research intelligence terminal that learns your research context, monitors new research, builds a research-memory graph, and surfaces papers, citations, trends, gaps, risks, and project ideas that are close to your work.
 
-## Active architecture
-
-- **Single process:** FastAPI (`app/api/server.py`) serves the JSON API *and*
-  the static React SPA.
-- **Frontend:** static React SPA in `static/` (`app.html` + `app/*.jsx`),
-  compiled in the browser with Babel standalone. **No frontend build step.**
-- **Database:** SQLite by default (`data/arxiv_papers.db`). Postgres supported
-  via `DATABASE_URL` (see below).
-- **Agents:** specialized agents in `app/agents/`, coordinated by a central
-  orchestrator (`app/agents/orchestrator.py`) with an APScheduler loop.
-- **Global memory:** knowledge graph tables (`kg_entities`, `kg_edges`,
-  `trend_memory`, `semantic_memory`, `evidence_spans`).
-- **Personal memory:**
-  - Browser-local graph via Dexie/IndexedDB (`static/app/personalGraph.js`) —
-    private by default; only a compact context is sent to agents.
-  - Server-side per-user interactions (`user_paper_interactions`) plus optional
-    Mem0 (local / qdrant / disabled).
-
-```
-arxiv-cs-agent-dashboard/
-├── run.py                       # Entry point → uvicorn app.api.server:app
-├── app/
-│   ├── api/server.py            # FastAPI app + all routes (active backend)
-│   ├── agents/                  # Summarizer, evidence, KG, recommendation, alert, orchestrator
-│   ├── engines/                 # PersonalizationEngine (Mem0 bridge)
-│   ├── memory/                  # ResearchMemoryEngine (global KG + semantic memory)
-│   ├── database.py              # SQLAlchemy ORM + helpers
-│   ├── email_sender.py          # SMTP access-code email (graceful fallback)
-│   └── auth.py                  # JWT auth + password hashing
-├── static/
-│   ├── app.html                 # SPA shell (loads React, Dexie, data.js, JSX)
-│   ├── index.html               # Marketing landing page
-│   └── app/                     # *.jsx components + data.js + personalGraph.js
-├── scripts/                     # bootstrap, validation, audit, db-check
-└── archive/legacy/              # Archived legacy Streamlit UI + old api.py/frontend
-```
-
-> Legacy note: the old Streamlit dashboard (`app/dashboard.py`) and the previous
-> `api.py` + `frontend/` server are archived under `archive/legacy/`. The active
-> UI is the static React SPA served by FastAPI.
+Most research tools help you search or summarize papers. FrontierOS starts from your work. It compares your research context against the global research frontier and tells you what changed, what matters, what to cite, what may compete with you, and what to build next.
 
 ---
 
-## Quick start
+## What FrontierOS Does
 
-```bash
-pip install -r requirements.txt
-cp .env.example .env          # then fill in OPENROUTER_API_KEY
-python run.py                 # http://localhost:8000/app
-```
+FrontierOS helps researchers, labs, and technical teams answer:
 
-- Dashboard: http://localhost:8000/app
-- Landing: http://localhost:8000/
-- API docs: http://localhost:8000/api/docs
+- What new papers are close to my work?
+- What should I cite?
+- What methods or datasets should I try?
+- What topics are emerging near my research direction?
+- What gaps are becoming important?
+- What papers may compete with or strengthen my idea?
+- What can I reproduce, implement, or turn into a project?
 
-### FrontierOS design exports
-
-Bundled HTML exports live in `design/`. Rebuild the marketing landing and sync
-terminal styles (fonts loaded from Google Fonts in `app.html`):
-
-```bash
-python scripts/build_frontier_landing.py
-python scripts/build_frontier_terminal.py
-```
-
-`static/index.html` is the marketing landing with early-access signup and code
-entry wired to the API.
-
-### GitHub Pages (landing only)
-
-Publish just the landing page to GitHub Pages; the FastAPI backend must run
-elsewhere (same signup/email APIs).
-
-```bash
-python scripts/build_ghpages.py
-```
-
-1. Set repo **Actions variables**: `FRONTIEROS_API`, `FRONTIEROS_APP` (your live backend URLs).
-2. Enable **Settings → Pages → GitHub Actions**.
-3. Push to `main` — workflow `.github/workflows/pages.yml` deploys `docs/`.
-
-See `docs/README.md` for details. Local static preview: `cd docs && python -m http.server 8080`.
-
-### Deploy the API (required for live signup)
-
-See **[DEPLOY.md](DEPLOY.md)** — Render Blueprint (`render.yaml` + `Dockerfile`), then set GitHub Actions variables `FRONTIEROS_API` / `FRONTIEROS_APP` to your Render URL.
-
-### Access (invite-only beta)
-The dashboard is gated — you cannot enter without authenticating. Sign up,
-sign in, or enter an emailed access code. Admin accounts are configured by
-email in the backend.
+The system combines public research ingestion, LLM-based analysis, evidence extraction, a knowledge graph, personal research directives, and agentic workflows to produce actionable research intelligence.
 
 ---
 
-## Bootstrap the MVP
+## Core Product Loop
 
-After fetching papers, run the repair/bootstrap pipeline to summarize the
-backlog, extract evidence + KG, create default alert rules, and generate
-recommendations and alerts:
-
-```bash
-python scripts/bootstrap_mvp.py --limit 25     # process up to 25 pending papers
-python scripts/bootstrap_mvp.py --all          # process all pending papers
-python scripts/bootstrap_mvp.py --skip-llm     # rules/recs/alerts only, no LLM
+```text
+Research context
+      ↓
+New paper ingestion
+      ↓
+Evidence-backed analysis
+      ↓
+Knowledge graph update
+      ↓
+Near My Work matching
+      ↓
+Citation, alert, gap, and project recommendations
 ```
 
-You can also process pending papers from **Admin → Process Pending Papers**.
+The user defines what they are working on. FrontierOS continuously monitors new research, compares it against that context, and surfaces the most relevant papers and next actions.
 
 ---
 
-## Configuration
+## Key Features
 
-### SMTP (access-code email)
-Set the SMTP variables in `.env`. If they are missing or rejected, signup never
-fails — the access code is shown directly in the UI as a beta fallback.
+### Research Paper Ingestion
 
-```
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
-SMTP_USER=you@gmail.com
-SMTP_PASSWORD=your-16-char-app-password   # Gmail requires 2-Step Verification
-SMTP_FROM=ResearchRadar <you@gmail.com>
-```
+FrontierOS fetches new research papers from public sources such as arXiv and processes them into structured records. It supports deduplication, queue-based processing, and scalable ingestion for growing paper collections.
 
-Test/inspect SMTP status in **Admin → System Health**.
+### Evidence-Backed Summaries
 
-### Personal memory (Mem0)
-```
-MEMORY_BACKEND=local      # local | qdrant | disabled
-MEMORY_STRICT=false       # if true, qdrant failure does NOT fall back to local
-QDRANT_URL=http://localhost:6333
-QDRANT_COLLECTION=researchradar_mem0
-```
-- `local` — DB-only by default (no external vector DB).
-- `qdrant` — start Qdrant (`docker compose up -d qdrant`) and set the env. Mem0
-  embeddings require a real OpenAI-compatible key (`OPENAI_API_KEY`).
-- `disabled` — skip Mem0; rely on DB interactions + browser graph.
+Each paper is analyzed with LLM agents to extract:
 
-### Memory search mode
-```
-ENABLE_LOCAL_EMBEDDINGS=false   # false → keyword/hybrid-lite, true → embeddings
-EMBEDDING_MODEL=sentence-transformers/all-MiniLM-L6-v2
-```
-The Research Memory page shows the active mode ("keyword/hybrid-lite" or
-"semantic embeddings").
+- problem statement
+- method
+- main contribution
+- datasets and benchmarks
+- claims
+- limitations
+- future work
+- reproducibility signals
+- code/project potential
 
-### Database (SQLite default, Postgres optional)
-```
-DATABASE_URL=sqlite:///data/arxiv_papers.db
-# Production:
-# DATABASE_URL=postgresql+psycopg2://researchradar:researchradar@localhost:5432/researchradar
-```
-Start Postgres with `docker compose up -d postgres`. Check the active backend:
-```bash
-python scripts/check_db_backend.py
-```
+Important claims are linked to evidence spans, source quotes, confidence scores, and uncertainty labels.
+
+### Research-Memory Knowledge Graph
+
+FrontierOS builds a graph of research entities and relationships, including:
+
+- papers
+- authors
+- topics
+- methods
+- datasets
+- benchmarks
+- metrics
+- claims
+- limitations
+- future work
+- research gaps
+- code repositories
+
+This allows the system to reason over research as a connected memory instead of isolated papers.
+
+### Near My Work Engine
+
+The Near My Work engine compares new papers against the user's research context, directives, saved topics, and private memory.
+
+It identifies whether a paper is:
+
+- directly relevant
+- a citation candidate
+- a useful baseline
+- a useful dataset
+- a useful method
+- a competitor
+- related but low priority
+- irrelevant
+
+Each match includes a score, explanation, evidence, and suggested action.
+
+### Citation Advisor
+
+The Citation Advisor helps users decide whether a paper should be cited.
+
+It can suggest:
+
+- whether to cite the paper
+- where to cite it
+- citation role
+- related work sentence
+- difference from the user's work
+- evidence supporting the recommendation
+
+Citation roles include related work, baseline, method comparison, dataset reference, limitation support, future work, and competing work.
+
+### Research Directives
+
+Users can create persistent research directives such as:
+
+- track papers near my thesis
+- alert me when a new benchmark appears
+- find reproducible papers I can build from
+- monitor work similar to my lab's project
+- detect new methods relevant to my dataset
+
+Directives guide recommendations, alerts, reports, and agent behavior.
+
+### Private Research Context
+
+Users can add their own research context, including:
+
+- papers
+- drafts
+- notes
+- proposals
+- project ideas
+- dataset descriptions
+- experiment logs
+- README files
+
+FrontierOS extracts private memory entities such as topics, methods, datasets, claims, open questions, goals, and target venues.
+
+### Alerts and Trend Tracking
+
+FrontierOS detects important changes near the user's research direction.
+
+Alert types include:
+
+- new paper near my work
+- citation candidate
+- topic spike
+- new research gap
+- possible competitor paper
+- new dataset or benchmark
+- method worth trying
+
+The system can also track topic velocity, saturation, and emerging gaps over time.
+
+### Paper-to-Project Intelligence
+
+FrontierOS can turn relevant papers into buildable next steps, including:
+
+- reproduction plans
+- code skeletons
+- dataset plans
+- baseline checklists
+- experiment ideas
+- project roadmaps
+- GitHub-ready README outlines
+
+### Research Reports and Digests
+
+The system can generate daily or weekly research digests showing:
+
+- what changed near your work
+- top papers to read
+- citation candidates
+- trend changes
+- emerging research gaps
+- papers to reproduce
+- suggested next actions
 
 ---
 
-## Validation
+## Agentic Workflow
 
-```bash
-python scripts/test_mvp_health.py        # DB, tables, admin, integrations
-python scripts/test_deduplication.py     # duplicate arxiv_id is not re-inserted
-python scripts/test_alert_rules.py       # default rules + AlertAgent runs
-# Manual browser test for the personal graph:
-#   scripts/test_personal_graph_manual.md
-python scripts/audit_legacy_files.py     # report dead files (--archive to move)
-```
+FrontierOS uses multiple specialized agents:
+
+| Agent | Function |
+|-------|----------|
+| PaperCollectorAgent | Fetches new papers from public research sources. |
+| FetchQueueAgent | Tracks queued, processed, failed, and duplicate papers. |
+| PaperSummarizerAgent | Generates structured summaries using OpenRouter GPT-4o-mini. |
+| EvidenceExtractorAgent | Extracts source quotes, confidence, and uncertainty labels. |
+| KnowledgeGraphBuilderAgent | Builds graph entities and relationships from papers. |
+| ResearchMemoryEngine | Maintains the global research-memory graph. |
+| TrendAnalystAgent | Tracks topic velocity, saturation, and research direction shifts. |
+| ResearchGapAgent | Detects repeated limitations and open research gaps. |
+| NearMyWorkAgent | Compares new papers against the user's research context. |
+| CitationAdvisorAgent | Suggests whether and where a paper should be cited. |
+| RecommendationAgent | Ranks papers based on global signals and user context. |
+| AlertAgent | Generates alerts for relevant papers, trends, and gaps. |
+| DigestAgent | Produces research updates and briefs. |
+| CodeGeneratorAgent | Converts papers into project/code scaffolds. |
+| ReportWriterAgent | Generates research reports and summaries. |
 
 ---
 
-## MVP limitations (acceptable for beta)
+## Memory Architecture
 
-- SQLite database (fine for beta; Postgres path documented above).
-- SMTP optional — when unconfigured/rejected, the access code is shown in the UI.
-- Mem0 personal memory defaults to DB-only local mode.
-- Memory search defaults to keyword/hybrid-lite (full embeddings optional).
-- The browser-local personal graph is per-device (no cloud sync yet).
+FrontierOS uses three memory layers.
+
+### Global Research Memory
+
+Stores public research knowledge, including papers, summaries, entities, relationships, trends, gaps, and evidence.
+
+### Private Research Memory
+
+Stores the user's own research context, such as drafts, notes, datasets, and project ideas. This allows FrontierOS to understand what the user is working on.
+
+### Personal Interaction Memory
+
+Tracks user behavior such as saved papers, ignored papers, reading history, liked topics, directives, notes, and collections. This improves recommendations over time.
+
+---
+
+## What Makes FrontierOS Different
+
+FrontierOS is not just a paper search tool or paper summarizer.
+
+**Traditional workflow:** Search query → papers → summaries
+
+**FrontierOS workflow:** Your work → global research frontier → nearby changes → next actions
+
+Elicit-style tools help users search and review literature. FrontierOS watches the literature for the user's work.
+
+It focuses on:
+
+- continuous research monitoring
+- private research context
+- knowledge graph memory
+- evidence-backed recommendations
+- citation advice
+- novelty and competitor awareness
+- project/code generation
+- personalized research directives
+
+---
+
+## Product Direction
+
+FrontierOS is designed to expand into a research operating system for individuals, labs, and technical teams.
+
+Planned and evolving extensions include:
+
+### Private Lab Knowledge Base
+
+Labs can connect private papers, unpublished drafts, datasets, experiment logs, model cards, benchmark results, and internal notes.
+
+FrontierOS will build a private lab graph and compare it against the global research graph.
+
+### Private Dataset Linking
+
+Labs can register private datasets and receive recommendations for:
+
+- relevant public methods
+- matching benchmarks
+- useful metrics
+- experiment ideas
+- papers that can be tested on the dataset
+
+### Novelty Risk Tracking
+
+FrontierOS can monitor whether new papers overlap with a user's or lab's unpublished work and suggest how to reposition the contribution.
+
+### Living Related Work Agent
+
+The system can continuously update related work sections, citation buckets, comparison tables, and BibTeX suggestions as new papers appear.
+
+### Threat or Opportunity Agent
+
+New papers can be classified as:
+
+- competing work
+- complementary work
+- useful baseline
+- useful dataset
+- useful method
+- must cite
+- potential collaborator
+
+### Lab Intelligence Briefs
+
+Labs can receive weekly briefs summarizing:
+
+- papers near each project
+- citation candidates
+- competitor papers
+- new methods to try
+- research gaps
+- suggested experiments
+
+### Federated Learning for Private Lab Data
+
+Future lab nodes can train local relevance and recommendation models on private data without sending raw private papers, datasets, notes, or experiment logs to the platform.
+
+The first target is a federated Near My Work ranker that improves recommendations while preserving lab privacy.
+
+### Production Scaling
+
+FrontierOS is designed to scale from a local MVP toward hosted and lab/team deployments with:
+
+- PostgreSQL
+- background workers
+- vector search
+- private file storage
+- cloud or local memory sync
+- lab workspaces
+- role-based permissions
+- audit logs
+- federated learning nodes
+
+---
+
+## Short Pitch
+
+FrontierOS watches the research frontier for your work.
+
+It learns your context, tracks new papers, builds a memory graph, and tells you what to read, cite, watch, or build next.
+
+---
+
+## Team
+
+**Tushar Singh** — Creator  
+[LinkedIn](https://www.linkedin.com/in/tushar-singh-4326b7188) · [GitHub](https://github.com/tusu18/FrontierOS)
+
+**Landing:** [tusu18.github.io/FrontierOS](https://tusu18.github.io/FrontierOS/)  
+**Deploy API:** see [DEPLOY.md](DEPLOY.md)
