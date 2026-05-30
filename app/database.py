@@ -311,6 +311,220 @@ class UserCollectionItem(Base):
     created_at    = Column(DateTime, default=datetime.utcnow)
 
 
+
+# ---------------------------------------------------------------------------
+# Federated Learning — Cloud-side tables
+# ---------------------------------------------------------------------------
+
+class FederatedClient(Base):
+    """A registered lab node participating in federated learning."""
+    __tablename__ = "federated_clients"
+
+    id           = Column(Integer, primary_key=True, autoincrement=True)
+    lab_id       = Column(String(128), unique=True, nullable=False, index=True)
+    client_name  = Column(String(256), default="")
+    # local | metrics_only | federated | cloud_sync
+    privacy_mode = Column(String(32), default="federated")
+    status       = Column(String(32), default="active")   # active | paused | revoked
+    public_key   = Column(Text, default="")               # for signed update verification
+    last_seen_at = Column(DateTime, nullable=True)
+    metadata_json = Column(Text, default="{}")
+    created_at   = Column(DateTime, default=datetime.utcnow)
+
+
+class FederatedModel(Base):
+    """Versioned model checkpoint managed by the federated coordinator."""
+    __tablename__ = "federated_models"
+
+    id           = Column(Integer, primary_key=True, autoincrement=True)
+    # near_my_work_ranker | citation_relevance | alert_ranker | gap_relevance | entity_align
+    model_name   = Column(String(128), nullable=False, index=True)
+    model_type   = Column(String(64), default="logistic_regression")
+    version      = Column(String(32), nullable=False)
+    storage_path = Column(Text, default="")          # local file path or URI
+    coefficients_json = Column(Text, default="{}")   # serialized model params
+    metrics_json = Column(Text, default="{}")        # validation metrics
+    # pending | active | deprecated | rollback
+    status       = Column(String(32), default="pending")
+    participant_count = Column(Integer, default=0)
+    created_at   = Column(DateTime, default=datetime.utcnow)
+
+
+class FederatedRound(Base):
+    """One training round across participating lab nodes."""
+    __tablename__ = "federated_rounds"
+
+    id           = Column(Integer, primary_key=True, autoincrement=True)
+    model_id     = Column(Integer, ForeignKey("federated_models.id"), nullable=False, index=True)
+    round_number = Column(Integer, default=1)
+    objective    = Column(String(128), default="improve_near_my_work_ranker")
+    # pending | active | aggregating | completed | failed
+    status       = Column(String(32), default="pending")
+    config_json  = Column(Text, default="{}")   # training config sent to labs
+    min_participants = Column(Integer, default=1)
+    started_at   = Column(DateTime, nullable=True)
+    completed_at = Column(DateTime, nullable=True)
+    result_json  = Column(Text, default="{}")
+    created_at   = Column(DateTime, default=datetime.utcnow)
+
+
+class FederatedClientUpdate(Base):
+    """One lab's update submission for a training round."""
+    __tablename__ = "federated_client_updates"
+
+    id               = Column(Integer, primary_key=True, autoincrement=True)
+    round_id         = Column(Integer, ForeignKey("federated_rounds.id"), nullable=False, index=True)
+    client_id        = Column(Integer, ForeignKey("federated_clients.id"), nullable=False, index=True)
+    sample_count     = Column(Integer, default=0)
+    update_path      = Column(Text, default="")          # file path for large updates
+    coefficients_json = Column(Text, default="{}")       # delta or full coefficients
+    metrics_json     = Column(Text, default="{}")        # local auc, precision, etc.
+    privacy_report_json = Column(Text, default="{}")
+    # pending | valid | invalid | aggregated
+    validation_status = Column(String(32), default="pending")
+    created_at       = Column(DateTime, default=datetime.utcnow)
+
+
+class FederatedAuditLog(Base):
+    """Immutable audit trail for all federated learning events."""
+    __tablename__ = "federated_audit_logs"
+
+    id           = Column(Integer, primary_key=True, autoincrement=True)
+    lab_id       = Column(String(128), default="", index=True)
+    client_id    = Column(Integer, nullable=True, index=True)
+    # round_started | update_received | update_validated | aggregation_done |
+    # model_deployed | privacy_violation | client_registered | client_revoked
+    event_type   = Column(String(64), nullable=False, index=True)
+    metadata_json = Column(Text, default="{}")
+    created_at   = Column(DateTime, default=datetime.utcnow)
+
+
+# ---------------------------------------------------------------------------
+# Federated Learning — Lab-node local tables
+# ---------------------------------------------------------------------------
+
+class LocalTrainingExample(Base):
+    """Feature vector + label collected from user interactions for local training."""
+    __tablename__ = "local_training_examples"
+
+    id           = Column(Integer, primary_key=True, autoincrement=True)
+    # paper_interaction | citation_action | alert_action | directive_match
+    source_type  = Column(String(64), nullable=False, index=True)
+    source_id    = Column(Integer, nullable=True)
+    features_json = Column(Text, default="[]")   # feature vector as JSON list
+    # 1 = positive (saved/cited/clicked), 0 = negative (ignored/dismissed), -1 = special
+    label        = Column(Integer, nullable=False)
+    label_type   = Column(String(64), default="binary")  # binary | multiclass
+    metadata_json = Column(Text, default="{}")
+    used_in_round = Column(Integer, nullable=True)       # federated_round id
+    created_at   = Column(DateTime, default=datetime.utcnow)
+
+
+class LocalModelCache(Base):
+    """Local copy of the latest global model checkpoint."""
+    __tablename__ = "local_model_cache"
+
+    id           = Column(Integer, primary_key=True, autoincrement=True)
+    model_name   = Column(String(128), nullable=False, unique=True, index=True)
+    version      = Column(String(32), default="v0")
+    coefficients_json = Column(Text, default="{}")
+    metrics_json = Column(Text, default="{}")
+    downloaded_at = Column(DateTime, default=datetime.utcnow)
+
+
+class LocalUpdateHistory(Base):
+    """Record of every update package this lab has sent."""
+    __tablename__ = "local_update_history"
+
+    id           = Column(Integer, primary_key=True, autoincrement=True)
+    round_id     = Column(Integer, nullable=True)
+    model_name   = Column(String(128), nullable=False)
+    base_version = Column(String(32), default="v0")
+    sample_count = Column(Integer, default=0)
+    metrics_json = Column(Text, default="{}")
+    privacy_report_json = Column(Text, default="{}")
+    coefficients_json = Column(Text, default="{}")
+    # pending | sent | accepted | rejected
+    sent_status  = Column(String(32), default="pending")
+    created_at   = Column(DateTime, default=datetime.utcnow)
+
+
+class WaitlistEntry(Base):
+    """Early-access waitlist — created by the landing page signup form."""
+    __tablename__ = "waitlist"
+
+    id             = Column(Integer, primary_key=True, autoincrement=True)
+    name           = Column(String(256), nullable=False)
+    email          = Column(String(256), nullable=False, unique=True, index=True)
+    affiliation    = Column(String(256), default="")
+    research_area  = Column(String(128), default="")
+    use_case       = Column(String(128), default="")
+    access_code    = Column(String(32), nullable=True, index=True)  # set when approved
+    approved       = Column(Boolean, default=False)
+    created_at     = Column(DateTime, default=datetime.utcnow)
+
+
+class PrivateResearchArtifact(Base):
+    """A user-uploaded research artifact (draft, notes, proposal, dataset desc, etc.)."""
+    __tablename__ = "private_research_artifacts"
+
+    id           = Column(Integer, primary_key=True, autoincrement=True)
+    user_id      = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    # draft | notes | proposal | dataset | paper | readme | bibtext | other
+    artifact_type = Column(String(64), default="notes")
+    name         = Column(String(512), nullable=False)
+    content      = Column(Text, default="")          # raw text / extracted text
+    file_size    = Column(Integer, default=0)        # bytes
+    # JSON list of extracted topic strings
+    topics_json  = Column(Text, default="[]")
+    methods_json = Column(Text, default="[]")
+    claims_json  = Column(Text, default="[]")
+    open_questions_json = Column(Text, default="[]")
+    # Extracted private entities stored as JSON
+    entities_json = Column(Text, default="{}")
+    processed    = Column(Boolean, default=False)
+    created_at   = Column(DateTime, default=datetime.utcnow)
+    updated_at   = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+
+class ResearchDirective(Base):
+    """A standing research monitoring instruction from the user."""
+    __tablename__ = "research_directives"
+
+    id              = Column(Integer, primary_key=True, autoincrement=True)
+    user_id         = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    goal_text       = Column(Text, nullable=False)
+    # daily | realtime | weekly
+    cadence         = Column(String(32), default="daily")
+    tracked_topics_json  = Column(Text, default="[]")
+    tracked_methods_json = Column(Text, default="[]")
+    alert_on_competitor  = Column(Boolean, default=True)
+    alert_on_novelty     = Column(Boolean, default=True)
+    active          = Column(Boolean, default=True)
+    match_count     = Column(Integer, default=0)
+    new_match_count = Column(Integer, default=0)
+    created_at      = Column(DateTime, default=datetime.utcnow)
+    updated_at      = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+
+class CitationAdvice(Base):
+    """Cached citation advice for a paper+user pair."""
+    __tablename__ = "citation_advice"
+
+    id              = Column(Integer, primary_key=True, autoincrement=True)
+    user_id         = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    paper_id        = Column(Integer, ForeignKey("papers.id"), nullable=False, index=True)
+    should_cite     = Column(Boolean, default=False)
+    relevance_score = Column(Integer, default=0)
+    where_to_cite   = Column(String(128), default="")
+    citation_role   = Column(String(64), default="")
+    suggested_sentence = Column(Text, default="")
+    difference_text = Column(Text, default="")
+    confidence      = Column(Float, default=0.5)
+    raw_json        = Column(Text, default="{}")
+    created_at      = Column(DateTime, default=datetime.utcnow)
+
+
 class AlertRule(Base):
     """Rule that triggers an alert for a user."""
     __tablename__ = "alert_rules"

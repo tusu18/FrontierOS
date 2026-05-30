@@ -17,15 +17,18 @@ from email.mime.text import MIMEText
 
 logger = logging.getLogger(__name__)
 
+def _smtp_password() -> str:
+    return (os.getenv("SMTP_PASSWORD", "") or "").replace(" ", "")
+
+
 SMTP_HOST     = os.getenv("SMTP_HOST", "")
 SMTP_PORT     = int(os.getenv("SMTP_PORT", "587"))
-SMTP_USER     = os.getenv("SMTP_USER", "")
-SMTP_PASSWORD = os.getenv("SMTP_PASSWORD", "")
+SMTP_USER     = (os.getenv("SMTP_USER", "") or "").strip()
 SMTP_FROM     = os.getenv("SMTP_FROM", f"FrontierOS <{SMTP_USER}>")
 
 
 def is_email_configured() -> bool:
-    return bool(SMTP_HOST and SMTP_USER and SMTP_PASSWORD)
+    return bool(SMTP_HOST and SMTP_USER and _smtp_password())
 
 
 def send_access_code(to_email: str, full_name: str, code: str) -> bool:
@@ -77,25 +80,57 @@ Your FrontierOS access code: {code}
 Use it at: {app_url}/app
 Open the Access code tab and enter: {code}
 
-ResearchRadar — AI-powered CS research intelligence
+FrontierOS — AI-powered CS research intelligence
 """
 
+    password = _smtp_password()
     try:
         msg = MIMEMultipart("alternative")
-        msg["Subject"] = f"Your ResearchRadar Access Code: {code}"
+        msg["Subject"] = f"Your FrontierOS access code: {code}"
         msg["From"]    = SMTP_FROM
         msg["To"]      = to_email
         msg.attach(MIMEText(text, "plain"))
         msg.attach(MIMEText(html, "html"))
 
-        with smtplib.SMTP(SMTP_HOST, SMTP_PORT, timeout=15) as smtp:
+        with smtplib.SMTP(SMTP_HOST, SMTP_PORT, timeout=20) as smtp:
             smtp.ehlo()
             smtp.starttls()
-            smtp.login(SMTP_USER, SMTP_PASSWORD)
+            smtp.ehlo()
+            smtp.login(SMTP_USER, password)
             smtp.sendmail(SMTP_USER, [to_email], msg.as_string())
 
         logger.info("[Email] access code sent to %s", to_email)
         return True
+    except smtplib.SMTPAuthenticationError as exc:
+        logger.error(
+            "[Email] SMTP auth failed for %s — check app password and that "
+            "2-Step Verification + App Passwords are enabled: %s",
+            SMTP_USER,
+            exc,
+        )
+        return False
     except Exception as exc:
         logger.error("[Email] failed to send to %s: %s", to_email, exc)
+        return False
+
+
+def send_simple(to: str, subject: str, body: str) -> bool:
+    """Send a plain-text email. Used for waitlist confirmation."""
+    if not is_email_configured():
+        logger.debug("[Email] send_simple skipped — SMTP not configured")
+        return False
+    try:
+        msg = MIMEMultipart("alternative")
+        msg["Subject"] = subject
+        msg["From"] = SMTP_FROM
+        msg["To"] = to
+        msg.attach(MIMEText(body, "plain"))
+        with smtplib.SMTP(SMTP_HOST, SMTP_PORT) as smtp:
+            smtp.starttls()
+            smtp.login(SMTP_USER, _smtp_password())
+            smtp.sendmail(SMTP_USER, [to], msg.as_string())
+        logger.info("[Email] send_simple sent to %s", to)
+        return True
+    except Exception as exc:
+        logger.error("[Email] send_simple failed to %s: %s", to, exc)
         return False
