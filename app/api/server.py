@@ -76,9 +76,18 @@ create_all_tables()
 # Start agent orchestrator scheduler
 @app.on_event("startup")
 def _start_orchestrator():
+    if os.getenv("ENABLE_SCHEDULER", "true").lower() not in ("1", "true", "yes"):
+        logger.info("[Server] ENABLE_SCHEDULER=false — background scheduler off")
+        return
     from app.agents.orchestrator import orchestrator
     orchestrator.start_scheduler()
     logger.info("[Server] Agent orchestrator scheduler started")
+
+
+@app.get("/api/health")
+def api_health():
+    """Lightweight health check for Render / load balancers."""
+    return {"ok": True, "service": "frontieros-api"}
 
 
 # ─── Static file serving ─────────────────────────────────────────────────────

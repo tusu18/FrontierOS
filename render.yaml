@@ -1,0 +1,43 @@
+# Render Blueprint — connect repo: https://dashboard.render.com/blueprints
+# New → Blueprint → link tusu18/FrontierOS → Apply
+services:
+  - type: web
+    name: frontieros-api
+    runtime: docker
+    plan: free
+    region: oregon
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /api/health
+    disk:
+      name: frontieros-data
+      mountPath: /app/data
+      sizeGB: 1
+    envVars:
+      - key: DATABASE_URL
+        value: sqlite:///data/arxiv_papers.db
+      - key: MEMORY_BACKEND
+        value: disabled
+      - key: ENABLE_SCHEDULER
+        value: false
+      - key: ENABLE_LOCAL_EMBEDDINGS
+        value: false
+      - key: ENABLE_FULL_TEXT_EXTRACTION
+        value: false
+      - key: ARXIV_MAX_RESULTS
+        value: "25"
+      - key: SMTP_HOST
+        value: smtp.gmail.com
+      - key: SMTP_PORT
+        value: "587"
+      - key: OPENROUTER_MODEL
+        value: openai/gpt-4o-mini
+      - key: APP_BASE_URL
+        sync: false
+      - key: OPENROUTER_API_KEY
+        sync: false
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASSWORD
+        sync: false
+      - key: SMTP_FROM
+        sync: false

@@ -91,6 +91,10 @@ python scripts/build_ghpages.py
 
 See `docs/README.md` for details. Local static preview: `cd docs && python -m http.server 8080`.
 
+### Deploy the API (required for live signup)
+
+See **[DEPLOY.md](DEPLOY.md)** — Render Blueprint (`render.yaml` + `Dockerfile`), then set GitHub Actions variables `FRONTIEROS_API` / `FRONTIEROS_APP` to your Render URL.
+
 ### Access (invite-only beta)
 The dashboard is gated — you cannot enter without authenticating. Sign up,
 sign in, or enter an emailed access code. Admin accounts are configured by
