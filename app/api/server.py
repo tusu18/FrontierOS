@@ -90,6 +90,13 @@ def api_health():
     return {"ok": True, "service": "frontieros-api"}
 
 
+@app.get("/api/health/smtp")
+def api_health_smtp():
+    """SMTP diagnostic (no secrets) — verify Render env vars are loaded."""
+    from app.email_sender import smtp_status
+    return smtp_status()
+
+
 # ─── Static file serving ─────────────────────────────────────────────────────
 
 @app.get("/", response_class=HTMLResponse)
@@ -645,8 +652,9 @@ def signup(req: SignupRequest):
         token = create_access_token({"sub": str(user.id), "email": user.email})
         # Send access code via email (non-blocking)
         from app.email_sender import send_access_code
+        email_sent, _ = False, ""
         try:
-            send_access_code(user.email, user.full_name, user.demo_code)
+            email_sent, _ = send_access_code(user.email, user.full_name, user.demo_code)
         except Exception:
             pass
         return {
@@ -656,7 +664,7 @@ def signup(req: SignupRequest):
             "full_name": user.full_name,
             "plan": "free",
             "demo_code": user.demo_code,
-            "email_sent": True,
+            "email_sent": email_sent,
         }
     finally:
         session.close()
@@ -706,17 +714,14 @@ def request_demo(req: DemoRequestBody):
                 profile.research_goals_json = _json.dumps(goals)
         session.commit()
         # Send email
-        from app.email_sender import send_access_code, is_email_configured
-        email_sent = False
-        try:
-            email_sent = send_access_code(user.email, user.full_name, user.demo_code)
-        except Exception:
-            pass
+        from app.email_sender import send_access_code
+        email_sent, email_err = send_access_code(user.email, user.full_name, user.demo_code)
         return {
             "demo_code": user.demo_code,
             "email": user.email,
             "email_sent": email_sent,
-            "message": f"Your access code is {user.demo_code}. Use it to log in at /app",
+            "email_error": email_err or None,
+            "message": f"Your access code is {user.demo_code}.",
         }
     finally:
         session.close()
@@ -775,11 +780,12 @@ def join_waitlist(req: WaitlistRequest):
                 existing.access_code = _gen_access_code(session)
             session.commit()
             from app.email_sender import send_early_access_code
-            email_sent = send_early_access_code(req.email, existing.name, existing.access_code)
+            email_sent, email_err = send_early_access_code(req.email, existing.name, existing.access_code)
             return {
                 "status": "already_registered",
                 "email": req.email,
                 "email_sent": email_sent,
+                "email_error": email_err or None,
                 "access_code": None if email_sent else existing.access_code,
             }
         code = _gen_access_code(session)
@@ -796,15 +802,14 @@ def join_waitlist(req: WaitlistRequest):
         session.commit()
         logger.info("[Waitlist] %s <%s> code=%s", req.name, email, code)
         from app.email_sender import send_early_access_code
-        email_sent = False
-        try:
-            email_sent = send_early_access_code(req.email, req.name.strip(), code)
-        except Exception:
-            pass
+        email_sent, email_err = send_early_access_code(req.email, req.name.strip(), code)
+        if not email_sent:
+            logger.warning("[Waitlist] email failed for %s: %s", email, email_err)
         return {
             "status": "ok",
             "email": req.email,
             "email_sent": email_sent,
+            "email_error": email_err or None,
             "access_code": None if email_sent else code,
         }
     finally:
@@ -1947,14 +1952,19 @@ def orchestrator_run_async():
 @app.post("/admin/test-email")
 def admin_test_email(to: Optional[str] = None):
     """Send a test access-code email (admin diagnostics)."""
-    from app.email_sender import send_access_code, is_email_configured
+    from app.email_sender import send_access_code, is_email_configured, smtp_status
     if not is_email_configured():
-        return {"ok": False, "message": "SMTP not configured"}
+        return {"ok": False, "message": "SMTP not configured", "smtp": smtp_status()}
     target = to or os.getenv("SMTP_USER", "")
     if not target:
         raise HTTPException(400, "No recipient — pass ?to=email or set SMTP_USER")
-    ok = send_access_code(target, "Admin", "RR-TEST99")
-    return {"ok": ok, "sent_to": target, "message": "sent" if ok else "send failed — check SMTP credentials"}
+    ok, err = send_access_code(target, "Admin", "FO-TEST99")
+    return {
+        "ok": ok,
+        "sent_to": target,
+        "message": "sent" if ok else err,
+        "smtp": smtp_status(),
+    }
 
 
 @app.post("/admin/ensure-alert-rules")

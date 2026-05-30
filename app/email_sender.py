@@ -1,189 +1,175 @@
 """
 Email sender utility — sends access codes via SMTP.
 
-Configure in .env:
+Configure in .env / Render:
   SMTP_HOST     = smtp.gmail.com
   SMTP_PORT     = 587
-  SMTP_USER     = you@gmail.com
-  SMTP_PASSWORD = your_app_password
-  SMTP_FROM     = FrontierOS <you@gmail.com>
+  SMTP_USER     = you@umd.edu
+  SMTP_PASSWORD = 16-char Google app password (no spaces)
+  SMTP_FROM     = FrontierOS <you@umd.edu>  (must match SMTP_USER for Gmail)
 """
 from __future__ import annotations
 import logging
 import os
 import smtplib
+import ssl
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+from email.utils import formataddr
+from typing import Dict, Tuple
 
 logger = logging.getLogger(__name__)
 
-def _smtp_password() -> str:
-    return (os.getenv("SMTP_PASSWORD", "") or "").replace(" ", "")
+_last_smtp_error: str = ""
 
 
-SMTP_HOST     = os.getenv("SMTP_HOST", "")
-SMTP_PORT     = int(os.getenv("SMTP_PORT", "587"))
-SMTP_USER     = (os.getenv("SMTP_USER", "") or "").strip()
-SMTP_FROM     = os.getenv("SMTP_FROM", f"FrontierOS <{SMTP_USER}>")
+def _smtp_config() -> Dict:
+    """Read SMTP settings at send time (Render env vars apply correctly)."""
+    user = (os.getenv("SMTP_USER", "") or "").strip()
+    pwd = (os.getenv("SMTP_PASSWORD", "") or "").replace(" ", "").replace("\n", "").strip()
+    port = int(os.getenv("SMTP_PORT", "587") or "587")
+    use_ssl = os.getenv("SMTP_USE_SSL", "").lower() in ("1", "true", "yes") or port == 465
+    from_hdr = (os.getenv("SMTP_FROM", "") or "").strip()
+    if not from_hdr and user:
+        from_hdr = formataddr(("FrontierOS", user))
+    return {
+        "host": (os.getenv("SMTP_HOST", "") or "").strip(),
+        "port": port,
+        "user": user,
+        "password": pwd,
+        "from": from_hdr,
+        "use_ssl": use_ssl,
+    }
 
 
 def is_email_configured() -> bool:
-    return bool(SMTP_HOST and SMTP_USER and _smtp_password())
+    c = _smtp_config()
+    return bool(c["host"] and c["user"] and c["password"])
+
+
+def smtp_status() -> Dict:
+    """Safe diagnostic payload (no secrets)."""
+    c = _smtp_config()
+    return {
+        "configured": is_email_configured(),
+        "host": c["host"],
+        "port": c["port"],
+        "user": c["user"],
+        "password_set": bool(c["password"]),
+        "password_length": len(c["password"]),
+        "use_ssl": c["use_ssl"],
+        "last_error": _last_smtp_error,
+    }
 
 
 def _app_links_enabled() -> bool:
     return os.getenv("EXPOSE_APP", "false").lower() in ("1", "true", "yes")
 
 
-def send_early_access_code(to_email: str, full_name: str, code: str) -> bool:
-    """
-    Pre-launch signup: email the access code only (no dashboard links).
-    Code is stored in the database for use when the product launches.
-    """
+def send_early_access_code(to_email: str, full_name: str, code: str) -> Tuple[bool, str]:
+    """Returns (success, error_message)."""
     if not is_email_configured():
-        logger.info("[Email] SMTP not configured — code %s for %s logged only", code, to_email)
-        return False
-
-    html = f"""
-<!DOCTYPE html>
-<html>
-<body style="font-family:system-ui,sans-serif;background:#f8f9fa;margin:0;padding:32px;">
-<div style="max-width:480px;margin:0 auto;background:#fff;border-radius:16px;padding:40px;box-shadow:0 4px 24px rgba(0,0,0,.08);">
-  <div style="font-size:22px;font-weight:700;color:#0d1c17;margin-bottom:8px;">FrontierOS</div>
-  <div style="font-size:13px;color:#64748b;margin-bottom:32px;border-bottom:1px solid #f1f5f9;padding-bottom:16px;">Early access</div>
-  <p style="font-size:16px;color:#1e293b;line-height:1.6;">Hi {full_name or 'Researcher'},</p>
-  <p style="font-size:15px;color:#475569;line-height:1.6;">Thanks for signing up. Save this access code — you will use it when FrontierOS launches.</p>
-  <div style="background:#f0fdf8;border:2px solid #14a883;border-radius:12px;padding:28px;text-align:center;margin:28px 0;">
-    <div style="font-size:12px;color:#64748b;letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px;">Your access code</div>
-    <div style="font-family:monospace;font-size:34px;font-weight:800;color:#14a883;letter-spacing:.2em;">{code}</div>
-  </div>
-  <p style="font-size:13px;color:#94a3b8;line-height:1.6;">We will email you when the research terminal is live. No action needed until then.</p>
-  <hr style="border:none;border-top:1px solid #f1f5f9;margin:24px 0;">
-  <p style="font-size:12px;color:#cbd5e1;">FrontierOS · CS research intelligence</p>
-</div>
-</body>
-</html>
-"""
-    text = f"""Hi {full_name or 'Researcher'},
-
-Thanks for signing up for FrontierOS early access.
-
-Your access code: {code}
-
-Save this code. We will notify you when the product launches — you will use this code to sign in.
-
-— FrontierOS
-"""
-    return _send_html_email(to_email, f"Your FrontierOS access code: {code}", text, html)
+        return False, "SMTP not configured (set SMTP_HOST, SMTP_USER, SMTP_PASSWORD on Render)"
+    ok, err = _send_html_email(
+        to_email,
+        f"Your FrontierOS access code: {code}",
+        _early_text(full_name, code),
+        _early_html(full_name, code),
+    )
+    return ok, err
 
 
-def send_access_code(to_email: str, full_name: str, code: str) -> bool:
-    """
-    Send a demo access code email. Returns True if sent, False if SMTP not configured.
-    Uses link-free template unless EXPOSE_APP=true.
-    """
+def send_access_code(to_email: str, full_name: str, code: str) -> Tuple[bool, str]:
     if not _app_links_enabled():
         return send_early_access_code(to_email, full_name, code)
-
     if not is_email_configured():
-        logger.info("[Email] SMTP not configured — code %s for %s logged only", code, to_email)
-        return False
-
+        return False, "SMTP not configured"
     app_url = os.getenv("APP_BASE_URL", "http://localhost:8000").rstrip("/")
-
-    html = f"""
-<!DOCTYPE html>
-<html>
-<body style="font-family:system-ui,sans-serif;background:#f8f9fa;margin:0;padding:32px;">
-<div style="max-width:480px;margin:0 auto;background:#fff;border-radius:16px;padding:40px;box-shadow:0 4px 24px rgba(0,0,0,.08);">
-  <div style="font-size:22px;font-weight:700;color:#0d1c17;margin-bottom:8px;">FrontierOS</div>
-  <div style="font-size:13px;color:#64748b;margin-bottom:32px;border-bottom:1px solid #f1f5f9;padding-bottom:16px;">Research Intelligence Terminal</div>
-
-  <p style="font-size:16px;color:#1e293b;line-height:1.6;">Hi {full_name or 'Researcher'},</p>
-  <p style="font-size:15px;color:#475569;line-height:1.6;">Your FrontierOS access code is ready. Use it to log into the research terminal — no password needed.</p>
-
-  <div style="background:#f0fdf8;border:2px solid #14a883;border-radius:12px;padding:28px;text-align:center;margin:28px 0;">
-    <div style="font-size:12px;color:#64748b;letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px;">Your Access Code</div>
-    <div style="font-family:monospace;font-size:34px;font-weight:800;color:#14a883;letter-spacing:.2em;">{code}</div>
-    <div style="font-size:12px;color:#94a3b8;margin-top:10px;">Keep this code safe — it never expires</div>
-  </div>
-
-  <a href="{app_url}/app?code={code}" style="display:block;background:#14a883;color:#fff;text-align:center;padding:14px 24px;border-radius:10px;text-decoration:none;font-size:15px;font-weight:600;margin-bottom:20px;">
-    Enter FrontierOS →
-  </a>
-
-  <p style="font-size:13px;color:#94a3b8;line-height:1.6;">
-    Or go to <a href="{app_url}/app" style="color:#14a883;">{app_url}/app</a>, open the Access code tab, and enter <strong style="font-family:monospace;">{code}</strong>.
-  </p>
-
-  <hr style="border:none;border-top:1px solid #f1f5f9;margin:24px 0;">
-  <p style="font-size:12px;color:#cbd5e1;">FrontierOS · CS research intelligence · <a href="{app_url}" style="color:#14a883;">{app_url}</a></p>
-</div>
-</body>
-</html>
-"""
-
     text = f"""Hi {full_name or 'Researcher'},
 
 Your FrontierOS access code: {code}
 
 Use it at: {app_url}/app
-Open the Access code tab and enter: {code}
-
-FrontierOS — AI-powered CS research intelligence
 """
-
+    html = f"""<p>Hi {full_name or 'Researcher'},</p><p>Your code: <b>{code}</b></p>
+<p><a href="{app_url}/app?code={code}">Open FrontierOS</a></p>"""
     return _send_html_email(to_email, f"Your FrontierOS access code: {code}", text, html)
 
 
-def _send_html_email(to_email: str, subject: str, text: str, html: str) -> bool:
-    password = _smtp_password()
+def _early_text(full_name: str, code: str) -> str:
+    return f"""Hi {full_name or 'Researcher'},
+
+Thanks for signing up for FrontierOS early access.
+
+Your access code: {code}
+
+Save this code. We will notify you when the product launches.
+
+— FrontierOS
+"""
+
+
+def _early_html(full_name: str, code: str) -> str:
+    return f"""
+<!DOCTYPE html>
+<html>
+<body style="font-family:system-ui,sans-serif;background:#f8f9fa;margin:0;padding:32px;">
+<div style="max-width:480px;margin:0 auto;background:#fff;border-radius:16px;padding:40px;">
+  <div style="font-size:22px;font-weight:700;color:#0d1c17;">FrontierOS</div>
+  <p style="font-size:16px;color:#1e293b;">Hi {full_name or 'Researcher'},</p>
+  <p style="font-size:15px;color:#475569;">Thanks for signing up. Save this access code for launch day.</p>
+  <div style="background:#f0fdf8;border:2px solid #14a883;border-radius:12px;padding:28px;text-align:center;margin:28px 0;">
+    <div style="font-size:12px;color:#64748b;text-transform:uppercase;">Your access code</div>
+    <div style="font-family:monospace;font-size:34px;font-weight:800;color:#14a883;letter-spacing:.2em;">{code}</div>
+  </div>
+  <p style="font-size:13px;color:#94a3b8;">We will email you when the research terminal is live.</p>
+</div>
+</body>
+</html>
+"""
+
+
+def _connect_smtp(cfg: Dict):
+    if cfg["use_ssl"]:
+        ctx = ssl.create_default_context()
+        smtp = smtplib.SMTP_SSL(cfg["host"], cfg["port"], timeout=25, context=ctx)
+        return smtp
+    smtp = smtplib.SMTP(cfg["host"], cfg["port"], timeout=25)
+    smtp.ehlo()
+    smtp.starttls(context=ssl.create_default_context())
+    smtp.ehlo()
+    return smtp
+
+
+def _send_html_email(to_email: str, subject: str, text: str, html: str) -> Tuple[bool, str]:
+    global _last_smtp_error
+    cfg = _smtp_config()
     try:
         msg = MIMEMultipart("alternative")
         msg["Subject"] = subject
-        msg["From"]    = SMTP_FROM
-        msg["To"]      = to_email
-        msg.attach(MIMEText(text, "plain"))
-        msg.attach(MIMEText(html, "html"))
+        msg["From"] = cfg["from"]
+        msg["To"] = to_email
+        msg.attach(MIMEText(text, "plain", "utf-8"))
+        msg.attach(MIMEText(html, "html", "utf-8"))
 
-        with smtplib.SMTP(SMTP_HOST, SMTP_PORT, timeout=20) as smtp:
-            smtp.ehlo()
-            smtp.starttls()
-            smtp.ehlo()
-            smtp.login(SMTP_USER, password)
-            smtp.sendmail(SMTP_USER, [to_email], msg.as_string())
+        with _connect_smtp(cfg) as smtp:
+            smtp.login(cfg["user"], cfg["password"])
+            smtp.sendmail(cfg["user"], [to_email], msg.as_string())
 
+        _last_smtp_error = ""
         logger.info("[Email] sent to %s: %s", to_email, subject)
-        return True
+        return True, ""
     except smtplib.SMTPAuthenticationError as exc:
-        logger.error(
-            "[Email] SMTP auth failed for %s — check app password: %s",
-            SMTP_USER,
-            exc,
-        )
-        return False
+        _last_smtp_error = f"SMTP auth failed: {exc}"
+        logger.error("[Email] %s (user=%s)", _last_smtp_error, cfg["user"])
+        return False, "Gmail rejected the login — use a Google App Password (not your normal password)."
     except Exception as exc:
-        logger.error("[Email] failed to send to %s: %s", to_email, exc)
-        return False
+        _last_smtp_error = str(exc)
+        logger.error("[Email] failed to %s: %s", to_email, exc)
+        return False, _last_smtp_error
 
 
-def send_simple(to: str, subject: str, body: str) -> bool:
-    """Send a plain-text email. Used for waitlist confirmation."""
+def send_simple(to: str, subject: str, body: str) -> Tuple[bool, str]:
     if not is_email_configured():
-        logger.debug("[Email] send_simple skipped — SMTP not configured")
-        return False
-    try:
-        msg = MIMEMultipart("alternative")
-        msg["Subject"] = subject
-        msg["From"] = SMTP_FROM
-        msg["To"] = to
-        msg.attach(MIMEText(body, "plain"))
-        with smtplib.SMTP(SMTP_HOST, SMTP_PORT) as smtp:
-            smtp.starttls()
-            smtp.login(SMTP_USER, _smtp_password())
-            smtp.sendmail(SMTP_USER, [to], msg.as_string())
-        logger.info("[Email] send_simple sent to %s", to)
-        return True
-    except Exception as exc:
-        logger.error("[Email] send_simple failed to %s: %s", to, exc)
-        return False
+        return False, "SMTP not configured"
+    return _send_html_email(to, subject, body, f"<pre>{body}</pre>")

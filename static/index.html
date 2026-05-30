@@ -1349,6 +1349,10 @@ function showRequestSuccess(email, data) {
     title.textContent = "You're registered.";
     body.textContent = 'We emailed your access code to ' + email + '. Save it for when FrontierOS launches — no dashboard link until then.';
     codeWrap.style.display = 'none';
+  } else if (data && data.email_error && !code) {
+    title.textContent = "You're registered.";
+    body.textContent = 'We saved your signup but email failed: ' + data.email_error + '. Contact support or try again later.';
+    codeWrap.style.display = 'none';
   } else if (code) {
     title.textContent = "You're registered.";
     body.textContent = 'Email could not be sent. Save this code for launch day:';
