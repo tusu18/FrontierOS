@@ -31,10 +31,60 @@ def is_email_configured() -> bool:
     return bool(SMTP_HOST and SMTP_USER and _smtp_password())
 
 
+def _app_links_enabled() -> bool:
+    return os.getenv("EXPOSE_APP", "false").lower() in ("1", "true", "yes")
+
+
+def send_early_access_code(to_email: str, full_name: str, code: str) -> bool:
+    """
+    Pre-launch signup: email the access code only (no dashboard links).
+    Code is stored in the database for use when the product launches.
+    """
+    if not is_email_configured():
+        logger.info("[Email] SMTP not configured — code %s for %s logged only", code, to_email)
+        return False
+
+    html = f"""
+<!DOCTYPE html>
+<html>
+<body style="font-family:system-ui,sans-serif;background:#f8f9fa;margin:0;padding:32px;">
+<div style="max-width:480px;margin:0 auto;background:#fff;border-radius:16px;padding:40px;box-shadow:0 4px 24px rgba(0,0,0,.08);">
+  <div style="font-size:22px;font-weight:700;color:#0d1c17;margin-bottom:8px;">FrontierOS</div>
+  <div style="font-size:13px;color:#64748b;margin-bottom:32px;border-bottom:1px solid #f1f5f9;padding-bottom:16px;">Early access</div>
+  <p style="font-size:16px;color:#1e293b;line-height:1.6;">Hi {full_name or 'Researcher'},</p>
+  <p style="font-size:15px;color:#475569;line-height:1.6;">Thanks for signing up. Save this access code — you will use it when FrontierOS launches.</p>
+  <div style="background:#f0fdf8;border:2px solid #14a883;border-radius:12px;padding:28px;text-align:center;margin:28px 0;">
+    <div style="font-size:12px;color:#64748b;letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px;">Your access code</div>
+    <div style="font-family:monospace;font-size:34px;font-weight:800;color:#14a883;letter-spacing:.2em;">{code}</div>
+  </div>
+  <p style="font-size:13px;color:#94a3b8;line-height:1.6;">We will email you when the research terminal is live. No action needed until then.</p>
+  <hr style="border:none;border-top:1px solid #f1f5f9;margin:24px 0;">
+  <p style="font-size:12px;color:#cbd5e1;">FrontierOS · CS research intelligence</p>
+</div>
+</body>
+</html>
+"""
+    text = f"""Hi {full_name or 'Researcher'},
+
+Thanks for signing up for FrontierOS early access.
+
+Your access code: {code}
+
+Save this code. We will notify you when the product launches — you will use this code to sign in.
+
+— FrontierOS
+"""
+    return _send_html_email(to_email, f"Your FrontierOS access code: {code}", text, html)
+
+
 def send_access_code(to_email: str, full_name: str, code: str) -> bool:
     """
     Send a demo access code email. Returns True if sent, False if SMTP not configured.
+    Uses link-free template unless EXPOSE_APP=true.
     """
+    if not _app_links_enabled():
+        return send_early_access_code(to_email, full_name, code)
+
     if not is_email_configured():
         logger.info("[Email] SMTP not configured — code %s for %s logged only", code, to_email)
         return False
@@ -83,10 +133,14 @@ Open the Access code tab and enter: {code}
 FrontierOS — AI-powered CS research intelligence
 """
 
+    return _send_html_email(to_email, f"Your FrontierOS access code: {code}", text, html)
+
+
+def _send_html_email(to_email: str, subject: str, text: str, html: str) -> bool:
     password = _smtp_password()
     try:
         msg = MIMEMultipart("alternative")
-        msg["Subject"] = f"Your FrontierOS access code: {code}"
+        msg["Subject"] = subject
         msg["From"]    = SMTP_FROM
         msg["To"]      = to_email
         msg.attach(MIMEText(text, "plain"))
@@ -99,12 +153,11 @@ FrontierOS — AI-powered CS research intelligence
             smtp.login(SMTP_USER, password)
             smtp.sendmail(SMTP_USER, [to_email], msg.as_string())
 
-        logger.info("[Email] access code sent to %s", to_email)
+        logger.info("[Email] sent to %s: %s", to_email, subject)
         return True
     except smtplib.SMTPAuthenticationError as exc:
         logger.error(
-            "[Email] SMTP auth failed for %s — check app password and that "
-            "2-Step Verification + App Passwords are enabled: %s",
+            "[Email] SMTP auth failed for %s — check app password: %s",
             SMTP_USER,
             exc,
         )

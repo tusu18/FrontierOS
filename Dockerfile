@@ -18,6 +18,7 @@ ENV PYTHONUNBUFFERED=1 \
     MEMORY_BACKEND=disabled \
     ENABLE_SCHEDULER=false \
     ENABLE_LOCAL_EMBEDDINGS=false \
+    EXPOSE_APP=false \
     DATABASE_URL=sqlite:///data/arxiv_papers.db
 
 EXPOSE 8000

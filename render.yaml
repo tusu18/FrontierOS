@@ -21,6 +21,8 @@ services:
         value: false
       - key: ENABLE_FULL_TEXT_EXTRACTION
         value: false
+      - key: EXPOSE_APP
+        value: false
       - key: ARXIV_MAX_RESULTS
         value: "25"
       - key: SMTP_HOST

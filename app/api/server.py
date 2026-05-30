@@ -110,7 +110,18 @@ def landing():
 
 @app.get("/app", response_class=HTMLResponse)
 def dashboard():
-    """React dashboard SPA."""
+    """React dashboard SPA — hidden until EXPOSE_APP=true."""
+    if not _app_is_public():
+        return HTMLResponse(
+            """<!DOCTYPE html><html><head><meta charset="utf-8">
+            <title>FrontierOS</title></head><body style="font-family:system-ui,sans-serif;
+            max-width:520px;margin:80px auto;padding:24px;color:#334155;">
+            <h1 style="color:#063f33;">FrontierOS</h1>
+            <p>The research terminal is not public yet. If you signed up for early access,
+            check your email for your access code — we will notify you at launch.</p>
+            </body></html>""",
+            status_code=503,
+        )
     if APP_HTML.exists():
         return HTMLResponse(APP_HTML.read_text())
     raise HTTPException(404, "app.html not found in static/")
@@ -599,14 +610,25 @@ def _require_user(authorization: str = Header(default="")) -> dict:
 # ─── Auth endpoints ────────────────────────────────────────────────────────
 
 def _gen_demo_code(session) -> str:
-    """Generate a unique 8-char uppercase alphanumeric demo access code."""
+    """Generate a unique FO-XXXXXX access code (users + waitlist)."""
+    return _gen_access_code(session)
+
+
+def _gen_access_code(session) -> str:
     import random, string
     chars = string.ascii_uppercase + string.digits
-    for _ in range(20):
+    for _ in range(30):
         code = "FO-" + "".join(random.choices(chars, k=6))
-        if not session.query(User).filter_by(demo_code=code).first():
+        if (
+            not session.query(User).filter_by(demo_code=code).first()
+            and not session.query(WaitlistEntry).filter_by(access_code=code).first()
+        ):
             return code
     return "FO-" + "".join(random.choices(chars, k=6))
+
+
+def _app_is_public() -> bool:
+    return os.getenv("EXPOSE_APP", "false").lower() in ("1", "true", "yes")
 
 
 @app.post("/auth/signup")
@@ -743,37 +765,48 @@ class WaitlistRequest(BaseModel):
 
 @app.post("/api/waitlist")
 def join_waitlist(req: WaitlistRequest):
-    """Landing page early-access form → store entry and optionally email confirmation."""
+    """Early access: save signup + access code in DB; email code only (no app link)."""
     session = get_session()
     try:
-        existing = session.query(WaitlistEntry).filter_by(email=req.email.lower().strip()).first()
+        email = req.email.lower().strip()
+        existing = session.query(WaitlistEntry).filter_by(email=email).first()
         if existing:
-            return {"status": "already_registered", "email": req.email}
+            if not existing.access_code:
+                existing.access_code = _gen_access_code(session)
+            session.commit()
+            from app.email_sender import send_early_access_code
+            email_sent = send_early_access_code(req.email, existing.name, existing.access_code)
+            return {
+                "status": "already_registered",
+                "email": req.email,
+                "email_sent": email_sent,
+                "access_code": None if email_sent else existing.access_code,
+            }
+        code = _gen_access_code(session)
         entry = WaitlistEntry(
             name=req.name.strip(),
-            email=req.email.lower().strip(),
+            email=email,
             affiliation=req.affiliation.strip(),
             research_area=req.research_area,
             use_case=req.use_case,
+            access_code=code,
+            approved=False,
         )
         session.add(entry)
         session.commit()
-        logger.info("[Waitlist] New entry: %s <%s>", req.name, req.email)
-        # Best-effort confirmation email
+        logger.info("[Waitlist] %s <%s> code=%s", req.name, email, code)
+        from app.email_sender import send_early_access_code
+        email_sent = False
         try:
-            from app.email_sender import send_simple
-            send_simple(
-                to=req.email,
-                subject="You're on the FrontierOS waitlist",
-                body=(
-                    f"Hi {req.name},\n\nYou're on the FrontierOS early-access list. "
-                    "We'll send your access code when a slot opens for your research area.\n\n"
-                    "— The FrontierOS team"
-                ),
-            )
+            email_sent = send_early_access_code(req.email, req.name.strip(), code)
         except Exception:
             pass
-        return {"status": "ok", "email": req.email}
+        return {
+            "status": "ok",
+            "email": req.email,
+            "email_sent": email_sent,
+            "access_code": None if email_sent else code,
+        }
     finally:
         session.close()
 
@@ -785,17 +818,20 @@ class AccessVerifyRequest(BaseModel):
 
 @app.post("/api/access/verify")
 def verify_access_code(req: AccessVerifyRequest):
-    """Verify an access code from the landing page modal."""
+    """Verify code; app login only when EXPOSE_APP=true."""
+    if not _app_is_public():
+        return {
+            "valid": False,
+            "message": "FrontierOS is not live yet. Save your code from the signup email for launch day.",
+        }
     session = get_session()
     try:
         code = req.code.strip().upper()
         email = req.email.lower().strip()
-        # 1. Check demo code on any user account
         user = session.query(User).filter_by(demo_code=code).first()
         if user:
             token = create_access_token({"sub": str(user.id), "email": user.email})
             return {"valid": True, "token": token, "redirect": "/app"}
-        # 2. Check waitlist approved code
         entry = session.query(WaitlistEntry).filter_by(access_code=code, email=email).first()
         if entry and entry.approved:
             return {"valid": True, "redirect": "/app"}

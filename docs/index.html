@@ -649,7 +649,6 @@ body { margin: 0; font-family: var(--font-body); }
         <a href="#use">Use cases</a>
       </div>
       <div class="nav-actions">
-        <a class="signin" href="#" onclick="openAccessModal();return false;">Enter access code</a>
         <a class="pill-cta pill-green" href="#" onclick="openAccessModal();return false;">Request early access</a>
       </div>
     </div>
@@ -999,8 +998,8 @@ body { margin: 0; font-family: var(--font-body); }
           </div>
         </div>
         <div class="foot-cols">
-          <div class="foot-col"><h5>Product</h5><a href="app.html">Dashboard</a><a href="app.html">Daily Papers</a><a href="app.html">Knowledge Graph</a><a href="app.html">Trend Radar</a></div>
-          <div class="foot-col"><h5>Build</h5><a href="app.html">Paper-to-Code</a><a href="app.html">Project Builder</a><a href="app.html">Reports</a><a href="app.html">Collections</a></div>
+          <div class="foot-col"><h5>Product</h5><a href="#product">Overview</a><a href="#features">Intelligence</a><a href="#how">How it works</a></div>
+          <div class="foot-col"><h5>Early access</h5><a href="#" onclick="openAccessModal();return false;">Request access</a></div>
           <div class="foot-col"><h5>Company</h5><a href="#">About</a><a href="#">Changelog</a><a href="#">GitHub</a><a href="#">Contact</a></div>
         </div>
       </div>
@@ -1266,15 +1265,10 @@ body { margin: 0; font-family: var(--font-body); }
       <span>FrontierOS</span>
     </div>
 
-    <div class="modal-tabs">
-      <button class="modal-tab on" id="tabRequest" onclick="switchTab('request')">Request access</button>
-      <button class="modal-tab" id="tabCode" onclick="switchTab('code')">Enter code</button>
-    </div>
-
     <!-- REQUEST ACCESS PANEL -->
     <div id="panelRequest">
-      <h3>Join the private beta</h3>
-      <p>FrontierOS is in closed beta. Request early access and we'll send you an access code when a slot opens for your research area.</p>
+      <h3>Join early access</h3>
+      <p>FrontierOS launches soon. Sign up and we will email your personal access code. Save it for launch day — the product is not open yet.</p>
       <div class="modal-form" id="requestForm">
         <div class="modal-field">
           <label>Full name</label>
@@ -1318,7 +1312,7 @@ body { margin: 0; font-family: var(--font-body); }
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 2L11 13M22 2L15 22l-4-9-9-4z"/></svg>
           Request access
         </button>
-        <p class="modal-note">No credit card required · We'll email you when your slot opens</p>
+        <p class="modal-note">No credit card · Code by email only · Terminal opens at launch</p>
       </div>
       <div id="reqSuccess" class="modal-success" style="display:none">
         <div class="suc-ic">◎</div>
@@ -1331,28 +1325,6 @@ body { margin: 0; font-family: var(--font-body); }
       </div>
     </div>
 
-    <!-- ENTER CODE PANEL -->
-    <div id="panelCode" style="display:none">
-      <h3>Enter your access code</h3>
-      <p>Have an access code? Enter it below to launch your Research OS dashboard.</p>
-      <div class="modal-form">
-        <div class="modal-field">
-          <label>Access code</label>
-          <div class="code-field-wrap">
-            <input type="text" id="codeInput" placeholder="FRONTIER-XXXX" maxlength="16" oninput="this.value=this.value.toUpperCase()">
-          </div>
-        </div>
-        <div class="modal-field">
-          <label>Email you registered with</label>
-          <input type="email" id="codeEmail" placeholder="you@lab.edu">
-        </div>
-        <button class="modal-submit" id="codeSubmit" onclick="submitCode()">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-          Launch dashboard
-        </button>
-        <p class="modal-note">Don't have a code? <a href="#" onclick="switchTab('request');return false;" style="color:var(--green-700);text-decoration:none;font-weight:500">Request early access →</a></p>
-      </div>
-    </div>
   </div>
 </div>
 
@@ -1366,28 +1338,25 @@ function closeAccessModal() {
   document.getElementById('accessModal').classList.remove('open');
   document.body.style.overflow = '';
 }
-function switchTab(tab) {
-  document.getElementById('tabRequest').classList.toggle('on', tab === 'request');
-  document.getElementById('tabCode').classList.toggle('on', tab === 'code');
-  document.getElementById('panelRequest').style.display = tab === 'request' ? '' : 'none';
-  document.getElementById('panelCode').style.display = tab === 'code' ? '' : 'none';
-}
 function showRequestSuccess(email, data) {
   document.getElementById('sucEmail').textContent = email;
   const title = document.getElementById('reqSuccessTitle');
   const body = document.getElementById('reqSuccessBody');
   const codeWrap = document.getElementById('sucCodeWrap');
   const codeEl = document.getElementById('sucCode');
-  if (data && data.demo_code) {
-    title.textContent = 'Your access is ready.';
-    body.textContent = data.email_sent
-      ? 'We emailed your code to ' + email + '. You can also use the code below.'
-      : 'Your account is saved. Use the code below to enter the research terminal.';
-    codeEl.textContent = data.demo_code;
+  const code = data && (data.access_code || data.demo_code);
+  if (data && data.email_sent) {
+    title.textContent = "You're registered.";
+    body.textContent = 'We emailed your access code to ' + email + '. Save it for when FrontierOS launches — no dashboard link until then.';
+    codeWrap.style.display = 'none';
+  } else if (code) {
+    title.textContent = "You're registered.";
+    body.textContent = 'Email could not be sent. Save this code for launch day:';
+    codeEl.textContent = code;
     codeWrap.style.display = '';
   } else {
     title.textContent = "You're on the list.";
-    body.textContent = "We'll send your access code to " + email + " when a slot opens for your area.";
+    body.textContent = 'We saved your signup. If email fails, contact support.';
     codeWrap.style.display = 'none';
   }
   document.getElementById('requestForm').style.display = 'none';
@@ -1404,72 +1373,19 @@ function submitRequest() {
   if (!/^[^@]+@[^@]+\.[^@]+$/.test(email)) { alert('Please enter a valid email address.'); return; }
   const btn = document.getElementById('reqSubmit');
   btn.disabled = true; btn.textContent = 'Sending…';
-  const payload = {
-    email, full_name: name, institution: affil,
-    research_areas: [area], interests: [use], role: use,
-  };
-  fetch(frontierApi('/auth/request-demo'), {
+  fetch(frontierApi('/api/waitlist'), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload),
+    body: JSON.stringify({ name, email, affiliation: affil, research_area: area, use_case: use }),
   })
   .then(r => r.json().then(d => ({ ok: r.ok, d })))
   .then(({ ok, d }) => {
-    if (ok && d.demo_code) {
-      showRequestSuccess(email, d);
-      fetch(frontierApi('/api/waitlist'), {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, affiliation: affil, research_area: area, use_case: use }),
-      }).catch(() => {});
-      return;
-    }
-    return fetch(frontierApi('/api/waitlist'), {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, email, affiliation: affil, research_area: area, use_case: use }),
-    }).then(() => showRequestSuccess(email, null));
+    if (!ok) throw new Error((d && d.detail) || 'Signup failed');
+    showRequestSuccess(email, d);
   })
-  .catch(() => {
-    alert('Could not reach the FrontierOS API. Check config.js (FRONTIEROS_API) or try again later.');
+  .catch((err) => {
+    alert(err.message || 'Could not reach the API. Check FRONTIEROS_API in config.js.');
     btn.disabled = false; btn.textContent = 'Request access';
-  });
-}
-function submitCode() {
-  const code = document.getElementById('codeInput').value.trim().toUpperCase();
-  const email = document.getElementById('codeEmail').value.trim();
-  if (!code || !email) { alert('Please enter your code and email.'); return; }
-  const btn = document.getElementById('codeSubmit');
-  btn.disabled = true; btn.textContent = 'Verifying…';
-  fetch(frontierApi('/api/access/verify'), {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ code, email }),
-  })
-  .then(r => r.json())
-  .then(d => {
-    if (d.valid) {
-      window.location.href = frontierAppUrl('?code=' + encodeURIComponent(code));
-      return;
-    }
-    return fetch(frontierApi('/auth/login-with-code'), {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ code }),
-    })
-    .then(r => r.json().then(data => ({ ok: r.ok, data })))
-    .then(({ ok, data }) => {
-      if (ok && data.token) {
-        window.location.href = frontierAppUrl('?code=' + encodeURIComponent(code));
-      } else {
-        btn.disabled = false; btn.textContent = 'Launch dashboard';
-        alert('Invalid or expired access code.');
-      }
-    });
-  })
-  .catch(() => {
-    btn.disabled = false; btn.textContent = 'Launch dashboard';
-    alert('Could not verify — set FRONTIEROS_API in config.js for GitHub Pages.');
   });
 }
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeAccessModal(); });
