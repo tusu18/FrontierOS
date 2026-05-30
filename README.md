@@ -73,8 +73,23 @@ python scripts/build_frontier_landing.py
 python scripts/build_frontier_terminal.py
 ```
 
-`static/index.html` is the unpacked FrontierOS landing (exact layout) with the
-signup form wired to `POST /auth/request-demo`.
+`static/index.html` is the marketing landing with early-access signup and code
+entry wired to the API.
+
+### GitHub Pages (landing only)
+
+Publish just the landing page to GitHub Pages; the FastAPI backend must run
+elsewhere (same signup/email APIs).
+
+```bash
+python scripts/build_ghpages.py
+```
+
+1. Set repo **Actions variables**: `FRONTIEROS_API`, `FRONTIEROS_APP` (your live backend URLs).
+2. Enable **Settings → Pages → GitHub Actions**.
+3. Push to `main` — workflow `.github/workflows/pages.yml` deploys `docs/`.
+
+See `docs/README.md` for details. Local static preview: `cd docs && python -m http.server 8080`.
 
 ### Access (invite-only beta)
 The dashboard is gated — you cannot enter without authenticating. Sign up,

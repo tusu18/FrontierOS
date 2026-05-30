@@ -46,6 +46,10 @@ from app.database import (
     ensure_default_alert_rules_for_user, ensure_default_alert_rules_for_all_users,
     get_unsummarized_paper_ids,
     Report as ReportModel,
+    WaitlistEntry,
+    PrivateResearchArtifact, ResearchDirective, CitationAdvice,
+    Paper, Summary, User, FetchQueue,
+    KGEntity, KGEdge,
 )
 from app.api.transforms import build_full_rr_data, paper_to_react, NAV
 from app.openrouter_client import is_api_key_configured
@@ -101,6 +105,23 @@ def dashboard():
     if APP_HTML.exists():
         return HTMLResponse(APP_HTML.read_text())
     raise HTTPException(404, "app.html not found in static/")
+
+
+def _static_js(name: str):
+    path = STATIC_DIR / name
+    if path.exists():
+        return HTMLResponse(path.read_text(), media_type="application/javascript")
+    raise HTTPException(404, f"{name} not found")
+
+
+@app.get("/config.js")
+def config_js():
+    return _static_js("config.js")
+
+
+@app.get("/ghpages-bridge.js")
+def ghpages_bridge_js():
+    return _static_js("ghpages-bridge.js")
 
 
 # Mount everything under /static so the HTML can reference /static/styles/...
@@ -696,6 +717,80 @@ def login_with_code(req: CodeLoginBody):
             "is_admin":  getattr(user, "is_admin", False),
             "plan":      getattr(profile, "plan", "free"),
         }
+    finally:
+        session.close()
+
+
+
+# ─── Waitlist + Access-code endpoints (landing page v2) ──────────────────────
+
+class WaitlistRequest(BaseModel):
+    name: str
+    email: str
+    affiliation: str = ""
+    research_area: str = ""
+    use_case: str = ""
+
+
+@app.post("/api/waitlist")
+def join_waitlist(req: WaitlistRequest):
+    """Landing page early-access form → store entry and optionally email confirmation."""
+    session = get_session()
+    try:
+        existing = session.query(WaitlistEntry).filter_by(email=req.email.lower().strip()).first()
+        if existing:
+            return {"status": "already_registered", "email": req.email}
+        entry = WaitlistEntry(
+            name=req.name.strip(),
+            email=req.email.lower().strip(),
+            affiliation=req.affiliation.strip(),
+            research_area=req.research_area,
+            use_case=req.use_case,
+        )
+        session.add(entry)
+        session.commit()
+        logger.info("[Waitlist] New entry: %s <%s>", req.name, req.email)
+        # Best-effort confirmation email
+        try:
+            from app.email_sender import send_simple
+            send_simple(
+                to=req.email,
+                subject="You're on the FrontierOS waitlist",
+                body=(
+                    f"Hi {req.name},\n\nYou're on the FrontierOS early-access list. "
+                    "We'll send your access code when a slot opens for your research area.\n\n"
+                    "— The FrontierOS team"
+                ),
+            )
+        except Exception:
+            pass
+        return {"status": "ok", "email": req.email}
+    finally:
+        session.close()
+
+
+class AccessVerifyRequest(BaseModel):
+    code: str
+    email: str
+
+
+@app.post("/api/access/verify")
+def verify_access_code(req: AccessVerifyRequest):
+    """Verify an access code from the landing page modal."""
+    session = get_session()
+    try:
+        code = req.code.strip().upper()
+        email = req.email.lower().strip()
+        # 1. Check demo code on any user account
+        user = session.query(User).filter_by(demo_code=code).first()
+        if user:
+            token = create_access_token({"sub": str(user.id), "email": user.email})
+            return {"valid": True, "token": token, "redirect": "/app"}
+        # 2. Check waitlist approved code
+        entry = session.query(WaitlistEntry).filter_by(access_code=code, email=email).first()
+        if entry and entry.approved:
+            return {"valid": True, "redirect": "/app"}
+        return {"valid": False}
     finally:
         session.close()
 
@@ -1330,6 +1425,440 @@ def admin_kg_stats():
                 {"name": e.name, "type": e.entity_type, "freq": e.frequency_count}
                 for e in session.query(KGEntity).order_by(KGEntity.frequency_count.desc()).limit(10).all()
             ],
+        }
+    finally:
+        session.close()
+
+
+
+# ─── Admin health ──────────────────────────────────────────────────────────────
+
+@app.get("/api/admin/health")
+def admin_health():
+    """Full system health check for the admin panel."""
+    session = get_session()
+    try:
+        from app.database import (Paper, Summary, EvidenceSpan, KGEntity, KGEdge,
+                                   FetchQueue, Alert, UserPaperInteraction)
+        pending_sum   = session.query(Paper).count() - session.query(Summary).count()
+        failed_jobs   = session.query(FetchQueue).filter_by(status="failed").count()
+        queued_jobs   = session.query(FetchQueue).filter_by(status="queued").count()
+        return {
+            "db":             "sqlite" if "sqlite" in os.getenv("DATABASE_URL","sqlite") else "postgres",
+            "openrouter":     is_api_key_configured(),
+            "smtp":           bool(os.getenv("SMTP_PASSWORD","")),
+            "memory_backend": os.getenv("MEMORY_BACKEND","local"),
+            "papers_total":   session.query(Paper).count(),
+            "summaries_total":session.query(Summary).count(),
+            "summaries_pending": max(0, pending_sum),
+            "evidence_spans": session.query(EvidenceSpan).count(),
+            "kg_entities":    session.query(KGEntity).count(),
+            "kg_edges":       session.query(KGEdge).count(),
+            "alerts_total":   session.query(Alert).count(),
+            "interactions":   session.query(UserPaperInteraction).count(),
+            "failed_jobs":    failed_jobs,
+            "queued_jobs":    queued_jobs,
+            "users":          session.query(User).count(),
+        }
+    finally:
+        session.close()
+
+
+# ─── Private research context ──────────────────────────────────────────────────
+
+class ArtifactUploadRequest(BaseModel):
+    name: str
+    content: str
+    artifact_type: str = "notes"   # draft | notes | proposal | dataset | paper | other
+
+
+@app.post("/api/context/upload")
+def upload_artifact(req: ArtifactUploadRequest):
+    """Upload/paste a private research artifact and extract entities from it."""
+    session = get_session()
+    try:
+        user = session.query(User).first()  # single-user MVP
+        if not user:
+            raise HTTPException(400, "No user found. Sign up first.")
+
+        # Simple entity extraction via LLM (or keyword fallback)
+        topics, methods, claims, questions = [], [], [], []
+        entities_json = "{}"
+
+        if is_api_key_configured() and len(req.content) > 50:
+            try:
+                from app.openrouter_client import call_openrouter_json
+                msgs = [
+                    {"role": "system", "content":
+                     "Extract research entities from this text. Return JSON: "
+                     "{topics:[], methods:[], claims:[], open_questions:[]}. "
+                     "Keep each item under 60 chars. Max 6 items per list."},
+                    {"role": "user", "content": req.content[:3000]},
+                ]
+                extracted = call_openrouter_json(msgs, max_tokens=400, temperature=0.1) or {}
+                topics    = extracted.get("topics", [])
+                methods   = extracted.get("methods", [])
+                claims    = extracted.get("claims", [])
+                questions = extracted.get("open_questions", [])
+                import json as _j
+                entities_json = _j.dumps(extracted)
+            except Exception:
+                pass
+
+        artifact = PrivateResearchArtifact(
+            user_id=user.id,
+            name=req.name.strip(),
+            artifact_type=req.artifact_type,
+            content=req.content,
+            file_size=len(req.content.encode()),
+            topics_json=json.dumps(topics),
+            methods_json=json.dumps(methods),
+            claims_json=json.dumps(claims),
+            open_questions_json=json.dumps(questions),
+            entities_json=entities_json,
+            processed=True,
+        )
+        session.add(artifact)
+        session.commit()
+
+        return {
+            "ok": True, "id": artifact.id, "name": artifact.name,
+            "topics": topics, "methods": methods,
+            "claims": claims, "open_questions": questions,
+        }
+    finally:
+        session.close()
+
+
+@app.get("/api/context/artifacts")
+def list_artifacts():
+    """List all private research artifacts for the current user."""
+    session = get_session()
+    try:
+        user = session.query(User).first()
+        if not user:
+            return {"artifacts": []}
+        arts = session.query(PrivateResearchArtifact).filter_by(user_id=user.id)\
+                      .order_by(PrivateResearchArtifact.created_at.desc()).all()
+        result = []
+        for a in arts:
+            result.append({
+                "id": a.id, "name": a.name, "type": a.artifact_type,
+                "size": a.file_size, "date": a.created_at.strftime("%Y-%m-%d"),
+                "topics": json.loads(a.topics_json or "[]"),
+                "methods": json.loads(a.methods_json or "[]"),
+                "claims": json.loads(a.claims_json or "[]"),
+                "open_questions": json.loads(a.open_questions_json or "[]"),
+            })
+        return {"artifacts": result}
+    finally:
+        session.close()
+
+
+@app.delete("/api/context/artifacts/{artifact_id}")
+def delete_artifact(artifact_id: int):
+    session = get_session()
+    try:
+        a = session.query(PrivateResearchArtifact).filter_by(id=artifact_id).first()
+        if a:
+            session.delete(a)
+            session.commit()
+        return {"ok": True}
+    finally:
+        session.close()
+
+
+# ─── Research Directives ───────────────────────────────────────────────────────
+
+class DirectiveRequest(BaseModel):
+    goal_text: str
+    cadence: str = "daily"
+    tracked_topics: List[str] = []
+    alert_on_competitor: bool = True
+    alert_on_novelty: bool = True
+
+
+@app.get("/api/directives")
+def list_directives():
+    session = get_session()
+    try:
+        user = session.query(User).first()
+        if not user:
+            return {"directives": []}
+        dirs = session.query(ResearchDirective).filter_by(user_id=user.id)\
+                      .order_by(ResearchDirective.created_at.desc()).all()
+        return {"directives": [
+            {"id": d.id, "text": d.goal_text, "cadence": d.cadence,
+             "active": d.active, "matches": d.match_count, "new": d.new_match_count,
+             "topics": json.loads(d.tracked_topics_json or "[]")}
+            for d in dirs
+        ]}
+    finally:
+        session.close()
+
+
+@app.post("/api/directives")
+def create_directive(req: DirectiveRequest):
+    session = get_session()
+    try:
+        user = session.query(User).first()
+        if not user:
+            raise HTTPException(400, "No user")
+        d = ResearchDirective(
+            user_id=user.id,
+            goal_text=req.goal_text.strip(),
+            cadence=req.cadence,
+            tracked_topics_json=json.dumps(req.tracked_topics),
+            alert_on_competitor=req.alert_on_competitor,
+            alert_on_novelty=req.alert_on_novelty,
+        )
+        session.add(d); session.commit()
+        return {"ok": True, "id": d.id, "text": d.goal_text}
+    finally:
+        session.close()
+
+
+@app.delete("/api/directives/{directive_id}")
+def delete_directive(directive_id: str):
+    # Accept string IDs — mock directives (d1, d2…) are silently ignored
+    try:
+        db_id = int(directive_id)
+    except ValueError:
+        return {"ok": True}   # mock/non-DB id — nothing to delete
+    session = get_session()
+    try:
+        d = session.query(ResearchDirective).filter_by(id=db_id).first()
+        if d:
+            session.delete(d); session.commit()
+        return {"ok": True}
+    finally:
+        session.close()
+
+
+@app.put("/api/directives/{directive_id}/toggle")
+def toggle_directive(directive_id: str):
+    try:
+        db_id = int(directive_id)
+    except ValueError:
+        return {"ok": True, "active": True}  # mock id — no-op
+    session = get_session()
+    try:
+        d = session.query(ResearchDirective).filter_by(id=db_id).first()
+        if not d:
+            raise HTTPException(404, "Directive not found")
+        d.active = not d.active
+        session.commit()
+        return {"ok": True, "active": d.active}
+    finally:
+        session.close()
+
+
+# ─── Citation Advisor ─────────────────────────────────────────────────────────
+
+@app.post("/api/papers/{paper_id}/cite")
+def citation_advice(paper_id: str):
+    """Run CitationAdvisorAgent for a paper and return structured advice."""
+    session = get_session()
+    try:
+        paper = session.query(Paper).filter_by(arxiv_id=paper_id).first()
+        if not paper:
+            raise HTTPException(404, "Paper not found")
+        user = session.query(User).first()
+        if user:
+            from app.agents.citation_advisor_agent import CitationAdvisorAgent
+            advice = CitationAdvisorAgent().advise(paper.id, user_id=user.id, use_llm=is_api_key_configured())
+            if advice and not advice.get("error"):
+                return advice
+
+        # Return cached if available
+        if user:
+            cached = session.query(CitationAdvice)\
+                            .filter_by(user_id=user.id, paper_id=paper.id).first()
+            if cached:
+                return json.loads(cached.raw_json or "{}")
+
+        # Build advice
+        summ = session.query(Summary).filter_by(paper_id=paper.id).first()
+        title = paper.title
+        abstract = paper.abstract[:800] if paper.abstract else ""
+        contribution = summ.main_contribution[:400] if summ and summ.main_contribution else ""
+        limitations  = summ.limitations[:300] if summ and summ.limitations else ""
+
+        # Load user's private context for comparison
+        artifacts = session.query(PrivateResearchArtifact)\
+                           .filter_by(user_id=user.id if user else -1)\
+                           .order_by(PrivateResearchArtifact.created_at.desc())\
+                           .limit(3).all()
+        user_context = "\n".join(
+            f"[{a.artifact_type}] {a.name}: topics={json.loads(a.topics_json or '[]')}"
+            for a in artifacts
+        ) if artifacts else "No private context uploaded yet."
+
+        # Compute a keyword-based score as fallback
+        novelty = int(summ.novelty_score or 5) if summ else 5
+        impact  = int(summ.impact_score  or 5) if summ else 5
+        relevance_score = min(99, (novelty * 6 + impact * 4))
+
+        advice = {
+            "should_cite": relevance_score >= 60,
+            "citation_relevance_score": relevance_score,
+            "where_to_cite": "Related Work",
+            "citation_role": "method_comparison",
+            "suggested_citation_sentence": "",
+            "difference_from_user_work": "Upload your research context for a personalised comparison.",
+            "evidence": [],
+            "confidence": round(min(0.95, relevance_score / 100), 2),
+        }
+
+        if is_api_key_configured():
+            try:
+                from app.openrouter_client import call_openrouter_json
+                msgs = [
+                    {"role": "system", "content":
+                     "You are a research citation advisor. Given a paper and the user's research context, "
+                     "return JSON: {should_cite:bool, citation_relevance_score:0-100, where_to_cite:str, "
+                     "citation_role:str, suggested_citation_sentence:str, difference_from_user_work:str, confidence:float}. "
+                     "citation_role: related_work|baseline|method_comparison|dataset_reference|competing_work|not_relevant"},
+                    {"role": "user", "content":
+                     f"Paper: {title}\nContribution: {contribution}\nLimitations: {limitations}\n\n"
+                     f"User's research context:\n{user_context}"},
+                ]
+                llm_advice = call_openrouter_json(msgs, max_tokens=400, temperature=0.2)
+                if llm_advice:
+                    advice.update(llm_advice)
+            except Exception:
+                pass
+
+        # Cache it
+        if user:
+            ca = CitationAdvice(
+                user_id=user.id, paper_id=paper.id,
+                should_cite=advice.get("should_cite", False),
+                relevance_score=advice.get("citation_relevance_score", 50),
+                where_to_cite=advice.get("where_to_cite", ""),
+                citation_role=advice.get("citation_role", ""),
+                suggested_sentence=advice.get("suggested_citation_sentence", ""),
+                difference_text=advice.get("difference_from_user_work", ""),
+                confidence=advice.get("confidence", 0.5),
+                raw_json=json.dumps(advice),
+            )
+            session.add(ca); session.commit()
+
+        return advice
+    finally:
+        session.close()
+
+
+# ─── Near My Work (per-paper score) ────────────────────────────────────────────
+
+@app.get("/api/papers/{paper_id}/near-score")
+def paper_near_score(paper_id: str):
+    """Return near-my-work score and why for a specific paper."""
+    from app.agents.near_my_work_agent import NearMyWorkAgent
+    result = NearMyWorkAgent().score_by_arxiv_id(paper_id)
+    if not result:
+        raise HTTPException(404, "Paper or user not found")
+    return {
+        "score": result["near_my_work_score"],
+        "relationship_type": result["relationship_type"],
+        "why_relevant": result["why_relevant"],
+        "evidence": result["evidence"],
+        "hint": None if result["near_my_work_score"] > 0 else "Upload your research context for a personalised score.",
+    }
+
+
+class NearMyWorkRequest(BaseModel):
+    user_id: Optional[int] = None
+    paper_ids: Optional[List[int]] = None
+    limit: int = 20
+
+
+@app.post("/api/agents/near-my-work")
+def run_near_my_work_agent(req: NearMyWorkRequest = NearMyWorkRequest()):
+    """Run the named NearMyWorkAgent and return ranked papers with explanations."""
+    from app.agents.near_my_work_agent import NearMyWorkAgent
+    return NearMyWorkAgent().run(user_id=req.user_id, paper_ids=req.paper_ids, limit=req.limit)
+
+
+@app.get("/api/papers/{paper_id}/near-score-legacy")
+def paper_near_score_legacy(paper_id: str):
+    """Legacy inline scorer kept for reference during MVP hardening."""
+    session = get_session()
+    try:
+        paper = session.query(Paper).filter_by(arxiv_id=paper_id).first()
+        if not paper:
+            raise HTTPException(404, "Paper not found")
+        summ = session.query(Summary).filter_by(paper_id=paper.id).first()
+
+        user = session.query(User).first()
+        artifacts = session.query(PrivateResearchArtifact)\
+                           .filter_by(user_id=user.id if user else -1).all() if user else []
+
+        # Compute overlap dimensions
+        my_topics  = set()
+        my_methods = set()
+        for a in artifacts:
+            my_topics  |= set(t.lower() for t in json.loads(a.topics_json  or "[]"))
+            my_methods |= set(m.lower() for m in json.loads(a.methods_json or "[]"))
+
+        paper_text = f"{paper.title} {paper.abstract or ''}".lower()
+        topic_hits  = sum(1 for t in my_topics  if t in paper_text) if my_topics  else 0
+        method_hits = sum(1 for m in my_methods if m in paper_text) if my_methods else 0
+
+        novelty = int(summ.novelty_score or 5) if summ else 5
+        impact  = int(summ.impact_score  or 5) if summ else 5
+
+        # Score
+        base = (novelty * 4 + impact * 3) / 7
+        overlap_bonus = min(30, topic_hits * 10 + method_hits * 8)
+        score = min(99, int(base * 6 + overlap_bonus))
+
+        why = []
+        if topic_hits:
+            why.append(["Topic overlap", min(95, 50 + topic_hits * 15)])
+        if method_hits:
+            why.append(["Method overlap", min(90, 45 + method_hits * 15)])
+        why.append(["Novelty", novelty * 10])
+        why.append(["Impact", impact * 10])
+
+        return {"score": score, "why": why,
+                "artifacts_used": len(artifacts),
+                "hint": "Upload your research context for a personalised score." if not artifacts else None}
+    finally:
+        session.close()
+
+
+@app.post("/api/near-my-work/rescan")
+def rescan_near_my_work():
+    """Re-score all recent papers against private context."""
+    session = get_session()
+    try:
+        from app.agents.recommendation_agent import RecommendationAgent
+        user = session.query(User).first()
+        if not user:
+            return {"ok": False, "msg": "No user"}
+        result = RecommendationAgent().run(user_id=user.id, top_n=50)
+        return {"ok": True, "papers_scored": result.get("scored", 0)}
+    finally:
+        session.close()
+
+
+# ─── Fetch queue status ────────────────────────────────────────────────────────
+
+@app.get("/api/fetch-queue/status")
+def fetch_queue_status():
+    session = get_session()
+    try:
+        from collections import Counter
+        rows = session.query(FetchQueue).all()
+        counts = Counter(r.status for r in rows)
+        recent = session.query(FetchQueue).order_by(FetchQueue.updated_at.desc()).limit(5).all()
+        return {
+            "total": len(rows),
+            "by_status": dict(counts),
+            "recent": [{"arxiv_id": r.arxiv_id, "status": r.status,
+                        "error": r.last_error, "updated": str(r.updated_at)[:16]}
+                       for r in recent],
         }
     finally:
         session.close()

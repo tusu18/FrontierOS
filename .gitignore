@@ -13,3 +13,6 @@ data/mem0_store/
 static/index.html.bak
 static/index.export.html
 static/terminal.reference.html
+
+# GitHub Pages: keep built site; optional local override
+docs/config.js
