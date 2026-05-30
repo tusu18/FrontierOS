@@ -8,10 +8,8 @@ services:
     region: oregon
     dockerfilePath: ./Dockerfile
     healthCheckPath: /api/health
-    disk:
-      name: frontieros-data
-      mountPath: /app/data
-      sizeGB: 1
+    # Free tier: no persistent disk. SQLite resets on redeploy; signup/API still work.
+    # For durable data: upgrade plan + add a disk, or set DATABASE_URL to Postgres (e.g. Neon).
     envVars:
       - key: DATABASE_URL
         value: sqlite:///data/arxiv_papers.db

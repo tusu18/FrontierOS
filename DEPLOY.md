@@ -2,7 +2,7 @@
 
 GitHub Pages only hosts the **landing**. Signup, email codes, and `/app` need this API running on a public URL.
 
-Recommended host: **[Render](https://render.com)** (free tier + persistent disk for SQLite).
+Recommended host: **[Render](https://render.com)** (free tier; no persistent disk — see notes below).
 
 ## 1. Deploy on Render (Blueprint)
 
@@ -58,5 +58,11 @@ docker run --rm -p 8000:8000 --env-file .env -v "$(pwd)/data:/app/data" frontier
 ## 5. Free tier notes
 
 - Render free services **sleep** after ~15 min idle; first request may take ~30s.
-- SQLite lives on the **1 GB disk** mounted at `/app/data` (survives redeploys).
-- For always-on production, upgrade the Render plan or use Railway/Fly with the same `Dockerfile`.
+- **No persistent disk on free tier** — the default SQLite DB is ephemeral (cleared on redeploy/restart). Signup, access codes, and email still work; paper/KG data is not kept long-term unless you add Postgres.
+- **Persistent data options:**
+  - Upgrade the web service to **Starter** and add a disk in the Render dashboard (`/app/data`), or
+  - Use free **[Neon](https://neon.tech)** Postgres and set `DATABASE_URL` to the connection string in Render env vars.
+
+## 6. If Blueprint failed on “disks not supported”
+
+Pull the latest `main` (disk block removed from `render.yaml`) and run **Blueprint → Apply** again.
