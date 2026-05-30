@@ -128,33 +128,61 @@ Use it at: {app_url}/app
     return _send_html_email(to_email, f"Your FrontierOS access code: {code}", text, html)
 
 
+def _logo_url() -> str:
+    base = (os.getenv("APP_BASE_URL", "") or "").strip().rstrip("/")
+    if base:
+        return f"{base}/assets/logo-mark.svg"
+    return (os.getenv("EMAIL_LOGO_URL", "") or "").strip() or (
+        "https://tusu18.github.io/FrontierOS/assets/logo-mark.svg"
+    )
+
+
 def _early_text(full_name: str, code: str) -> str:
     return f"""Hi {full_name or 'Researcher'},
 
 Thanks for signing up for FrontierOS early access.
 
+Know when the frontier moves near your work.
+
 Your access code: {code}
 
-Save this code. We will notify you when the product launches.
+Save this code. We will notify you when the research terminal launches.
 
 — FrontierOS
+https://tusu18.github.io/FrontierOS/
 """
 
 
 def _early_html(full_name: str, code: str) -> str:
+    logo = _logo_url()
+    name = full_name or "Researcher"
     return f"""
 <!DOCTYPE html>
 <html>
-<body style="font-family:system-ui,sans-serif;background:#f8f9fa;margin:0;padding:32px;">
-<div style="max-width:480px;margin:0 auto;background:#fff;border-radius:16px;padding:40px;">
-  <div style="font-size:22px;font-weight:700;color:#0d1c17;">FrontierOS</div>
-  <p style="font-size:16px;color:#1e293b;">Hi {full_name or 'Researcher'},</p>
-  <p style="font-size:15px;color:#475569;">Thanks for signing up. Save this access code for launch day.</p>
-  <div style="background:#f0fdf8;border:2px solid #14a883;border-radius:12px;padding:28px;text-align:center;margin:28px 0;">
-    <div style="font-size:12px;color:#64748b;text-transform:uppercase;">Your access code</div>
-    <div style="font-family:monospace;font-size:34px;font-weight:800;color:#14a883;letter-spacing:.2em;">{code}</div>
+<body style="font-family:system-ui,-apple-system,sans-serif;background:#f1efe9;margin:0;padding:32px;">
+<div style="max-width:520px;margin:0 auto;background:#ffffff;border-radius:16px;padding:40px;border:1px solid #e3e0d8;">
+  <div style="margin-bottom:24px;">
+    <img src="{logo}" alt="FrontierOS" width="36" height="36" style="display:block;margin-bottom:12px;">
+    <div style="font-family:system-ui,sans-serif;font-size:22px;font-weight:700;color:#14161a;letter-spacing:-0.02em;">FrontierOS</div>
+    <div style="font-size:13px;color:#0b755e;margin-top:4px;">Research Terminal</div>
   </div>
-  <p style="font-size:13px;color:#94a3b8;">We will email you when the research terminal is live.</p>
+  <p style="font-size:16px;color:#14161a;margin:0 0 8px;">Hi {name},</p>
+  <p style="font-size:15px;color:#3d4148;line-height:1.55;margin:0 0 20px;">
+    Thanks for signing up for early access. Save this access code for launch day.
+  </p>
+  <p style="font-size:14px;color:#797f88;font-style:italic;margin:0 0 24px;">
+    Know when the frontier moves near your work.
+  </p>
+  <div style="background:#e9faf3;border:2px solid #14a883;border-radius:12px;padding:28px;text-align:center;margin:0 0 28px;">
+    <div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:0.12em;">Your access code</div>
+    <div style="font-family:ui-monospace,monospace;font-size:32px;font-weight:800;color:#0b755e;letter-spacing:0.18em;margin-top:10px;">{code}</div>
+  </div>
+  <p style="font-size:13px;color:#797f88;line-height:1.5;margin:0;">
+    We will email you when the research terminal is live. No dashboard link until then.
+  </p>
+  <p style="font-size:12px;color:#94a3b8;margin:28px 0 0;border-top:1px solid #e3e0d8;padding-top:20px;">
+    — FrontierOS · <a href="https://tusu18.github.io/FrontierOS/" style="color:#0b755e;">tusu18.github.io/FrontierOS</a>
+  </p>
 </div>
 </body>
 </html>

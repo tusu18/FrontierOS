@@ -1,0 +1,33 @@
+<!--
+  Paste into EmailJS → Email Templates → Content (HTML mode).
+  Settings:
+    To Email: {{to_email}}
+    From Name: FrontierOS
+    Reply To: tsingh98@umd.edu
+    Subject: Your FrontierOS access code: {{access_code}}
+-->
+<div style="font-family:system-ui,-apple-system,sans-serif;background:#f1efe9;padding:32px;">
+  <div style="max-width:520px;margin:0 auto;background:#fff;border-radius:16px;padding:40px;border:1px solid #e3e0d8;">
+    <img src="{{logo_url}}" alt="FrontierOS" width="36" height="36" style="display:block;margin-bottom:12px;">
+    <div style="font-size:22px;font-weight:700;color:#14161a;">FrontierOS</div>
+    <div style="font-size:13px;color:#0b755e;margin-top:4px;">Research Terminal</div>
+
+    <p style="font-size:16px;color:#14161a;margin:24px 0 8px;">Hi {{user_name}},</p>
+    <p style="font-size:15px;color:#3d4148;line-height:1.55;">
+      Thanks for signing up for early access. Save this access code for launch day.
+    </p>
+    <p style="font-size:14px;color:#797f88;font-style:italic;">{{tagline}}</p>
+
+    <div style="background:#e9faf3;border:2px solid #14a883;border-radius:12px;padding:28px;text-align:center;margin:28px 0;">
+      <div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:0.12em;">Your access code</div>
+      <div style="font-family:monospace;font-size:32px;font-weight:800;color:#0b755e;letter-spacing:0.18em;margin-top:10px;">{{access_code}}</div>
+    </div>
+
+    <p style="font-size:13px;color:#797f88;">
+      We will email you when the research terminal is live.
+    </p>
+    <p style="font-size:12px;color:#94a3b8;margin-top:28px;border-top:1px solid #e3e0d8;padding-top:20px;">
+      — FrontierOS
+    </p>
+  </div>
+</div>

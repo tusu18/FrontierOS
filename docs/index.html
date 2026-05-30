@@ -1377,11 +1377,30 @@ function sendAccessCodeViaEmailJS(email, name, code) {
   if (!ej.publicKey || !ej.serviceId || !ej.templateId || typeof emailjs === 'undefined') {
     return Promise.resolve(false);
   }
+  const logoUrl = window.FRONTIEROS_EMAIL_LOGO || 'https://tusu18.github.io/FrontierOS/assets/logo-mark.svg';
+  const tagline = 'Know when the frontier moves near your work.';
+  const messagePlain = [
+    'Hi ' + name + ',',
+    '',
+    'Thanks for signing up for FrontierOS early access.',
+    '',
+    tagline,
+    '',
+    'Your access code: ' + code,
+    '',
+    'Save this code. We will notify you when the research terminal launches.',
+    '',
+    '— FrontierOS',
+  ].join('\n');
   return emailjs.send(ej.serviceId, ej.templateId, {
     to_email: email,
     user_name: name,
     access_code: code,
     reply_to: 'tsingh98@umd.edu',
+    subject: 'Your FrontierOS access code: ' + code,
+    tagline: tagline,
+    logo_url: logoUrl,
+    message: messagePlain,
   }, { publicKey: ej.publicKey })
     .then(() => true)
     .catch((err) => { console.warn('[EmailJS]', err); return false; });
