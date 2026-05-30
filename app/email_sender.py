@@ -1,12 +1,16 @@
 """
-Email sender utility — sends access codes via SMTP.
+Email sender — access codes via Resend (HTTPS) or SMTP.
 
-Configure in .env / Render:
-  SMTP_HOST     = smtp.gmail.com
-  SMTP_PORT     = 587
-  SMTP_USER     = you@umd.edu
-  SMTP_PASSWORD = 16-char Google app password (no spaces)
-  SMTP_FROM     = FrontierOS <you@umd.edu>  (must match SMTP_USER for Gmail)
+Render **free** tier blocks outbound SMTP (ports 25/465/587). Use either:
+  - RESEND_API_KEY + EMAIL_FROM (verified in Resend) — works on free Render
+  - SMTP_* — works locally and on paid Render instances
+
+SMTP (.env / Render):
+  SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASSWORD, SMTP_FROM
+
+Resend (https://resend.com — free tier):
+  RESEND_API_KEY=re_...
+  EMAIL_FROM=FrontierOS <you@verified-email.com>
 """
 from __future__ import annotations
 import logging
@@ -17,6 +21,8 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.utils import formataddr
 from typing import Dict, Tuple
+
+import requests
 
 logger = logging.getLogger(__name__)
 
@@ -42,7 +48,21 @@ def _smtp_config() -> Dict:
     }
 
 
+def _resend_api_key() -> str:
+    return (os.getenv("RESEND_API_KEY", "") or "").strip()
+
+
+def _email_from() -> str:
+    raw = (os.getenv("EMAIL_FROM", "") or os.getenv("SMTP_FROM", "") or "").strip()
+    if raw:
+        return raw
+    user = (os.getenv("SMTP_USER", "") or "").strip()
+    return formataddr(("FrontierOS", user)) if user else ""
+
+
 def is_email_configured() -> bool:
+    if _resend_api_key():
+        return bool(_email_from())
     c = _smtp_config()
     return bool(c["host"] and c["user"] and c["password"])
 
@@ -50,13 +70,22 @@ def is_email_configured() -> bool:
 def smtp_status() -> Dict:
     """Safe diagnostic payload (no secrets)."""
     c = _smtp_config()
+    transport = "resend" if _resend_api_key() else "smtp"
     return {
         "configured": is_email_configured(),
+        "transport": transport,
+        "render_free_smtp_blocked": (
+            "Render free tier blocks SMTP ports 587/465/25 — set RESEND_API_KEY or upgrade the web service."
+            if transport == "smtp"
+            else None
+        ),
+        "from": _email_from() or c["from"],
         "host": c["host"],
         "port": c["port"],
         "user": c["user"],
         "password_set": bool(c["password"]),
         "password_length": len(c["password"]),
+        "resend_key_set": bool(_resend_api_key()),
         "use_ssl": c["use_ssl"],
         "last_error": _last_smtp_error,
     }
@@ -69,7 +98,10 @@ def _app_links_enabled() -> bool:
 def send_early_access_code(to_email: str, full_name: str, code: str) -> Tuple[bool, str]:
     """Returns (success, error_message)."""
     if not is_email_configured():
-        return False, "SMTP not configured (set SMTP_HOST, SMTP_USER, SMTP_PASSWORD on Render)"
+        return False, (
+            "Email not configured — set RESEND_API_KEY + EMAIL_FROM on Render free, "
+            "or SMTP_HOST + SMTP_USER + SMTP_PASSWORD on paid/local"
+        )
     ok, err = _send_html_email(
         to_email,
         f"Your FrontierOS access code: {code}",
@@ -141,8 +173,52 @@ def _connect_smtp(cfg: Dict):
     return smtp
 
 
+def _send_via_resend(to_email: str, subject: str, text: str, html: str) -> Tuple[bool, str]:
+    global _last_smtp_error
+    api_key = _resend_api_key()
+    from_addr = _email_from()
+    if not api_key:
+        return False, "RESEND_API_KEY not set"
+    if not from_addr:
+        return False, "EMAIL_FROM not set (verify sender in Resend dashboard)"
+    try:
+        resp = requests.post(
+            "https://api.resend.com/emails",
+            headers={
+                "Authorization": f"Bearer {api_key}",
+                "Content-Type": "application/json",
+            },
+            json={
+                "from": from_addr,
+                "to": [to_email],
+                "subject": subject,
+                "text": text,
+                "html": html,
+            },
+            timeout=30,
+        )
+        if resp.status_code in (200, 201):
+            _last_smtp_error = ""
+            logger.info("[Email/Resend] sent to %s: %s", to_email, subject)
+            return True, ""
+        detail = resp.text[:500]
+        try:
+            detail = resp.json().get("message", detail)
+        except Exception:
+            pass
+        _last_smtp_error = f"Resend HTTP {resp.status_code}: {detail}"
+        logger.error("[Email/Resend] %s", _last_smtp_error)
+        return False, _last_smtp_error
+    except Exception as exc:
+        _last_smtp_error = str(exc)
+        logger.error("[Email/Resend] failed to %s: %s", to_email, exc)
+        return False, _last_smtp_error
+
+
 def _send_html_email(to_email: str, subject: str, text: str, html: str) -> Tuple[bool, str]:
     global _last_smtp_error
+    if _resend_api_key():
+        return _send_via_resend(to_email, subject, text, html)
     cfg = _smtp_config()
     try:
         msg = MIMEMultipart("alternative")

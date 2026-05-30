@@ -15,8 +15,10 @@ Recommended host: **[Render](https://render.com)** (free tier; no persistent dis
    |-----|--------|
    | `OPENROUTER_API_KEY` | Your OpenRouter key |
    | `APP_BASE_URL` | `https://frontieros-api.onrender.com` (use your actual Render URL) |
-   | `SMTP_USER` | `tsingh98@umd.edu` |
-   | `SMTP_PASSWORD` | Gmail/Workspace **app password** (16 chars, no spaces) |
+   | `RESEND_API_KEY` | **Required on Render free** — [Resend](https://resend.com) API key (SMTP ports are blocked on free tier) |
+   | `EMAIL_FROM` | `FrontierOS <tsingh98@umd.edu>` — must be verified in Resend |
+   | `SMTP_USER` | Optional if using Resend only; for local dev / paid Render |
+   | `SMTP_PASSWORD` | Gmail app password (16 chars, no spaces) — **does not work on Render free** |
    | `SMTP_FROM` | `FrontierOS <tsingh98@umd.edu>` |
 
 5. Wait for deploy (~5–10 min first build). Copy the service URL, e.g.  
@@ -55,7 +57,20 @@ docker run --rm -p 8000:8000 --env-file .env -v "$(pwd)/data:/app/data" frontier
 | `MEMORY_BACKEND` | `disabled` | Use `qdrant` only if you add a Qdrant service |
 | `DATABASE_URL` | `sqlite:///data/arxiv_papers.db` | Postgres URL supported; use Render Postgres add-on |
 
-## 5. Free tier notes
+## 5. Email on Render free tier
+
+Render **blocks outbound SMTP** (ports 25, 465, 587) on free web services. Gmail app passwords are correct but connections fail with `Network is unreachable`.
+
+**Fix (recommended):** use [Resend](https://resend.com) over HTTPS:
+
+1. Create a Resend account → **API Keys** → copy `re_...`
+2. **Domains** or **Emails** → verify `tsingh98@umd.edu` (or your sending address)
+3. In Render env: `RESEND_API_KEY`, `EMAIL_FROM=FrontierOS <tsingh98@umd.edu>`
+4. Redeploy → check `GET /api/health/smtp` → `"transport":"resend"`
+
+**Alternative:** upgrade the Render web service to **Starter** ($7/mo) — then Gmail SMTP works with `SMTP_*` vars.
+
+## 6. Free tier notes
 
 - Render free services **sleep** after ~15 min idle; first request may take ~30s.
 - **No persistent disk on free tier** — the default SQLite DB is ephemeral (cleared on redeploy/restart). Signup, access codes, and email still work; paper/KG data is not kept long-term unless you add Postgres.
@@ -63,6 +78,6 @@ docker run --rm -p 8000:8000 --env-file .env -v "$(pwd)/data:/app/data" frontier
   - Upgrade the web service to **Starter** and add a disk in the Render dashboard (`/app/data`), or
   - Use free **[Neon](https://neon.tech)** Postgres and set `DATABASE_URL` to the connection string in Render env vars.
 
-## 6. If Blueprint failed on “disks not supported”
+## 7. If Blueprint failed on “disks not supported”
 
 Pull the latest `main` (disk block removed from `render.yaml`) and run **Blueprint → Apply** again.
