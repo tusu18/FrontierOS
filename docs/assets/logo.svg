@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 36" fill="none" role="img" aria-label="FrontierOS">
+  <title>FrontierOS</title>
+  <g transform="translate(0 3)">
+    <circle cx="15" cy="15" r="14" stroke="#063f33" stroke-width="1.4"/>
+    <circle cx="15" cy="15" r="8.5" stroke="#0e8a6c" stroke-width="1.4"/>
+    <circle cx="15" cy="15" r="3" fill="#14a883"/>
+    <path d="M15 15 L27 6" stroke="#14a883" stroke-width="1.6" stroke-linecap="round"/>
+  </g>
+  <text x="40" y="24" font-family="'Space Grotesk', ui-sans-serif, system-ui, sans-serif" font-size="20" font-weight="600" letter-spacing="-0.02em" fill="#14161a">FrontierOS</text>
+</svg>

@@ -3,6 +3,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>FrontierOS — Know what changed. See what matters. Build what's next.</title>
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="assets/favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="config.js"></script>
 <script src="ghpages-bridge.js"></script>
@@ -249,8 +251,11 @@ body { margin: 0; font-family: var(--font-body); }
   }
   .nav-row { display: flex; align-items: center; justify-content: space-between; height: 72px; }
   .brand { display: flex; align-items: center; gap: 11px; font-family: var(--font-display); font-weight: 600; font-size: 19px; letter-spacing: -.02em; }
-  .mark { width: 30px; height: 30px; position: relative; display: grid; place-items: center; }
-  .mark svg { display: block; }
+  .mark { width: 30px; height: 30px; position: relative; display: grid; place-items: center; flex: none; }
+  .mark img { display: block; width: 30px; height: 30px; }
+  .mark .mark-dark { display: none; }
+  body.dark .mark .mark-light { display: none; }
+  body.dark .mark .mark-dark { display: block; }
   .nav-links { display: flex; gap: 34px; font-size: 15px; color: var(--ink-soft); }
   .nav-links a { text-decoration: none; transition: color .2s; }
   .nav-links a:hover { color: var(--ink); }
@@ -639,13 +644,9 @@ body { margin: 0; font-family: var(--font-body); }
   <nav class="top">
     <div class="wrap nav-row">
       <div class="brand">
-        <span class="mark">
-          <svg width="30" height="30" viewBox="0 0 30 30" fill="none">
-            <circle cx="15" cy="15" r="14" stroke="#063f33" stroke-width="1.4"></circle>
-            <circle cx="15" cy="15" r="8.5" stroke="#0e8a6c" stroke-width="1.4"></circle>
-            <circle cx="15" cy="15" r="3" fill="#14a883"></circle>
-            <path d="M15 15 L27 6" stroke="#14a883" stroke-width="1.6" stroke-linecap="round"></path>
-          </svg>
+        <span class="mark" aria-hidden="true">
+          <img class="mark-light" src="assets/logo-mark.svg" alt="" width="30" height="30">
+          <img class="mark-dark" src="assets/logo-mark-dark.svg" alt="" width="30" height="30">
         </span>
         FrontierOS
       </div>

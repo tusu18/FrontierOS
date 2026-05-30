@@ -21,6 +21,13 @@ def main() -> None:
             raise SystemExit(f"Missing {src}")
         shutil.copy2(src, DOCS / name)
 
+    assets_src = STATIC / "assets"
+    if assets_src.is_dir():
+        assets_dst = DOCS / "assets"
+        if assets_dst.exists():
+            shutil.rmtree(assets_dst)
+        shutil.copytree(assets_src, assets_dst)
+
     api = os.getenv("FRONTIEROS_API", "").strip().rstrip("/")
     app = os.getenv("FRONTIEROS_APP", "").strip().rstrip("/") or (f"{api}/app" if api else "")
     ej_pub = os.getenv("FRONTIEROS_EMAILJS_PUBLIC_KEY", "").strip()

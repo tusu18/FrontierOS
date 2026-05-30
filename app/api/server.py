@@ -160,6 +160,9 @@ if STATIC_DIR.exists():
     # /app/*    → static/app/      (JS, JSX, data files)
     # GET /app is handled by the route above; this mount catches /app/icons.jsx etc.
     app.mount("/app",    StaticFiles(directory=str(STATIC_DIR / "app")),    name="app-js")
+    assets_dir = STATIC_DIR / "assets"
+    if assets_dir.exists():
+        app.mount("/assets", StaticFiles(directory=str(assets_dir)), name="assets")
 
 
 # ─── Data endpoints ───────────────────────────────────────────────────────────

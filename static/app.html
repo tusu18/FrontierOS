@@ -3,35 +3,3478 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FrontierOS — Research Terminal</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles/system.css">
-<link rel="stylesheet" href="styles/app.css">
-<style>:root { --accent: #2fcf9e; }</style>
+<title>FrontierOS — Research Intelligence Terminal</title>
+<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   FrontierOS — shared design system
+   Light editorial (marketing) + dark terminal (app)
+   ============================================================ */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+:root {
+  /* type */
+  --font-display: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
+  --font-body: 'Hanken Grotesk', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  /* light palette */
+  --paper: #ffffff;
+  --stone: #f1efe9;
+  --stone-2: #e8e5dc;
+  --ink: #14161a;
+  --ink-soft: #3d4148;
+  --ink-mute: #797f88;
+  --hairline: #e3e0d8;
+  --hairline-2: #d6d2c8;
+
+  /* green identity */
+  --green-950: #042b23;
+  --green-900: #063f33;
+  --green-800: #0a5645;
+  --green-600: #0e8a6c;
+  --green-700: #0b755e;
+  --green-500: #14a883;
+  --green-400: #2fcf9e;
+  --green-300: #66e0bb;
+  --green-100: #c8f3e3;
+  --green-050: #e9faf3;
+
+  /* warm + functional accents */
+  --coral: #ff7759;
+  --coral-soft: #ffcabb;
+  --blue: #2f6df0;
+  --amber: #f4a52a;
+  --rose: #f2607d;
+
+  /* dark terminal palette */
+  --d-bg: #0a0f0d;
+  --d-bg-2: #0d1411;
+  --d-surface: #111a16;
+  --d-elev: #16221c;
+  --d-elev-2: #1c2b24;
+  --d-border: #25342c;
+  --d-border-2: #2f4238;
+  --d-text: #eaf2ed;
+  --d-text-2: #9fb0a7;
+  --d-text-3: #6a7c73;
+  --d-topbar: rgba(10,15,13,.82);
+  --d-legend: rgba(13,20,17,.9);
+
+  /* node taxonomy colors (graph) */
+  --n-paper: #5b9bff;
+  --n-method: #a78bfa;
+  --n-dataset: #2fcf9e;
+  --n-benchmark: #34d9e0;
+  --n-claim: #f4cf4a;
+  --n-limitation: #f2607d;
+  --n-future: #f4a52a;
+  --n-gap: #ff8fc7;
+  --n-author: #9aa6b2;
+  --n-inst: #d8dee6;
+
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 22px;
+  --radius-pill: 999px;
+
+  --shadow-soft: 0 1px 2px rgba(8,20,16,.04), 0 12px 30px rgba(8,20,16,.06);
+}
+
+* { box-sizing: border-box; }
+html { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+body { margin: 0; font-family: var(--font-body); }
+
+/* ---- shared primitives ---- */
+.mono-label {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+
+.pill-cta {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-family: var(--font-body); font-weight: 500; font-size: 15px;
+  padding: 13px 24px; border-radius: var(--radius-pill);
+  border: 1px solid transparent; cursor: pointer; text-decoration: none;
+  transition: transform .15s ease, background .2s ease, color .2s ease, border-color .2s ease;
+}
+.pill-cta:active { transform: translateY(1px); }
+
+.pill-dark { background: var(--ink); color: #fff; }
+.pill-dark:hover { background: #000; }
+.pill-green { background: var(--green-900); color: #eafaf4; }
+.pill-green:hover { background: var(--green-800); }
+.pill-light { background: #fff; color: var(--ink); border-color: var(--hairline-2); }
+.pill-light:hover { background: var(--stone); }
+.pill-ghost { background: transparent; color: var(--ink); }
+.pill-ghost:hover { background: rgba(0,0,0,.04); }
+
+.link-underline {
+  color: var(--ink); text-decoration: none; font-weight: 500;
+  border-bottom: 1px solid var(--ink); padding-bottom: 1px;
+  transition: opacity .2s ease;
+}
+.link-underline:hover { opacity: .55; }
+
+::selection { background: var(--green-300); color: var(--green-950); }
+
+/* FrontierOS — dark terminal app shell */
+
+body.app { background: var(--d-bg); color: var(--d-text); font-family: var(--font-body); }
+#root { min-height: 100vh; }
+
+.app-shell { display: grid; grid-template-columns: 260px 1fr; min-height: 100vh; }
+
+/* ---------- Sidebar ---------- */
+.sidebar {
+  background: var(--d-bg-2); border-right: 1px solid var(--d-border);
+  display: flex; flex-direction: column; position: sticky; top: 0; height: 100vh; overflow-y: auto;
+}
+.sb-brand { display: flex; align-items: center; gap: 10px; padding: 20px 20px 18px; font-family: var(--font-display); font-weight: 600; font-size: 17px; letter-spacing: -.02em; }
+.sb-brand .mark { width: 26px; height: 26px; }
+.sb-section { padding: 6px 12px; }
+.sb-section + .sb-section { border-top: 1px solid var(--d-border); margin-top: 6px; padding-top: 12px; }
+.sb-cap { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--d-text-3); padding: 6px 10px; }
+.nav-item {
+  display: flex; align-items: center; gap: 11px; padding: 9px 11px; border-radius: 9px;
+  color: var(--d-text-2); font-size: 14px; cursor: pointer; transition: background .15s, color .15s;
+  border: 1px solid transparent; width: 100%; text-align: left; background: none; font-family: inherit;
+}
+.nav-item:hover { background: var(--d-elev); color: var(--d-text); }
+.nav-item.active { background: var(--d-elev-2); color: var(--d-text); border-color: var(--d-border-2); }
+.nav-item.active .ni-ic { color: var(--accent); }
+.ni-ic { width: 17px; height: 17px; display: grid; place-items: center; color: var(--d-text-3); flex-shrink: 0; }
+.nav-item.active .ni-ic svg, .nav-item:hover .ni-ic svg { stroke: currentColor; }
+
+.sb-chips { display: flex; flex-wrap: wrap; gap: 6px; padding: 4px 10px 10px; }
+.cat-chip { font-family: var(--font-mono); font-size: 11px; padding: 3px 9px; border-radius: var(--radius-pill); border: 1px solid var(--d-border-2); color: var(--d-text-2); cursor: pointer; transition: all .15s; }
+.cat-chip:hover { border-color: var(--accent); color: var(--accent); }
+.cat-chip.on { background: var(--accent); color: #042b23; border-color: var(--accent); }
+
+.sb-profile { margin-top: auto; padding: 14px 16px; border-top: 1px solid var(--d-border); display: flex; align-items: center; gap: 11px; }
+.sb-profile .av { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg,var(--green-500),var(--green-800)); display: grid; place-items: center; color: #042b23; font-weight: 600; font-size: 14px; }
+.sb-profile .who { font-size: 13px; }
+.sb-profile .who b { display: block; color: var(--d-text); font-weight: 600; }
+.sb-profile .who span { color: var(--d-text-3); font-size: 11.5px; }
+
+/* ---------- Topbar ---------- */
+.main { display: flex; flex-direction: column; min-width: 0; }
+.topbar {
+  height: 64px; border-bottom: 1px solid var(--d-border); display: flex; align-items: center;
+  gap: 16px; padding: 0 28px; position: sticky; top: 0; background: var(--d-topbar);
+  backdrop-filter: blur(12px); z-index: 30;
+}
+.global-search {
+  flex: 1; max-width: 620px; display: flex; align-items: center; gap: 10px;
+  background: var(--d-surface); border: 1px solid var(--d-border); border-radius: var(--radius-pill);
+  padding: 9px 16px; color: var(--d-text-3); cursor: text; transition: border-color .15s;
+}
+.global-search:focus-within { border-color: var(--accent); }
+.global-search input { flex: 1; background: none; border: none; outline: none; color: var(--d-text); font-family: inherit; font-size: 13.5px; }
+.global-search input::placeholder { color: var(--d-text-3); }
+.global-search kbd { font-family: var(--font-mono); font-size: 10px; background: var(--d-elev); border: 1px solid var(--d-border-2); border-radius: 5px; padding: 2px 6px; color: var(--d-text-2); }
+.top-right { margin-left: auto; display: flex; align-items: center; gap: 14px; }
+.model-badge { display: flex; align-items: center; gap: 7px; font-family: var(--font-mono); font-size: 11.5px; color: var(--d-text-2); background: var(--d-surface); border: 1px solid var(--d-border); border-radius: var(--radius-pill); padding: 6px 12px; }
+.model-badge .led { width: 7px; height: 7px; border-radius: 50%; background: var(--green-400); box-shadow: 0 0 8px var(--green-400); }
+.top-date { font-family: var(--font-mono); font-size: 11.5px; color: var(--d-text-3); }
+.icon-btn { width: 34px; height: 34px; border-radius: 9px; border: 1px solid var(--d-border); background: var(--d-surface); color: var(--d-text-2); display: grid; place-items: center; cursor: pointer; transition: all .15s; }
+.icon-btn:hover { color: var(--d-text); border-color: var(--d-border-2); }
+
+/* ---------- Page canvas ---------- */
+.page { padding: 32px 28px 60px; max-width: 1280px; width: 100%; margin: 0 auto; }
+.page.wide { max-width: 100%; }
+.page-head { margin-bottom: 26px; }
+.page-head .crumb { font-family: var(--font-mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); margin-bottom: 12px; }
+.page-head h1 { font-family: var(--font-display); font-weight: 500; font-size: 34px; letter-spacing: -.025em; margin: 0; }
+.page-head p { color: var(--d-text-2); font-size: 15.5px; margin: 10px 0 0; max-width: 70ch; line-height: 1.5; }
+
+/* generic card */
+.card { background: var(--d-surface); border: 1px solid var(--d-border); border-radius: var(--radius-md); }
+.card-pad { padding: var(--pad, 20px); }
+
+/* badges */
+.badge { display: inline-flex; align-items: center; gap: 5px; font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .04em; text-transform: uppercase; padding: 4px 9px; border-radius: var(--radius-pill); border: 1px solid; }
+.badge-green { background: rgba(47,207,158,.13); color: var(--green-300); border-color: rgba(47,207,158,.32); }
+.badge-purple { background: rgba(167,139,250,.13); color: #c4b5fd; border-color: rgba(167,139,250,.32); }
+.badge-cyan { background: rgba(52,217,224,.12); color: #8be8ee; border-color: rgba(52,217,224,.3); }
+.badge-orange { background: rgba(244,165,42,.13); color: #f7c66a; border-color: rgba(244,165,42,.32); }
+.badge-rose { background: rgba(242,96,125,.13); color: #f59ab0; border-color: rgba(242,96,125,.32); }
+.badge-blue { background: rgba(91,155,255,.13); color: #9cc1ff; border-color: rgba(91,155,255,.32); }
+.badge-gray { background: rgba(154,166,178,.1); color: #aab4be; border-color: rgba(154,166,178,.26); }
+
+/* score pill */
+.score { display: inline-flex; align-items: baseline; gap: 6px; font-family: var(--font-mono); font-size: 12px; color: var(--d-text-2); background: var(--d-elev); border: 1px solid var(--d-border); border-radius: var(--radius-pill); padding: 4px 11px; }
+.score b { color: var(--d-text); font-weight: 600; font-size: 13px; }
+.score.hi b { color: var(--green-300); }
+
+/* buttons */
+.btn { display: inline-flex; align-items: center; gap: 7px; font-family: var(--font-body); font-size: 13px; font-weight: 500; padding: 8px 15px; border-radius: 9px; cursor: pointer; border: 1px solid var(--d-border-2); background: var(--d-elev); color: var(--d-text); transition: all .15s; }
+.btn:hover { background: var(--d-elev-2); border-color: var(--accent); }
+.btn-accent { background: var(--accent); color: #042b23; border-color: var(--accent); font-weight: 600; }
+.btn-accent:hover { filter: brightness(1.08); background: var(--accent); }
+.btn-ghost { background: transparent; }
+.btn-sm { padding: 6px 11px; font-size: 12px; }
+
+/* KPI cards */
+.kpi-grid { display: grid; grid-template-columns: repeat(6,1fr); gap: 14px; }
+@media (max-width:1100px){ .kpi-grid { grid-template-columns: repeat(3,1fr); } }
+@media (max-width:620px){ .kpi-grid { grid-template-columns: repeat(2,1fr); } }
+.kpi { padding: 16px; }
+.kpi .k-top { display: flex; justify-content: space-between; align-items: flex-start; }
+.kpi .k-label { font-size: 12px; color: var(--d-text-2); }
+.kpi .k-val { font-family: var(--font-display); font-size: 30px; font-weight: 500; letter-spacing: -.02em; margin: 8px 0 4px; }
+.kpi .k-delta { font-family: var(--font-mono); font-size: 11px; }
+.k-delta.up { color: var(--green-300); }
+.k-delta.down { color: var(--rose); }
+.spark { display: block; margin-top: 8px; }
+
+/* hero block (dashboard) */
+.cmd-hero { background: linear-gradient(135deg, var(--d-surface), var(--d-bg-2)); border: 1px solid var(--d-border); border-radius: var(--radius-lg); padding: 30px 32px; position: relative; overflow: hidden; }
+.cmd-hero::after { content:''; position:absolute; inset:0; background: radial-gradient(70% 140% at 100% 0%, rgba(47,207,158,.1), transparent 55%); pointer-events:none; }
+.cmd-hero h2 { font-family: var(--font-display); font-weight: 500; font-size: 27px; letter-spacing: -.02em; margin: 0; max-width: 26ch; }
+.cmd-hero p { color: var(--d-text-2); margin: 12px 0 22px; max-width: 60ch; }
+.cmd-hero .status { display: flex; gap: 22px; flex-wrap: wrap; margin-top: 22px; padding-top: 20px; border-top: 1px solid var(--d-border); }
+.cmd-hero .status div { font-family: var(--font-mono); font-size: 12px; color: var(--d-text-3); }
+.cmd-hero .status b { color: var(--d-text); display: block; font-size: 15px; margin-top: 3px; }
+
+/* intel strip */
+.intel-strip { display: grid; grid-template-columns: repeat(6,1fr); gap: 12px; }
+@media (max-width:1100px){ .intel-strip { grid-template-columns: repeat(3,1fr);} }
+@media (max-width:620px){ .intel-strip { grid-template-columns: repeat(2,1fr);} }
+.intel { padding: 15px; border-left: 2px solid var(--accent); }
+.intel .ik { font-family: var(--font-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: .08em; color: var(--d-text-3); }
+.intel .iv { font-family: var(--font-display); font-weight: 500; font-size: 16px; margin-top: 8px; letter-spacing: -.01em; line-height: 1.2; }
+
+.section-title { font-family: var(--font-display); font-weight: 500; font-size: 18px; letter-spacing: -.01em; margin: 0 0 14px; display:flex; align-items:center; gap:10px; }
+.section-title .count { font-family: var(--font-mono); font-size: 12px; color: var(--d-text-3); font-weight: 400; }
+
+/* paper card */
+.paper-card { padding: 20px; transition: border-color .15s, transform .15s; cursor: pointer; }
+.paper-card:hover { border-color: var(--d-border-2); transform: translateY(-2px); }
+.paper-card .pc-badges { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 13px; }
+.paper-card h3 { font-family: var(--font-display); font-weight: 500; font-size: 18px; letter-spacing: -.015em; margin: 0 0 9px; line-height: 1.25; }
+.paper-card .pc-sum { color: var(--d-text-2); font-size: 14px; line-height: 1.5; margin: 0 0 14px; }
+.paper-card .pc-meta { font-family: var(--font-mono); font-size: 11.5px; color: var(--d-text-3); margin-bottom: 14px; }
+.paper-card .pc-scores { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 14px; }
+.paper-card .pc-tax { font-size: 12.5px; color: var(--d-text-3); margin-bottom: 6px; }
+.paper-card .pc-tax b { color: var(--d-text-2); font-weight: 500; }
+.paper-card .pc-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--d-border); }
+
+/* controls bar */
+.controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 22px; }
+.search-field { display: flex; align-items: center; gap: 8px; background: var(--d-surface); border: 1px solid var(--d-border); border-radius: 9px; padding: 8px 13px; flex: 1; min-width: 200px; }
+.search-field input { background: none; border: none; outline: none; color: var(--d-text); font-family: inherit; font-size: 13.5px; flex: 1; }
+.search-field input::placeholder { color: var(--d-text-3); }
+select.ctl, .toggle-chip { font-family: var(--font-body); font-size: 13px; background: var(--d-surface); border: 1px solid var(--d-border); border-radius: 9px; padding: 8px 13px; color: var(--d-text); cursor: pointer; }
+select.ctl:hover { border-color: var(--d-border-2); }
+.toggle-chip { display: inline-flex; align-items: center; gap: 7px; user-select: none; }
+.toggle-chip .sw { width: 30px; height: 17px; border-radius: 999px; background: var(--d-border-2); position: relative; transition: background .15s; }
+.toggle-chip .sw::after { content:''; position:absolute; top:2px; left:2px; width:13px; height:13px; border-radius:50%; background:#fff; transition: transform .15s; }
+.toggle-chip.on .sw { background: var(--accent); }
+.toggle-chip.on .sw::after { transform: translateX(13px); }
+
+/* two-col */
+.split { display: grid; grid-template-columns: 1fr 320px; gap: 20px; align-items: start; }
+@media (max-width:980px){ .split { grid-template-columns: 1fr; } }
+
+/* tabs */
+.tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--d-border); margin-bottom: 22px; overflow-x: auto; }
+.tab { font-family: var(--font-body); font-size: 13.5px; color: var(--d-text-2); padding: 11px 14px; cursor: pointer; border: none; background: none; border-bottom: 2px solid transparent; white-space: nowrap; transition: color .15s; }
+.tab:hover { color: var(--d-text); }
+.tab.active { color: var(--d-text); border-bottom-color: var(--accent); }
+
+/* table */
+table.rr { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+table.rr th { text-align: left; font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--d-text-3); padding: 10px 12px; border-bottom: 1px solid var(--d-border); font-weight: 400; }
+table.rr td { padding: 12px; border-bottom: 1px solid var(--d-border); color: var(--d-text-2); vertical-align: top; }
+table.rr tr:hover td { background: var(--d-bg-2); }
+table.rr td b { color: var(--d-text); font-weight: 500; }
+
+/* trend card */
+.trend-card { padding: 18px; }
+.trend-card h4 { font-family: var(--font-display); font-weight: 500; font-size: 17px; margin: 0 0 12px; letter-spacing: -.01em; display:flex; justify-content:space-between; align-items:center; }
+.vel { font-family: var(--font-mono); font-size: 13px; font-weight: 600; }
+.vel.up { color: var(--green-300); }
+.vel.down { color: var(--rose); }
+.trend-row { display: flex; justify-content: space-between; font-size: 12.5px; padding: 5px 0; color: var(--d-text-3); }
+.trend-row b { color: var(--d-text-2); font-weight: 500; }
+
+/* gap card */
+.gap-card { padding: 22px; }
+.gap-card .opp { font-family: var(--font-display); font-size: 30px; font-weight: 500; color: var(--accent); }
+
+/* chat / memory */
+.chat-wrap { max-width: 820px; margin: 0 auto; }
+.chips-row { display: flex; flex-wrap: wrap; gap: 9px; margin-bottom: 24px; }
+.prompt-chip { font-size: 13px; color: var(--d-text-2); background: var(--d-surface); border: 1px solid var(--d-border); border-radius: var(--radius-pill); padding: 8px 14px; cursor: pointer; transition: all .15s; }
+.prompt-chip:hover { border-color: var(--accent); color: var(--d-text); }
+.msg { margin-bottom: 22px; }
+.msg .role { font-family: var(--font-mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--d-text-3); margin-bottom: 8px; }
+.msg.user .bubble { background: var(--d-elev); border: 1px solid var(--d-border); border-radius: var(--radius-md); padding: 14px 18px; font-size: 15px; }
+.msg.ai .bubble { font-size: 15px; line-height: 1.6; color: var(--d-text); }
+.msg.ai .bubble p { margin: 0 0 12px; }
+.msg.ai .ev { background: var(--d-surface); border: 1px solid var(--d-border); border-left: 2px solid var(--accent); border-radius: 0 9px 9px 0; padding: 11px 15px; margin: 10px 0; font-size: 13.5px; color: var(--d-text-2); }
+.msg.ai .cite { font-family: var(--font-mono); font-size: 11px; color: var(--accent); cursor: pointer; }
+.cursor-blink::after { content:'▋'; color: var(--accent); animation: blink 1s steps(2) infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+.composer { display: flex; gap: 10px; align-items: center; background: var(--d-surface); border: 1px solid var(--d-border-2); border-radius: var(--radius-pill); padding: 10px 12px 10px 20px; position: sticky; bottom: 20px; }
+.composer input { flex: 1; background: none; border: none; outline: none; color: var(--d-text); font-family: inherit; font-size: 15px; }
+.composer .send-btn { width: 38px; height: 38px; border-radius: 50%; background: var(--accent); color: #042b23; border: none; cursor: pointer; display: grid; place-items: center; font-size: 17px; }
+
+/* empty / stub */
+.stub { display: grid; place-items: center; min-height: 50vh; text-align: center; }
+.stub .stub-ic { width: 64px; height: 64px; border-radius: 16px; border: 1px solid var(--d-border-2); display: grid; place-items: center; color: var(--accent); margin: 0 auto 22px; }
+.stub h2 { font-family: var(--font-display); font-weight: 500; font-size: 24px; margin: 0 0 10px; letter-spacing: -.02em; }
+.stub p { color: var(--d-text-2); max-width: 46ch; margin: 0 auto 22px; line-height: 1.55; }
+.stub .feats { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+.stub .feats span { font-family: var(--font-mono); font-size: 11.5px; color: var(--d-text-3); border: 1px solid var(--d-border); border-radius: var(--radius-pill); padding: 6px 13px; }
+
+/* knowledge graph */
+.graph-stage { background: var(--d-bg-2); border: 1px solid var(--d-border); border-radius: var(--radius-md); position: relative; overflow: hidden; height: 620px; cursor: grab; }
+.graph-stage:active { cursor: grabbing; }
+.graph-stage svg { display: block; width: 100%; height: 100%; }
+.gnode { cursor: pointer; }
+.gnode text { font-family: var(--font-body); font-size: 11px; fill: var(--d-text-2); pointer-events: none; }
+.glink { stroke: var(--d-border-2); stroke-width: 1; }
+.graph-legend { position: absolute; left: 14px; bottom: 14px; background: var(--d-legend); border: 1px solid var(--d-border); border-radius: 10px; padding: 12px 14px; display: grid; grid-template-columns: 1fr 1fr; gap: 5px 18px; }
+.graph-legend .lg { display: flex; align-items: center; gap: 7px; font-size: 11px; color: var(--d-text-2); }
+.graph-legend .lg i { width: 9px; height: 9px; border-radius: 50%; display: block; }
+.graph-tools { position: absolute; right: 14px; top: 14px; display: flex; flex-direction: column; gap: 6px; }
+.entity-panel { padding: 20px; }
+.entity-panel .etype { font-family: var(--font-mono); font-size: 11px; text-transform: uppercase; letter-spacing: .1em; }
+.entity-panel h3 { font-family: var(--font-display); font-weight: 500; font-size: 21px; letter-spacing: -.01em; margin: 10px 0 16px; }
+.entity-stat { display: flex; justify-content: space-between; padding: 9px 0; border-top: 1px solid var(--d-border); font-size: 13px; color: var(--d-text-3); }
+.entity-stat b { color: var(--d-text); font-weight: 500; }
+
+/* bar chart (trends) */
+.barchart { display: flex; flex-direction: column; gap: 11px; }
+.bc-row { display: grid; grid-template-columns: 160px 1fr 50px; align-items: center; gap: 12px; font-size: 13px; }
+.bc-row .bc-label { color: var(--d-text-2); }
+.bc-track { height: 9px; background: var(--d-elev); border-radius: 999px; overflow: hidden; }
+.bc-fill { height: 100%; border-radius: 999px; background: var(--accent); }
+.bc-val { font-family: var(--font-mono); font-size: 12px; color: var(--d-text-2); text-align: right; }
+
+/* scatter */
+.scatter { position: relative; height: 320px; border: 1px solid var(--d-border); border-radius: var(--radius-md); background: var(--d-bg-2); margin-top: 8px; }
+.sc-pt { position: absolute; width: 12px; height: 12px; border-radius: 50%; transform: translate(-50%,50%); cursor: pointer; transition: transform .15s; }
+.sc-pt:hover { transform: translate(-50%,50%) scale(1.5); }
+.sc-axis { position: absolute; font-family: var(--font-mono); font-size: 10px; color: var(--d-text-3); }
+
+/* fade in — transform-only so content stays visible even if the animation
+   timeline is paused (e.g. a backgrounded iframe never advances past frame 0) */
+.fade-in { animation: fadeIn .42s cubic-bezier(.22,.61,.36,1) both; }
+@keyframes fadeIn { from { transform: translateY(10px); } to { transform: none; } }
+
+/* ============================================================
+   LIGHT THEME — redefine the dark token set to light values so
+   every component that uses --d-* adapts automatically.
+   Warm editorial palette matching the marketing site.
+   ============================================================ */
+body.app.light {
+  --d-bg: #f3f1ea;
+  --d-bg-2: #ffffff;
+  --d-surface: #ffffff;
+  --d-elev: #f4f2ec;
+  --d-elev-2: #ebe8df;
+  --d-border: #e4e1d8;
+  --d-border-2: #d4d0c5;
+  --d-text: #16181c;
+  --d-text-2: #51565e;
+  --d-text-3: #8a8f97;
+  --d-topbar: rgba(255,255,255,.82);
+  --d-legend: rgba(255,255,255,.94);
+  background: var(--d-bg); color: var(--d-text);
+}
+/* light-mode component nudges */
+body.app.light .sidebar { background: #fbfaf6; }
+body.app.light .cmd-hero { background: linear-gradient(135deg, #ffffff, #f4f2ec); }
+body.app.light .cmd-hero::after { background: radial-gradient(70% 140% at 100% 0%, rgba(20,168,131,.10), transparent 55%); }
+body.app.light .btn-accent { color: #04372b; }
+body.app.light .badge-green { background: rgba(14,138,108,.12); color: #0a6e54; border-color: rgba(14,138,108,.28); }
+body.app.light .badge-purple { background: rgba(124,92,246,.1); color: #6a44d8; border-color: rgba(124,92,246,.26); }
+body.app.light .badge-cyan { background: rgba(20,160,180,.1); color: #0c7e8e; border-color: rgba(20,160,180,.26); }
+body.app.light .badge-orange { background: rgba(220,140,20,.12); color: #b06a06; border-color: rgba(220,140,20,.28); }
+body.app.light .badge-rose { background: rgba(220,70,100,.1); color: #c23a5c; border-color: rgba(220,70,100,.26); }
+body.app.light .badge-blue { background: rgba(40,110,230,.1); color: #2059c8; border-color: rgba(40,110,230,.26); }
+body.app.light .badge-gray { background: rgba(90,96,104,.08); color: #5a6068; border-color: rgba(90,96,104,.2); }
+body.app.light .score.hi b { color: #0a7e5f; }
+body.app.light .sb-profile .av { color: #f3f1ea; }
+body.app.light .topbar .model-badge .led { box-shadow: 0 0 8px var(--green-500); }
+body.app.light .card { box-shadow: 0 1px 2px rgba(20,30,24,.03), 0 1px 0 rgba(20,30,24,.02); }
+body.app.light .paper-card:hover, body.app.light .card:hover { box-shadow: 0 6px 24px rgba(20,30,24,.07); }
+body.app.light table.rr tr:hover td { background: #faf9f5; }
+body.app.light .composer { box-shadow: 0 8px 30px rgba(20,30,24,.08); }
+body.app.light .graph-stage { background: #fbfaf6; }
+body.app.light .glink { stroke: var(--d-border-2); }
+body.app.light .gnode text { fill: var(--d-text-2); }
+
+/* theme toggle is instant (no background/color transition) so the change is
+   always correct even in a backgrounded iframe where transitions freeze.
+   Keep a subtle box-shadow ease for hover polish only. */
+body.app .card, body.app .btn { transition: box-shadow .25s ease, transform .2s ease; }
+
+/* ============================================================
+   CONTEXT ENGINE — Near My Work, Context, Directives,
+   Novelty Radar, Living Related Work, Citation Advisor
+   ============================================================ */
+
+/* grouped sidebar nav */
+.sb-nav { display: flex; flex-direction: column; gap: 2px; }
+.nav-group { padding-bottom: 8px; margin-bottom: 6px; }
+.nav-group + .nav-group { border-top: 1px solid var(--d-border); padding-top: 10px; }
+.nav-group-cap { font-family: var(--font-mono); font-size: 9.5px; letter-spacing: .15em; text-transform: uppercase; color: var(--d-text-3); padding: 4px 11px 7px; }
+.ni-tag { margin-left: auto; font-family: var(--font-mono); font-size: 9px; letter-spacing: .08em; text-transform: uppercase; color: #042b23; background: var(--accent); border-radius: 5px; padding: 2px 6px; font-weight: 600; }
+body.app.light .ni-tag { color: #04372b; }
+
+/* claim bar */
+.ctx-claimbar { display: flex; gap: 14px; align-items: flex-start; background: var(--d-surface); border: 1px solid var(--d-border); border-left: 3px solid var(--accent); border-radius: var(--radius-md); padding: 16px 18px; margin-bottom: 22px; }
+.ccb-ic { width: 36px; height: 36px; border-radius: 9px; background: color-mix(in srgb, var(--accent) 14%, transparent); display: grid; place-items: center; flex: none; }
+.ccb-cap { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--d-text-3); margin-bottom: 5px; }
+.ccb-claim { font-size: 14.5px; color: var(--d-text); line-height: 1.5; max-width: 90ch; }
+
+/* segmented filter */
+.seg-filter { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 20px; }
+.seg-btn { display: inline-flex; align-items: center; gap: 8px; font-family: var(--font-body); font-size: 13px; color: var(--d-text-2); background: var(--d-surface); border: 1px solid var(--d-border); border-radius: var(--radius-pill); padding: 7px 14px; cursor: pointer; transition: border-color .15s, color .15s; }
+.seg-btn:hover { border-color: var(--d-border-2); color: var(--d-text); }
+.seg-btn.on { background: var(--d-elev-2); color: var(--d-text); border-color: var(--accent); }
+.seg-n { font-family: var(--font-mono); font-size: 11px; color: var(--d-text-3); background: var(--d-elev); border-radius: 999px; padding: 1px 7px; }
+.seg-btn.on .seg-n { color: var(--accent); }
+
+/* ring */
+.ring-wrap { position: relative; flex: none; }
+.ring-num { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.ring-num b { font-family: var(--font-display); font-weight: 600; font-size: 19px; color: var(--d-text); line-height: 1; }
+.ring-num span { font-family: var(--font-mono); font-size: 8.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--d-text-3); margin-top: 2px; }
+
+/* classification badge */
+.cls-badge { display: inline-flex; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: 11px; letter-spacing: .03em; text-transform: uppercase; border: 1px solid; border-radius: var(--radius-pill); padding: 4px 11px; font-weight: 500; }
+.cls-badge.sm { font-size: 10px; padding: 3px 9px; }
+
+/* near-my-work cards */
+.nmw-list { display: flex; flex-direction: column; gap: 14px; }
+.nmw-card { background: var(--d-surface); border: 1px solid var(--d-border); border-radius: var(--radius-md); overflow: hidden; transition: border-color .15s, box-shadow .2s; }
+.nmw-card:hover { border-color: var(--d-border-2); }
+.nmw-card.open { border-color: var(--accent); }
+.nmw-top { display: flex; gap: 18px; align-items: flex-start; padding: 18px 20px; cursor: pointer; }
+.nmw-mid { flex: 1; min-width: 0; }
+.nmw-badges { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 9px; }
+.act-pill { display: inline-flex; align-items: center; gap: 5px; font-family: var(--font-mono); font-size: 11px; text-transform: uppercase; letter-spacing: .04em; color: var(--d-text-2); background: var(--d-elev); border: 1px solid var(--d-border); border-radius: var(--radius-pill); padding: 4px 10px; }
+.nmw-mid h3 { font-family: var(--font-display); font-weight: 500; font-size: 18px; letter-spacing: -.015em; margin: 0 0 6px; line-height: 1.25; }
+.nmw-meta { font-family: var(--font-mono); font-size: 11.5px; color: var(--d-text-3); margin-bottom: 9px; }
+.nmw-note { font-size: 14px; color: var(--d-text-2); line-height: 1.5; margin: 0; max-width: 80ch; }
+.nmw-exp { flex: none; width: 30px; height: 30px; border-radius: 8px; border: 1px solid var(--d-border); background: var(--d-elev); color: var(--d-text-3); display: grid; place-items: center; cursor: pointer; transition: transform .2s; }
+.nmw-card.open .nmw-exp { transform: rotate(90deg); color: var(--accent); border-color: var(--accent); }
+.nmw-detail { border-top: 1px solid var(--d-border); padding: 20px; background: var(--d-bg-2); }
+.nmw-cols { display: grid; grid-template-columns: 1fr 1.1fr; gap: 28px; }
+@media (max-width: 820px){ .nmw-cols { grid-template-columns: 1fr; gap: 18px; } }
+.mini-cap { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--d-text-3); margin-bottom: 12px; }
+.nmw-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+
+/* overlap bars */
+.ov-list { display: flex; flex-direction: column; gap: 11px; }
+.ov-row { display: grid; grid-template-columns: 92px 1fr 38px; align-items: center; gap: 12px; }
+.ov-dim { font-size: 13px; color: var(--d-text-2); }
+.ov-track { height: 7px; border-radius: 999px; background: var(--d-elev); overflow: hidden; }
+.ov-fill { height: 100%; border-radius: 999px; background: var(--accent); transition: width .8s cubic-bezier(.22,.61,.36,1); }
+.ov-pct { font-family: var(--font-mono); font-size: 12px; color: var(--d-text-2); text-align: right; }
+
+/* evidence + uncertainty */
+.evidence { background: var(--d-surface); border: 1px solid var(--d-border); border-left: 2px solid var(--accent); border-radius: 0 9px 9px 0; padding: 13px 15px; }
+.ev-quote { font-size: 13.5px; color: var(--d-text); line-height: 1.5; font-style: italic; display: flex; gap: 8px; }
+.ev-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 11px; }
+.conf-pill { display: inline-flex; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: 11px; border: 1px solid; border-radius: var(--radius-pill); padding: 3px 10px; }
+.conf-dot { width: 6px; height: 6px; border-radius: 50%; }
+.ev-unc { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; color: var(--d-text-3); }
+.ev-src { font-family: var(--font-mono); font-size: 11px; color: var(--d-text-3); margin-left: auto; }
+
+/* research context page */
+.ctx-grid { display: grid; grid-template-columns: 1fr 300px; gap: 22px; }
+@media (max-width: 980px){ .ctx-grid { grid-template-columns: 1fr; } }
+.ctx-side { display: flex; flex-direction: column; gap: 14px; }
+.upload-zone { border: 1.5px dashed var(--d-border-2); border-radius: var(--radius-md); padding: 32px 24px; text-align: center; cursor: pointer; transition: border-color .2s, background .2s; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.upload-zone:hover, .upload-zone.drag { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 6%, transparent); }
+.uz-ic { width: 52px; height: 52px; border-radius: 13px; background: color-mix(in srgb, var(--accent) 12%, transparent); display: grid; place-items: center; margin-bottom: 4px; }
+.upload-zone b { font-family: var(--font-display); font-weight: 500; font-size: 16px; color: var(--d-text); }
+.upload-zone span { font-size: 13px; color: var(--d-text-3); max-width: 46ch; }
+.ctx-items { display: flex; flex-direction: column; gap: 9px; }
+.ctx-item { display: flex; gap: 13px; align-items: center; background: var(--d-surface); border: 1px solid var(--d-border); border-radius: var(--radius-sm); padding: 13px 15px; transition: border-color .15s; }
+.ctx-item:hover { border-color: var(--d-border-2); }
+.ctx-item.fresh { border-color: var(--accent); animation: ctxIn .5s ease; }
+@keyframes ctxIn { from { transform: translateY(-6px); } to { transform: none; } }
+.ci-ic { width: 34px; height: 34px; border-radius: 9px; background: var(--d-elev); color: var(--accent); display: grid; place-items: center; flex: none; }
+.ci-body { flex: 1; min-width: 0; }
+.ci-name { font-size: 14px; color: var(--d-text); font-weight: 500; display: flex; align-items: center; gap: 9px; }
+.ci-type { font-family: var(--font-mono); font-size: 9.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--d-text-3); border: 1px solid var(--d-border); border-radius: 5px; padding: 1px 6px; }
+.ci-topics { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.ci-topics span { font-family: var(--font-mono); font-size: 10.5px; color: var(--d-text-2); background: var(--d-elev); border-radius: 5px; padding: 2px 7px; }
+.ci-meta { font-family: var(--font-mono); font-size: 11px; color: var(--d-text-3); text-align: right; flex: none; line-height: 1.5; }
+.ent-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+.ent-cell { background: var(--d-elev); border: 1px solid var(--d-border); border-radius: 9px; padding: 11px 12px; }
+.ent-cell b { font-family: var(--font-display); font-weight: 600; font-size: 22px; color: var(--d-text); display: block; line-height: 1; }
+.ent-cell span { font-size: 11px; color: var(--d-text-3); margin-top: 4px; display: block; }
+.overlap-meter { height: 9px; border-radius: 999px; background: var(--d-elev); overflow: hidden; margin-bottom: 12px; }
+.om-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--accent), color-mix(in srgb, var(--accent) 40%, transparent)); }
+.side-note { font-size: 12.5px; color: var(--d-text-2); line-height: 1.55; margin: 0; }
+.side-note b { color: var(--d-text); }
+.privacy-card { display: flex; gap: 12px; align-items: flex-start; }
+.privacy-card p { font-size: 12.5px; color: var(--d-text-2); line-height: 1.55; margin: 0; }
+
+/* directives */
+.hit-pill, .fresh-pill { display: inline-flex; align-items: center; gap: 8px; font-family: var(--font-mono); font-size: 12px; color: var(--d-text-2); background: var(--d-surface); border: 1px solid var(--d-border); border-radius: var(--radius-pill); padding: 7px 13px; }
+.hit-pill .led, .fresh-pill .led { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 8px var(--accent); }
+.dir-compose { display: flex; align-items: center; gap: 11px; background: var(--d-surface); border: 1px solid var(--d-border-2); border-radius: var(--radius-pill); padding: 9px 12px 9px 18px; margin-bottom: 12px; }
+.dir-compose input { flex: 1; background: none; border: none; outline: none; color: var(--d-text); font-family: inherit; font-size: 14.5px; }
+.dir-compose input::placeholder { color: var(--d-text-3); }
+.dir-templates { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px; }
+.tmpl-chip { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--d-text-2); background: var(--d-surface); border: 1px dashed var(--d-border-2); border-radius: var(--radius-pill); padding: 6px 12px; cursor: pointer; transition: border-color .15s, color .15s; }
+.tmpl-chip:hover { border-color: var(--accent); color: var(--accent); border-style: solid; }
+.dir-list { display: flex; flex-direction: column; gap: 10px; }
+.dir-card { display: flex; align-items: center; gap: 15px; background: var(--d-surface); border: 1px solid var(--d-border); border-radius: var(--radius-md); padding: 15px 18px; transition: border-color .15s, opacity .2s; }
+.dir-card:hover { border-color: var(--d-border-2); }
+.dir-card.off { opacity: .55; }
+.dir-card.fresh { border-color: var(--accent); animation: ctxIn .5s ease; }
+.dir-tog { width: 38px; height: 22px; border-radius: 99px; background: var(--d-border-2); position: relative; cursor: pointer; transition: background .2s; flex: none; border: none; padding: 0; }
+.dir-tog::after { content: ''; position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; border-radius: 50%; background: #fff; transition: transform .2s cubic-bezier(.22,.61,.36,1); }
+.dir-tog.on { background: var(--accent); }
+.dir-tog.on::after { transform: translateX(16px); }
+.dir-body { flex: 1; min-width: 0; }
+.dir-text { font-size: 14.5px; color: var(--d-text); margin-bottom: 6px; }
+.dir-sub { display: flex; flex-wrap: wrap; gap: 14px; font-family: var(--font-mono); font-size: 11.5px; color: var(--d-text-3); }
+.dir-cad { display: inline-flex; align-items: center; gap: 5px; }
+.dir-new { color: var(--accent); }
+
+/* novelty radar */
+.nov-top { display: grid; grid-template-columns: 280px 1fr; gap: 16px; }
+@media (max-width: 860px){ .nov-top { grid-template-columns: 1fr; } }
+.nov-meter-card { display: flex; flex-direction: column; }
+.nov-big { font-family: var(--font-display); font-weight: 600; font-size: 52px; letter-spacing: -.03em; line-height: 1; margin: 12px 0 14px; }
+.nov-meter { height: 9px; border-radius: 999px; background: var(--d-elev); overflow: hidden; }
+.nm-fill { height: 100%; border-radius: 999px; transition: width 1s cubic-bezier(.22,.61,.36,1); }
+.nov-trend { display: flex; align-items: center; gap: 7px; font-size: 12.5px; color: var(--d-text-2); margin-top: 14px; }
+.nov-claim { font-size: 15px; color: var(--d-text); line-height: 1.5; margin: 10px 0 0; }
+.def-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.def-chips span { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--accent); background: color-mix(in srgb, var(--accent) 10%, transparent); border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent); border-radius: var(--radius-pill); padding: 5px 11px; }
+.nov-list { display: flex; flex-direction: column; gap: 10px; }
+.nov-row { display: flex; gap: 16px; align-items: center; background: var(--d-surface); border: 1px solid var(--d-border); border-radius: var(--radius-md); padding: 15px 18px; cursor: pointer; transition: border-color .15s, transform .15s; }
+.nov-row:hover { border-color: var(--d-border-2); transform: translateY(-2px); }
+.nov-lvl { display: inline-flex; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: 11px; text-transform: uppercase; letter-spacing: .05em; border: 1px solid; border-radius: var(--radius-pill); padding: 5px 11px; flex: none; }
+.nov-rb { flex: 1; min-width: 0; }
+.nov-rb h4 { font-family: var(--font-display); font-weight: 500; font-size: 16px; margin: 0 0 8px; letter-spacing: -.01em; }
+.nov-od { display: flex; flex-wrap: wrap; gap: 8px 22px; font-size: 13px; color: var(--d-text-2); }
+.nov-od b { color: var(--d-text-3); font-weight: 500; font-family: var(--font-mono); font-size: 11px; text-transform: uppercase; letter-spacing: .05em; margin-right: 4px; }
+.nov-mi b { color: var(--accent); }
+.nov-date { font-family: var(--font-mono); font-size: 11px; color: var(--d-text-3); flex: none; }
+.reposition-card { display: flex; gap: 16px; align-items: flex-start; background: linear-gradient(135deg, var(--d-surface), var(--d-bg-2)); border: 1px solid var(--accent); border-radius: var(--radius-md); padding: 20px 22px; margin-top: 22px; }
+.rc-ic { width: 42px; height: 42px; border-radius: 11px; background: color-mix(in srgb, var(--accent) 14%, transparent); display: grid; place-items: center; flex: none; }
+.reposition-card p { font-size: 14.5px; color: var(--d-text); line-height: 1.55; margin: 0 0 4px; max-width: 90ch; }
+
+/* living related work */
+.rw-draftbar { display: flex; align-items: center; gap: 9px; font-size: 13.5px; color: var(--d-text-2); background: var(--d-surface); border: 1px solid var(--d-border); border-radius: var(--radius-sm); padding: 11px 15px; margin-bottom: 22px; }
+.rw-draftbar b { color: var(--d-text); font-family: var(--font-mono); font-size: 13px; }
+.rw-list { display: flex; flex-direction: column; gap: 12px; }
+.rw-card { background: var(--d-surface); border: 1px solid var(--d-border); border-radius: var(--radius-md); padding: 18px 20px; transition: border-color .15s; }
+.rw-card:hover { border-color: var(--d-border-2); }
+.rw-head { display: flex; justify-content: space-between; gap: 16px; align-items: flex-start; }
+.rw-section { font-family: var(--font-mono); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--accent); margin-bottom: 7px; }
+.rw-head h4 { font-family: var(--font-display); font-weight: 500; font-size: 16.5px; margin: 0 0 7px; letter-spacing: -.01em; cursor: pointer; line-height: 1.25; }
+.rw-head h4:hover { color: var(--accent); }
+.rw-fit { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--d-text-2); }
+.rw-sentence { background: var(--d-bg-2); border: 1px solid var(--d-border); border-radius: 9px; padding: 13px 15px; margin-top: 14px; position: relative; }
+.rws-cap { font-family: var(--font-mono); font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--d-text-3); }
+.rw-sentence p { font-size: 14px; color: var(--d-text); line-height: 1.55; margin: 8px 0 0; max-width: 86ch; }
+.rws-copy { position: absolute; top: 11px; right: 11px; padding: 5px 11px !important; font-size: 12px !important; }
+.rw-table { padding: 6px 8px; overflow-x: auto; }
+.rw-table table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+.rw-table th { font-family: var(--font-mono); font-size: 10px; letter-spacing: .06em; text-transform: uppercase; color: var(--d-text-3); padding: 12px 14px; text-align: center; border-bottom: 1px solid var(--d-border); }
+.rw-table th:first-child { text-align: left; }
+.rw-table td { padding: 13px 14px; border-bottom: 1px solid var(--d-border); text-align: center; color: var(--d-text-2); }
+.rw-table tr:last-child td { border-bottom: none; }
+.rt-name { text-align: left !important; color: var(--d-text) !important; font-weight: 500; display: flex; align-items: center; gap: 9px; }
+.row-you td { background: color-mix(in srgb, var(--accent) 7%, transparent); }
+.you-tag { font-family: var(--font-mono); font-size: 9px; letter-spacing: .08em; text-transform: uppercase; color: #042b23; background: var(--accent); border-radius: 5px; padding: 1px 6px; }
+body.app.light .you-tag { color: #04372b; }
+.rt-no { color: var(--d-text-3); }
+
+/* citation advisor */
+.ca-pick { background: var(--d-surface); border: 1px solid var(--d-border); border-radius: var(--radius-md); padding: 20px; margin-bottom: 18px; }
+.ca-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+.ca-chip { font-size: 12.5px; color: var(--d-text-2); background: var(--d-elev); border: 1px solid var(--d-border); border-radius: var(--radius-pill); padding: 7px 13px; cursor: pointer; transition: border-color .15s, color .15s; }
+.ca-chip:hover { border-color: var(--d-border-2); color: var(--d-text); }
+.ca-chip.on { border-color: var(--accent); color: var(--d-text); background: var(--d-elev-2); }
+.ca-q { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-top: 16px; border-top: 1px solid var(--d-border); }
+.ca-q > span { font-size: 15px; color: var(--d-text); }
+.ca-q b { font-weight: 600; }
+.ca-thinking { display: flex; align-items: center; gap: 11px; color: var(--d-text-2); font-size: 14px; padding: 18px 4px; }
+.dots { display: inline-flex; gap: 4px; }
+.dots i { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); animation: bounce 1.2s infinite; }
+.dots i:nth-child(2){ animation-delay: .15s; } .dots i:nth-child(3){ animation-delay: .3s; }
+@keyframes bounce { 0%,60%,100%{ transform: translateY(0); opacity:.5; } 30%{ transform: translateY(-6px); opacity:1; } }
+.ca-answer { display: flex; flex-direction: column; gap: 16px; }
+.ca-verdict { display: flex; align-items: center; gap: 14px; border-radius: var(--radius-md); padding: 16px 20px; border: 1px solid; }
+.ca-verdict.yes { background: color-mix(in srgb, var(--accent) 10%, transparent); border-color: var(--accent); color: var(--accent); }
+.ca-verdict.no { background: color-mix(in srgb, var(--d-text-3) 10%, transparent); border-color: var(--d-border-2); color: var(--d-text-2); }
+.ca-verdict b { font-family: var(--font-display); font-weight: 600; font-size: 20px; letter-spacing: -.01em; display: block; }
+.ca-verdict span { font-family: var(--font-mono); font-size: 11.5px; color: var(--d-text-3); }
+.ca-rows { display: flex; flex-direction: column; gap: 2px; }
+.ca-row { display: grid; grid-template-columns: 230px 1fr; gap: 18px; padding: 15px 4px; border-bottom: 1px solid var(--d-border); }
+@media (max-width: 760px){ .ca-row { grid-template-columns: 1fr; gap: 7px; } }
+.ca-k { display: inline-flex; align-items: center; gap: 8px; font-family: var(--font-mono); font-size: 11.5px; letter-spacing: .04em; text-transform: uppercase; color: var(--d-text-3); }
+.ca-row p { font-size: 14.5px; color: var(--d-text); line-height: 1.55; margin: 0; }
+.ca-sentence { font-style: italic; color: var(--d-text) !important; }
+
+
+
+/* ── Extra CSS for new pages ── */
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+.seg-btn { padding: 6px 14px; font-size: 13px; }
+
+</style>
 </head>
 <body class="app">
-  <div id="root"></div>
+<div id="root"></div>
 
-  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" crossorigin="anonymous"></script>
-  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" crossorigin="anonymous"></script>
-  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin="anonymous"></script>
-  <!-- Dexie powers the browser-local personal memory graph -->
-  <script src="https://unpkg.com/dexie@3.2.7/dist/dexie.js" crossorigin="anonymous"></script>
+<!-- RR_DATA: loaded live from /api/rr-data — no fake data -->
+<script>
+(async function () {
+  const root = document.getElementById('root');
 
-  <!-- Live data: fetches /api/rr-data synchronously, populates window.RR_DATA -->
-  <script src="app/data.js"></script>
-  <!-- Browser-local personal memory graph -->
-  <script src="app/personalGraph.js"></script>
+  // Minimal loading screen while we fetch
+  root.innerHTML = `
+    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;
+                min-height:100vh;background:var(--d-bg);gap:18px">
+      <svg width="44" height="44" viewBox="0 0 30 30" fill="none">
+        <circle cx="15" cy="15" r="14" stroke="#0e8a6c" stroke-width="1.4" opacity=".5"/>
+        <circle cx="15" cy="15" r="8.5" stroke="#14a883" stroke-width="1.4" opacity=".8"/>
+        <circle cx="15" cy="15" r="3" fill="#2fcf9e"/>
+        <path d="M15 15 L27 6" stroke="#2fcf9e" stroke-width="1.8" stroke-linecap="round"
+              style="transform-origin:15px 15px;animation:spin 1.4s linear infinite"/>
+      </svg>
+      <style>@keyframes spin{to{transform:rotate(360deg)}}</style>
+      <div style="font-family:monospace;font-size:13px;color:#6a7c73;letter-spacing:.08em">
+        Loading research data…
+      </div>
+    </div>`;
 
-  <script type="text/babel" src="app/icons.jsx"></script>
-  <script type="text/babel" src="app/tweaks-panel.jsx"></script>
-  <script type="text/babel" src="app/components.jsx"></script>
-  <script type="text/babel" src="app/graph.jsx"></script>
-  <script type="text/babel" src="app/pages.jsx"></script>
-  <script type="text/babel" src="app/memory.jsx"></script>
-  <script type="text/babel" src="app/v2pages.jsx"></script>
-  <script type="text/babel" src="app/main.jsx"></script>
+  try {
+    const res = await fetch('/api/rr-data');
+    if (!res.ok) throw new Error('API ' + res.status);
+    window.RR_DATA = await res.json();
+  } catch (err) {
+    console.warn('[FrontierOS] /api/rr-data failed:', err);
+    // Show connection error — server may not be running
+    root.innerHTML = `
+      <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;
+                  min-height:100vh;background:var(--d-bg);gap:14px;padding:40px;text-align:center">
+        <div style="font-size:32px">◎</div>
+        <div style="font-family:var(--font-display,sans-serif);font-size:20px;font-weight:600;
+                    color:var(--d-text,#eaf2ed)">Could not connect to FrontierOS server</div>
+        <div style="font-size:14px;color:var(--d-text-2,#9fb0a7);max-width:380px;line-height:1.6">
+          Make sure the server is running:<br>
+          <code style="background:var(--d-elev,#16221c);padding:6px 12px;border-radius:6px;
+                       font-size:13px;display:inline-block;margin-top:10px">./start.sh</code>
+        </div>
+        <button onclick="location.reload()"
+          style="margin-top:8px;padding:10px 24px;background:#063f33;color:#eafaf4;border:none;
+                 border-radius:999px;font-size:14px;cursor:pointer;">Retry</button>
+      </div>`;
+    return; // stop — React won't mount without data
+  }
+
+  // Ensure backward-compat: if API NAV is flat list, convert to grouped format
+  if (window.RR_DATA.NAV && Array.isArray(window.RR_DATA.NAV) && window.RR_DATA.NAV[0] && !window.RR_DATA.NAV[0].items) {
+    const groups = {};
+    window.RR_DATA.NAV.forEach(item => {
+      const g = item.section || '';
+      if (!groups[g]) groups[g] = [];
+      groups[g].push(item);
+    });
+    window.RR_DATA.NAV = Object.entries(groups).map(([grp, items]) => ({ group: grp, items }));
+  }
+
+  // Signal to React that data is ready — React scripts below will mount
+  window.__RR_DATA_READY = true;
+})();
+</script>
+
+<!-- React 18 + ReactDOM + Babel Standalone (CDN) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js" crossorigin></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js" crossorigin></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+
+<!-- Icons -->
+<script type="text/babel">
+/* FrontierOS — icons (thin-line geometric) */
+const { createElement: h } = React;
+
+function Icon({ name, size = 17, stroke = 'currentColor', sw = 1.6 }) {
+  const p = { width: size, height: size, viewBox: '0 0 24 24', fill: 'none', stroke, strokeWidth: sw, strokeLinecap: 'round', strokeLinejoin: 'round' };
+  const paths = {
+    grid: 'M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z',
+    feed: 'M4 6h16M4 12h16M4 18h10',
+    doc: 'M7 3h7l5 5v13H7zM14 3v5h5',
+    spark: 'M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z',
+    graph: 'M6 6a2 2 0 100-.01M18 8a2 2 0 100-.01M9 17a2 2 0 100-.01M7.5 7l9 .8M8 15l8.5-6',
+    radar: 'M12 12V3M12 12l7 4M12 21a9 9 0 110-18 9 9 0 010 18zM12 12l-6 3',
+    target: 'M12 21a9 9 0 100-18 9 9 0 000 18zM12 16a4 4 0 100-8 4 4 0 000 8zM12 12h.01',
+    code: 'M8 8l-4 4 4 4M16 8l4 4-4 4M13 5l-2 14',
+    build: 'M3 21h18M5 21V10l7-5 7 5v11M9 21v-6h6v6',
+    report: 'M5 3h14v18l-7-3-7 3zM9 8h6M9 12h6',
+    bookmark: 'M6 3h12v18l-6-4-6 4z',
+    gear: 'M12 9a3 3 0 100 6 3 3 0 000-6zM12 2l1.5 2.6 3-.4 .9 2.9 2.6 1.5-1.3 2.7 1.3 2.7-2.6 1.5-.9 2.9-3-.4L12 22l-1.5-2.6-3 .4-.9-2.9L4 15.4l1.3-2.7L4 10l2.6-1.5.9-2.9 3 .4z',
+    search: 'M11 19a8 8 0 100-16 8 8 0 000 16zM21 21l-4.3-4.3',
+    bell: 'M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 01-3.4 0',
+    arrow: 'M5 12h14M13 6l6 6-6 6',
+    plus: 'M12 5v14M5 12h14',
+    minus: 'M5 12h14',
+    download: 'M12 3v12M7 11l5 4 5-4M5 21h14',
+    external: 'M14 4h6v6M20 4l-9 9M18 13v6H5V6h6',
+    compare: 'M9 3v18M4 7h5M4 12h5M4 17h5M15 3v18M15 8h5M15 13h5',
+    check: 'M5 13l4 4 10-11',
+    chevron: 'M9 6l6 6-6 6',
+    reset: 'M4 4v6h6M20 20v-6h-6M20 9a8 8 0 00-15-1M4 15a8 8 0 0015 1',
+    shield: 'M12 3l7 3v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z',
+    quote: 'M9 7H5v5h4v5l3-5V7zM19 7h-4v5h4v5l3-5V7z',
+    upload: 'M12 16V4M7 9l5-5 5 5M5 20h14',
+    layers: 'M12 3l9 5-9 5-9-5zM3 13l9 5 9-5',
+    eye: 'M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12zM12 15a3 3 0 100-6 3 3 0 000 6z',
+    lock: 'M6 11h12v9H6zM9 11V8a3 3 0 016 0v3',
+    flame: 'M12 3c.5 4 4 5 4 9a4 4 0 01-8 0c0-2 1-3 2-4 .2 1.5 1 2 2 2.5z',
+  };
+  return h('svg', p, h('path', { d: paths[name] || paths.grid }));
+}
+window.Icon = Icon;
+
+</script>
+
+<!-- Tweaks panel -->
+<script type="text/babel">
+
+/* BEGIN USAGE */
+// tweaks-panel.jsx
+// Reusable Tweaks shell + form-control helpers.
+// Exports (to window): useTweaks, TweaksPanel, TweakSection, TweakRow, TweakSlider,
+//   TweakToggle, TweakRadio, TweakSelect, TweakText, TweakNumber, TweakColor, TweakButton.
+//
+// Owns the host protocol (listens for __activate_edit_mode / __deactivate_edit_mode,
+// posts __edit_mode_available / __edit_mode_set_keys / __edit_mode_dismissed) so
+// individual prototypes don't re-roll it. Ships a consistent set of controls so you
+// don't hand-draw <input type="range">, segmented radios, steppers, etc.
+//
+// Usage (in an HTML file that loads React + Babel):
+//
+//   const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+//     "primaryColor": "#D97757",
+//     "palette": ["#D97757", "#29261b", "#f6f4ef"],
+//     "fontSize": 16,
+//     "density": "regular",
+//     "dark": false
+//   }/*EDITMODE-END*/;
+//
+//   function App() {
+//     const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
+//     return (
+//       <div style={{ fontSize: t.fontSize, color: t.primaryColor }}>
+//         Hello
+//         <TweaksPanel>
+//           <TweakSection label="Typography" />
+//           <TweakSlider label="Font size" value={t.fontSize} min={10} max={32} unit="px"
+//                        onChange={(v) => setTweak('fontSize', v)} />
+//           <TweakRadio  label="Density" value={t.density}
+//                        options={['compact', 'regular', 'comfy']}
+//                        onChange={(v) => setTweak('density', v)} />
+//           <TweakSection label="Theme" />
+//           <TweakColor  label="Primary" value={t.primaryColor}
+//                        options={['#D97757', '#2A6FDB', '#1F8A5B', '#7A5AE0']}
+//                        onChange={(v) => setTweak('primaryColor', v)} />
+//           <TweakColor  label="Palette" value={t.palette}
+//                        options={[['#D97757', '#29261b', '#f6f4ef'],
+//                                  ['#475569', '#0f172a', '#f1f5f9']]}
+//                        onChange={(v) => setTweak('palette', v)} />
+//           <TweakToggle label="Dark mode" value={t.dark}
+//                        onChange={(v) => setTweak('dark', v)} />
+//         </TweaksPanel>
+//       </div>
+//     );
+//   }
+//
+// TweakRadio is the segmented control for 2–3 short options (auto-falls-back to
+// TweakSelect past ~16/~10 chars per label); reach for TweakSelect directly when
+// options are many or long. For color tweaks always curate 3-4 options rather than
+// a free picker; an option can also be a whole 2–5 color palette (the stored value
+// is the array). The Tweak* controls are a floor, not a ceiling — build custom
+// controls inside the panel if a tweak calls for UI they don't cover.
+/* END USAGE */
+// ─────────────────────────────────────────────────────────────────────────────
+
+const __TWEAKS_STYLE = `
+  .twk-panel{position:fixed;right:16px;bottom:16px;z-index:2147483646;width:280px;
+    max-height:calc(100vh - 32px);display:flex;flex-direction:column;
+    transform:scale(var(--dc-inv-zoom,1));transform-origin:bottom right;
+    background:rgba(250,249,247,.78);color:#29261b;
+    -webkit-backdrop-filter:blur(24px) saturate(160%);backdrop-filter:blur(24px) saturate(160%);
+    border:.5px solid rgba(255,255,255,.6);border-radius:14px;
+    box-shadow:0 1px 0 rgba(255,255,255,.5) inset,0 12px 40px rgba(0,0,0,.18);
+    font:11.5px/1.4 ui-sans-serif,system-ui,-apple-system,sans-serif;overflow:hidden}
+  .twk-hd{display:flex;align-items:center;justify-content:space-between;
+    padding:10px 8px 10px 14px;cursor:move;user-select:none}
+  .twk-hd b{font-size:12px;font-weight:600;letter-spacing:.01em}
+  .twk-x{appearance:none;border:0;background:transparent;color:rgba(41,38,27,.55);
+    width:22px;height:22px;border-radius:6px;cursor:default;font-size:13px;line-height:1}
+  .twk-x:hover{background:rgba(0,0,0,.06);color:#29261b}
+  .twk-body{padding:2px 14px 14px;display:flex;flex-direction:column;gap:10px;
+    overflow-y:auto;overflow-x:hidden;min-height:0;
+    scrollbar-width:thin;scrollbar-color:rgba(0,0,0,.15) transparent}
+  .twk-body::-webkit-scrollbar{width:8px}
+  .twk-body::-webkit-scrollbar-track{background:transparent;margin:2px}
+  .twk-body::-webkit-scrollbar-thumb{background:rgba(0,0,0,.15);border-radius:4px;
+    border:2px solid transparent;background-clip:content-box}
+  .twk-body::-webkit-scrollbar-thumb:hover{background:rgba(0,0,0,.25);
+    border:2px solid transparent;background-clip:content-box}
+  .twk-row{display:flex;flex-direction:column;gap:5px}
+  .twk-row-h{flex-direction:row;align-items:center;justify-content:space-between;gap:10px}
+  .twk-lbl{display:flex;justify-content:space-between;align-items:baseline;
+    color:rgba(41,38,27,.72)}
+  .twk-lbl>span:first-child{font-weight:500}
+  .twk-val{color:rgba(41,38,27,.5);font-variant-numeric:tabular-nums}
+
+  .twk-sect{font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
+    color:rgba(41,38,27,.45);padding:10px 0 0}
+  .twk-sect:first-child{padding-top:0}
+
+  .twk-field{appearance:none;box-sizing:border-box;width:100%;min-width:0;height:26px;padding:0 8px;
+    border:.5px solid rgba(0,0,0,.1);border-radius:7px;
+    background:rgba(255,255,255,.6);color:inherit;font:inherit;outline:none}
+  .twk-field:focus{border-color:rgba(0,0,0,.25);background:rgba(255,255,255,.85)}
+  select.twk-field{padding-right:22px;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path fill='rgba(0,0,0,.5)' d='M0 0h10L5 6z'/></svg>");
+    background-repeat:no-repeat;background-position:right 8px center}
+
+  .twk-slider{appearance:none;-webkit-appearance:none;width:100%;height:4px;margin:6px 0;
+    border-radius:999px;background:rgba(0,0,0,.12);outline:none}
+  .twk-slider::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;
+    width:14px;height:14px;border-radius:50%;background:#fff;
+    border:.5px solid rgba(0,0,0,.12);box-shadow:0 1px 3px rgba(0,0,0,.2);cursor:default}
+  .twk-slider::-moz-range-thumb{width:14px;height:14px;border-radius:50%;
+    background:#fff;border:.5px solid rgba(0,0,0,.12);box-shadow:0 1px 3px rgba(0,0,0,.2);cursor:default}
+
+  .twk-seg{position:relative;display:flex;padding:2px;border-radius:8px;
+    background:rgba(0,0,0,.06);user-select:none}
+  .twk-seg-thumb{position:absolute;top:2px;bottom:2px;border-radius:6px;
+    background:rgba(255,255,255,.9);box-shadow:0 1px 2px rgba(0,0,0,.12);
+    transition:left .15s cubic-bezier(.3,.7,.4,1),width .15s}
+  .twk-seg.dragging .twk-seg-thumb{transition:none}
+  .twk-seg button{appearance:none;position:relative;z-index:1;flex:1;border:0;
+    background:transparent;color:inherit;font:inherit;font-weight:500;min-height:22px;
+    border-radius:6px;cursor:default;padding:4px 6px;line-height:1.2;
+    overflow-wrap:anywhere}
+
+  .twk-toggle{position:relative;width:32px;height:18px;border:0;border-radius:999px;
+    background:rgba(0,0,0,.15);transition:background .15s;cursor:default;padding:0}
+  .twk-toggle[data-on="1"]{background:#34c759}
+  .twk-toggle i{position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;
+    background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.25);transition:transform .15s}
+  .twk-toggle[data-on="1"] i{transform:translateX(14px)}
+
+  .twk-num{display:flex;align-items:center;box-sizing:border-box;min-width:0;height:26px;padding:0 0 0 8px;
+    border:.5px solid rgba(0,0,0,.1);border-radius:7px;background:rgba(255,255,255,.6)}
+  .twk-num-lbl{font-weight:500;color:rgba(41,38,27,.6);cursor:ew-resize;
+    user-select:none;padding-right:8px}
+  .twk-num input{flex:1;min-width:0;height:100%;border:0;background:transparent;
+    font:inherit;font-variant-numeric:tabular-nums;text-align:right;padding:0 8px 0 0;
+    outline:none;color:inherit;-moz-appearance:textfield}
+  .twk-num input::-webkit-inner-spin-button,.twk-num input::-webkit-outer-spin-button{
+    -webkit-appearance:none;margin:0}
+  .twk-num-unit{padding-right:8px;color:rgba(41,38,27,.45)}
+
+  .twk-btn{appearance:none;height:26px;padding:0 12px;border:0;border-radius:7px;
+    background:rgba(0,0,0,.78);color:#fff;font:inherit;font-weight:500;cursor:default}
+  .twk-btn:hover{background:rgba(0,0,0,.88)}
+  .twk-btn.secondary{background:rgba(0,0,0,.06);color:inherit}
+  .twk-btn.secondary:hover{background:rgba(0,0,0,.1)}
+
+  .twk-swatch{appearance:none;-webkit-appearance:none;width:56px;height:22px;
+    border:.5px solid rgba(0,0,0,.1);border-radius:6px;padding:0;cursor:default;
+    background:transparent;flex-shrink:0}
+  .twk-swatch::-webkit-color-swatch-wrapper{padding:0}
+  .twk-swatch::-webkit-color-swatch{border:0;border-radius:5.5px}
+  .twk-swatch::-moz-color-swatch{border:0;border-radius:5.5px}
+
+  .twk-chips{display:flex;gap:6px}
+  .twk-chip{position:relative;appearance:none;flex:1;min-width:0;height:46px;
+    padding:0;border:0;border-radius:6px;overflow:hidden;cursor:default;
+    box-shadow:0 0 0 .5px rgba(0,0,0,.12),0 1px 2px rgba(0,0,0,.06);
+    transition:transform .12s cubic-bezier(.3,.7,.4,1),box-shadow .12s}
+  .twk-chip:hover{transform:translateY(-1px);
+    box-shadow:0 0 0 .5px rgba(0,0,0,.18),0 4px 10px rgba(0,0,0,.12)}
+  .twk-chip[data-on="1"]{box-shadow:0 0 0 1.5px rgba(0,0,0,.85),
+    0 2px 6px rgba(0,0,0,.15)}
+  .twk-chip>span{position:absolute;top:0;bottom:0;right:0;width:34%;
+    display:flex;flex-direction:column;box-shadow:-1px 0 0 rgba(0,0,0,.1)}
+  .twk-chip>span>i{flex:1;box-shadow:0 -1px 0 rgba(0,0,0,.1)}
+  .twk-chip>span>i:first-child{box-shadow:none}
+  .twk-chip svg{position:absolute;top:6px;left:6px;width:13px;height:13px;
+    filter:drop-shadow(0 1px 1px rgba(0,0,0,.3))}
+`;
+
+// ── useTweaks ───────────────────────────────────────────────────────────────
+// Single source of truth for tweak values. setTweak persists via the host
+// (__edit_mode_set_keys → host rewrites the EDITMODE block on disk).
+function useTweaks(defaults) {
+  const [values, setValues] = React.useState(defaults);
+  // Accepts either setTweak('key', value) or setTweak({ key: value, ... }) so a
+  // useState-style call doesn't write a "[object Object]" key into the persisted
+  // JSON block.
+  const setTweak = React.useCallback((keyOrEdits, val) => {
+    const edits = typeof keyOrEdits === 'object' && keyOrEdits !== null
+      ? keyOrEdits : { [keyOrEdits]: val };
+    setValues((prev) => ({ ...prev, ...edits }));
+    window.parent.postMessage({ type: '__edit_mode_set_keys', edits }, '*');
+    // Same-window signal so in-page listeners (deck-stage rail thumbnails)
+    // can react — the parent message only reaches the host, not peers.
+    window.dispatchEvent(new CustomEvent('tweakchange', { detail: edits }));
+  }, []);
+  return [values, setTweak];
+}
+
+// ── TweaksPanel ─────────────────────────────────────────────────────────────
+// Floating shell. Registers the protocol listener BEFORE announcing
+// availability — if the announce ran first, the host's activate could land
+// before our handler exists and the toolbar toggle would silently no-op.
+// The close button posts __edit_mode_dismissed so the host's toolbar toggle
+// flips off in lockstep; the host echoes __deactivate_edit_mode back which
+// is what actually hides the panel.
+function TweaksPanel({ title = 'Tweaks', children }) {
+  const [open, setOpen] = React.useState(false);
+  const dragRef = React.useRef(null);
+  const offsetRef = React.useRef({ x: 16, y: 16 });
+  const PAD = 16;
+
+  const clampToViewport = React.useCallback(() => {
+    const panel = dragRef.current;
+    if (!panel) return;
+    const w = panel.offsetWidth, h = panel.offsetHeight;
+    const maxRight = Math.max(PAD, window.innerWidth - w - PAD);
+    const maxBottom = Math.max(PAD, window.innerHeight - h - PAD);
+    offsetRef.current = {
+      x: Math.min(maxRight, Math.max(PAD, offsetRef.current.x)),
+      y: Math.min(maxBottom, Math.max(PAD, offsetRef.current.y)),
+    };
+    panel.style.right = offsetRef.current.x + 'px';
+    panel.style.bottom = offsetRef.current.y + 'px';
+  }, []);
+
+  React.useEffect(() => {
+    if (!open) return;
+    clampToViewport();
+    if (typeof ResizeObserver === 'undefined') {
+      window.addEventListener('resize', clampToViewport);
+      return () => window.removeEventListener('resize', clampToViewport);
+    }
+    const ro = new ResizeObserver(clampToViewport);
+    ro.observe(document.documentElement);
+    return () => ro.disconnect();
+  }, [open, clampToViewport]);
+
+  React.useEffect(() => {
+    const onMsg = (e) => {
+      const t = e?.data?.type;
+      if (t === '__activate_edit_mode') setOpen(true);
+      else if (t === '__deactivate_edit_mode') setOpen(false);
+    };
+    window.addEventListener('message', onMsg);
+    window.parent.postMessage({ type: '__edit_mode_available' }, '*');
+    return () => window.removeEventListener('message', onMsg);
+  }, []);
+
+  const dismiss = () => {
+    setOpen(false);
+    window.parent.postMessage({ type: '__edit_mode_dismissed' }, '*');
+  };
+
+  const onDragStart = (e) => {
+    const panel = dragRef.current;
+    if (!panel) return;
+    const r = panel.getBoundingClientRect();
+    const sx = e.clientX, sy = e.clientY;
+    const startRight = window.innerWidth - r.right;
+    const startBottom = window.innerHeight - r.bottom;
+    const move = (ev) => {
+      offsetRef.current = {
+        x: startRight - (ev.clientX - sx),
+        y: startBottom - (ev.clientY - sy),
+      };
+      clampToViewport();
+    };
+    const up = () => {
+      window.removeEventListener('mousemove', move);
+      window.removeEventListener('mouseup', up);
+    };
+    window.addEventListener('mousemove', move);
+    window.addEventListener('mouseup', up);
+  };
+
+  if (!open) return null;
+  return (
+    <>
+      <style>{__TWEAKS_STYLE}</style>
+      <div ref={dragRef} className="twk-panel" data-omelette-chrome=""
+           style={{ right: offsetRef.current.x, bottom: offsetRef.current.y }}>
+        <div className="twk-hd" onMouseDown={onDragStart}>
+          <b>{title}</b>
+          <button className="twk-x" aria-label="Close tweaks"
+                  onMouseDown={(e) => e.stopPropagation()}
+                  onClick={dismiss}>✕</button>
+        </div>
+        <div className="twk-body">
+          {children}
+        </div>
+      </div>
+    </>
+  );
+}
+
+// ── Layout helpers ──────────────────────────────────────────────────────────
+
+function TweakSection({ label, children }) {
+  return (
+    <>
+      <div className="twk-sect">{label}</div>
+      {children}
+    </>
+  );
+}
+
+function TweakRow({ label, value, children, inline = false }) {
+  return (
+    <div className={inline ? 'twk-row twk-row-h' : 'twk-row'}>
+      <div className="twk-lbl">
+        <span>{label}</span>
+        {value != null && <span className="twk-val">{value}</span>}
+      </div>
+      {children}
+    </div>
+  );
+}
+
+// ── Controls ────────────────────────────────────────────────────────────────
+
+function TweakSlider({ label, value, min = 0, max = 100, step = 1, unit = '', onChange }) {
+  return (
+    <TweakRow label={label} value={`${value}${unit}`}>
+      <input type="range" className="twk-slider" min={min} max={max} step={step}
+             value={value} onChange={(e) => onChange(Number(e.target.value))} />
+    </TweakRow>
+  );
+}
+
+function TweakToggle({ label, value, onChange }) {
+  return (
+    <div className="twk-row twk-row-h">
+      <div className="twk-lbl"><span>{label}</span></div>
+      <button type="button" className="twk-toggle" data-on={value ? '1' : '0'}
+              role="switch" aria-checked={!!value}
+              onClick={() => onChange(!value)}><i /></button>
+    </div>
+  );
+}
+
+function TweakRadio({ label, value, options, onChange }) {
+  const trackRef = React.useRef(null);
+  const [dragging, setDragging] = React.useState(false);
+  // The active value is read by pointer-move handlers attached for the lifetime
+  // of a drag — ref it so a stale closure doesn't fire onChange for every move.
+  const valueRef = React.useRef(value);
+  valueRef.current = value;
+
+  // Segments wrap mid-word once per-segment width runs out. The track is
+  // ~248px (280 panel − 28 body pad − 4 seg pad), each button loses 12px
+  // to its own padding, and 11.5px system-ui averages ~6.3px/char — so 2
+  // options fit ~16 chars each, 3 fit ~10. Past that (or >3 options), fall
+  // back to a dropdown rather than wrap.
+  const labelLen = (o) => String(typeof o === 'object' ? o.label : o).length;
+  const maxLen = options.reduce((m, o) => Math.max(m, labelLen(o)), 0);
+  const fitsAsSegments = maxLen <= ({ 2: 16, 3: 10 }[options.length] ?? 0);
+  if (!fitsAsSegments) {
+    // <select> emits strings — map back to the original option value so the
+    // fallback stays type-preserving (numbers, booleans) like the segment path.
+    const resolve = (s) => {
+      const m = options.find((o) => String(typeof o === 'object' ? o.value : o) === s);
+      return m === undefined ? s : typeof m === 'object' ? m.value : m;
+    };
+    return <TweakSelect label={label} value={value} options={options}
+                        onChange={(s) => onChange(resolve(s))} />;
+  }
+  const opts = options.map((o) => (typeof o === 'object' ? o : { value: o, label: o }));
+  const idx = Math.max(0, opts.findIndex((o) => o.value === value));
+  const n = opts.length;
+
+  const segAt = (clientX) => {
+    const r = trackRef.current.getBoundingClientRect();
+    const inner = r.width - 4;
+    const i = Math.floor(((clientX - r.left - 2) / inner) * n);
+    return opts[Math.max(0, Math.min(n - 1, i))].value;
+  };
+
+  const onPointerDown = (e) => {
+    setDragging(true);
+    const v0 = segAt(e.clientX);
+    if (v0 !== valueRef.current) onChange(v0);
+    const move = (ev) => {
+      if (!trackRef.current) return;
+      const v = segAt(ev.clientX);
+      if (v !== valueRef.current) onChange(v);
+    };
+    const up = () => {
+      setDragging(false);
+      window.removeEventListener('pointermove', move);
+      window.removeEventListener('pointerup', up);
+    };
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', up);
+  };
+
+  return (
+    <TweakRow label={label}>
+      <div ref={trackRef} role="radiogroup" onPointerDown={onPointerDown}
+           className={dragging ? 'twk-seg dragging' : 'twk-seg'}>
+        <div className="twk-seg-thumb"
+             style={{ left: `calc(2px + ${idx} * (100% - 4px) / ${n})`,
+                      width: `calc((100% - 4px) / ${n})` }} />
+        {opts.map((o) => (
+          <button key={o.value} type="button" role="radio" aria-checked={o.value === value}>
+            {o.label}
+          </button>
+        ))}
+      </div>
+    </TweakRow>
+  );
+}
+
+function TweakSelect({ label, value, options, onChange }) {
+  return (
+    <TweakRow label={label}>
+      <select className="twk-field" value={value} onChange={(e) => onChange(e.target.value)}>
+        {options.map((o) => {
+          const v = typeof o === 'object' ? o.value : o;
+          const l = typeof o === 'object' ? o.label : o;
+          return <option key={v} value={v}>{l}</option>;
+        })}
+      </select>
+    </TweakRow>
+  );
+}
+
+function TweakText({ label, value, placeholder, onChange }) {
+  return (
+    <TweakRow label={label}>
+      <input className="twk-field" type="text" value={value} placeholder={placeholder}
+             onChange={(e) => onChange(e.target.value)} />
+    </TweakRow>
+  );
+}
+
+function TweakNumber({ label, value, min, max, step = 1, unit = '', onChange }) {
+  const clamp = (n) => {
+    if (min != null && n < min) return min;
+    if (max != null && n > max) return max;
+    return n;
+  };
+  const startRef = React.useRef({ x: 0, val: 0 });
+  const onScrubStart = (e) => {
+    e.preventDefault();
+    startRef.current = { x: e.clientX, val: value };
+    const decimals = (String(step).split('.')[1] || '').length;
+    const move = (ev) => {
+      const dx = ev.clientX - startRef.current.x;
+      const raw = startRef.current.val + dx * step;
+      const snapped = Math.round(raw / step) * step;
+      onChange(clamp(Number(snapped.toFixed(decimals))));
+    };
+    const up = () => {
+      window.removeEventListener('pointermove', move);
+      window.removeEventListener('pointerup', up);
+    };
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', up);
+  };
+  return (
+    <div className="twk-num">
+      <span className="twk-num-lbl" onPointerDown={onScrubStart}>{label}</span>
+      <input type="number" value={value} min={min} max={max} step={step}
+             onChange={(e) => onChange(clamp(Number(e.target.value)))} />
+      {unit && <span className="twk-num-unit">{unit}</span>}
+    </div>
+  );
+}
+
+// Relative-luminance contrast pick — checkmarks drawn over a swatch need to
+// read on both #111 and #fafafa without per-option configuration. Hex input
+// only (#rgb / #rrggbb); named or rgb()/hsl() colors fall through to "light".
+function __twkIsLight(hex) {
+  const h = String(hex).replace('#', '');
+  const x = h.length === 3 ? h.replace(/./g, (c) => c + c) : h.padEnd(6, '0');
+  const n = parseInt(x.slice(0, 6), 16);
+  if (Number.isNaN(n)) return true;
+  const r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255;
+  return r * 299 + g * 587 + b * 114 > 148000;
+}
+
+const __TwkCheck = ({ light }) => (
+  <svg viewBox="0 0 14 14" aria-hidden="true">
+    <path d="M3 7.2 5.8 10 11 4.2" fill="none" strokeWidth="2.2"
+          strokeLinecap="round" strokeLinejoin="round"
+          stroke={light ? 'rgba(0,0,0,.78)' : '#fff'} />
+  </svg>
+);
+
+// TweakColor — curated color/palette picker. Each option is either a single
+// hex string or an array of 1-5 hex strings; the card adapts — a lone color
+// renders solid, a palette renders colors[0] as the hero (left ~2/3) with the
+// rest stacked in a sharp column on the right. onChange emits the
+// option in the shape it was passed (string stays string, array stays array).
+// Without options it falls back to the native color input for back-compat.
+function TweakColor({ label, value, options, onChange }) {
+  if (!options || !options.length) {
+    return (
+      <div className="twk-row twk-row-h">
+        <div className="twk-lbl"><span>{label}</span></div>
+        <input type="color" className="twk-swatch" value={value}
+               onChange={(e) => onChange(e.target.value)} />
+      </div>
+    );
+  }
+  // Native <input type=color> emits lowercase hex per the HTML spec, so
+  // compare case-insensitively. String() guards JSON.stringify(undefined),
+  // which returns the primitive undefined (no .toLowerCase).
+  const key = (o) => String(JSON.stringify(o)).toLowerCase();
+  const cur = key(value);
+  return (
+    <TweakRow label={label}>
+      <div className="twk-chips" role="radiogroup">
+        {options.map((o, i) => {
+          const colors = Array.isArray(o) ? o : [o];
+          const [hero, ...rest] = colors;
+          const sup = rest.slice(0, 4);
+          const on = key(o) === cur;
+          return (
+            <button key={i} type="button" className="twk-chip" role="radio"
+                    aria-checked={on} data-on={on ? '1' : '0'}
+                    aria-label={colors.join(', ')} title={colors.join(' · ')}
+                    style={{ background: hero }}
+                    onClick={() => onChange(o)}>
+              {sup.length > 0 && (
+                <span>
+                  {sup.map((c, j) => <i key={j} style={{ background: c }} />)}
+                </span>
+              )}
+              {on && <__TwkCheck light={__twkIsLight(hero)} />}
+            </button>
+          );
+        })}
+      </div>
+    </TweakRow>
+  );
+}
+
+function TweakButton({ label, onClick, secondary = false }) {
+  return (
+    <button type="button" className={secondary ? 'twk-btn secondary' : 'twk-btn'}
+            onClick={onClick}>{label}</button>
+  );
+}
+
+Object.assign(window, {
+  useTweaks, TweaksPanel, TweakSection, TweakRow,
+  TweakSlider, TweakToggle, TweakRadio, TweakSelect,
+  TweakText, TweakNumber, TweakColor, TweakButton,
+});
+
+</script>
+
+<!-- Shared components (Sidebar, Topbar, PaperCard, etc.) -->
+<script type="text/babel">
+/* FrontierOS — shared UI components */
+const { useState, useEffect, useRef, useMemo } = React;
+
+/* ---- Brand mark (radar) ---- */
+function Mark({ size = 26, dark = true }) {
+  const src = dark ? '/assets/logo-mark-dark.svg' : '/assets/logo-mark.svg';
+  return <img src={src} alt="" width={size} height={size} style={{ display: 'block', flex: 'none' }} />;
+}
+
+/* ---- Badge ---- */
+const BADGE_VARIANT = {
+  'High Opportunity': 'purple', 'Code Potential': 'cyan', 'Easy Reproduce': 'green',
+  'High Compute': 'orange', 'Weak Evidence': 'rose', 'New Benchmark': 'cyan', 'Saturated Topic': 'gray',
+};
+function Badge({ children, variant }) {
+  const v = variant || BADGE_VARIANT[children] || 'gray';
+  return <span className={`badge badge-${v}`}>{children}</span>;
+}
+
+/* ---- Score pill ---- */
+function Score({ label, value }) {
+  const num = typeof value === 'number';
+  const hi = num && value >= 8;
+  return <span className={`score${hi ? ' hi' : ''}`}>{label} <b>{value}</b></span>;
+}
+
+/* ---- Sparkline ---- */
+function Spark({ data, w = 70, hgt = 22, color = 'var(--accent)' }) {
+  const min = Math.min(...data), max = Math.max(...data);
+  const rng = max - min || 1;
+  const pts = data.map((d, i) => `${(i / (data.length - 1)) * w},${hgt - ((d - min) / rng) * (hgt - 3) - 1.5}`).join(' ');
+  return (
+    <svg className="spark" width={w} height={hgt}>
+      <polyline points={pts} fill="none" stroke={color} strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+/* ---- KPI card ---- */
+function KpiCard({ kpi }) {
+  return (
+    <div className="card kpi">
+      <div className="k-top">
+        <span className="k-label">{kpi.label}</span>
+        <Spark data={kpi.spark} color={kpi.dir === 'down' ? 'var(--rose)' : 'var(--accent)'} />
+      </div>
+      <div className="k-val">{kpi.value}</div>
+      <span className={`k-delta ${kpi.dir}`}>{kpi.dir === 'up' ? '▲' : '▼'} {kpi.delta} today</span>
+    </div>
+  );
+}
+
+/* ---- Sidebar ---- */
+function Sidebar({ page, setPage, cats, activeCats, toggleCat }) {
+  const { NAV } = window.RR_DATA;
+  const profile = ['LLM Agents', 'RAG', 'ML Systems', 'Computer Vision', 'Model Compression'];
+  return (
+    <aside className="sidebar">
+      <div className="sb-brand"><Mark /> FrontierOS</div>
+
+      <nav className="sb-section sb-nav">
+        {NAV.map((grp, gi) => (
+          <div key={gi} className="nav-group">
+            {grp.group && <div className="nav-group-cap">{grp.group}</div>}
+            {grp.items.map(n => (
+              <button key={n.id} className={`nav-item${page === n.id ? ' active' : ''}`} onClick={() => setPage(n.id)}>
+                <span className="ni-ic"><Icon name={n.icon} size={16} /></span>
+                {n.label}
+                {n.tag && <span className="ni-tag">{n.tag}</span>}
+              </button>
+            ))}
+          </div>
+        ))}
+      </nav>
+
+      <div className="sb-section">
+        <div className="sb-cap">Tracked Categories</div>
+        <div className="sb-chips">
+          {cats.map(c => (
+            <span key={c} className={`cat-chip${activeCats.includes(c) ? ' on' : ''}`} onClick={() => toggleCat(c)}>{c}</span>
+          ))}
+        </div>
+      </div>
+
+      <div className="sb-section">
+        <div className="sb-cap">Research Profile</div>
+        <div className="sb-chips">
+          {profile.map(p => <span key={p} className="cat-chip" style={{ cursor: 'default' }}>{p}</span>)}
+        </div>
+      </div>
+
+      <div className="sb-profile">
+        <div className="av">AR</div>
+        <div className="who"><b>Avery Reese</b><span>ML Research · Pro</span></div>
+      </div>
+    </aside>
+  );
+}
+
+/* ---- Topbar ---- */
+function Topbar({ onSearch }) {
+  return (
+    <header className="topbar">
+      <div className="global-search" onClick={e => e.currentTarget.querySelector('input').focus()}>
+        <Icon name="search" size={16} stroke="var(--d-text-3)" />
+        <input placeholder='Ask Research Memory anything — “Find RAG papers with code from this week”'
+          onKeyDown={e => { if (e.key === 'Enter' && e.target.value.trim()) onSearch(e.target.value.trim()); }} />
+        <kbd>⌘K</kbd>
+      </div>
+      <div className="top-right">
+        <span className="top-date">{new Date().toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})}</span>
+        <span className="model-badge"><span className="led"></span> GPT-4o mini · OpenRouter</span>
+        <button className="icon-btn"><Icon name="bell" size={16} /></button>
+      </div>
+    </header>
+  );
+}
+
+/* ---- Paper card ---- */
+function PaperCard({ paper, onOpen, onAction }) {
+  const s = paper.scores;
+  return (
+    <div className="card paper-card" onClick={() => onOpen(paper)}>
+      <div className="pc-badges">
+        <Badge variant="blue">{paper.cat}</Badge>
+        {paper.tags.map(t => <Badge key={t} variant="gray">{t}</Badge>)}
+        {paper.badges.map(b => <Badge key={b}>{b}</Badge>)}
+        {paper.code && <Badge variant="cyan">Code · {s.build}</Badge>}
+      </div>
+      <h3>{paper.title}</h3>
+      <p className="pc-sum">{paper.summary}</p>
+      <div className="pc-meta">{paper.authors.join(', ')} · {paper.date} · arXiv:{paper.id}</div>
+      <div className="pc-scores">
+        <Score label="Novelty" value={s.novelty} />
+        <Score label="Impact" value={s.impact} />
+        <Score label="Reprod." value={s.reprod} />
+        <Score label="Build" value={s.build} />
+        <Score label="Opp." value={s.opportunity} />
+      </div>
+      <div className="pc-tax"><b>Methods:</b> {paper.methods.join(', ')}</div>
+      <div className="pc-tax"><b>Datasets:</b> {paper.datasets.join(', ')}</div>
+      <div className="pc-actions" onClick={e => e.stopPropagation()}>
+        <button className="btn btn-accent btn-sm" onClick={() => onOpen(paper)}><Icon name="doc" size={14} /> Deep Dive</button>
+        <button className="btn btn-sm" onClick={() => onAction('code', paper)}><Icon name="code" size={14} /> Generate Code</button>
+        <button className="btn btn-sm" onClick={()=>{ onAction('save', paper); PG.savePaper(paper).catch(()=>{}); }}><Icon name="bookmark" size={14} /> Add to Library</button>
+        <button className="btn btn-sm btn-ghost" onClick={() => onAction('compare', paper)}><Icon name="compare" size={14} /> Compare</button>
+      </div>
+    </div>
+  );
+}
+
+/* ---- Page header ---- */
+function PageHead({ crumb, title, sub, children }) {
+  return (
+    <div className="page-head">
+      {crumb && <div className="crumb">{crumb}</div>}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', gap: 20, flexWrap: 'wrap' }}>
+        <div>
+          <h1>{title}</h1>
+          {sub && <p>{sub}</p>}
+        </div>
+        {children && <div style={{ display: 'flex', gap: 10 }}>{children}</div>}
+      </div>
+    </div>
+  );
+}
+
+/* ---- Stub page ---- */
+function StubPage({ icon, crumb, title, desc, feats }) {
+  return (
+    <div className="page fade-in">
+      <PageHead crumb={crumb} title={title} />
+      <div className="stub">
+        <div>
+          <div className="stub-ic"><Icon name={icon} size={28} /></div>
+          <h2>{title} workspace</h2>
+          <p>{desc}</p>
+          <div className="feats">{feats.map(f => <span key={f}>{f}</span>)}</div>
+          <div style={{ marginTop: 24 }}>
+            <button className="btn btn-accent">Open {title} <Icon name="arrow" size={14} /></button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+Object.assign(window, { Mark, Badge, Score, Spark, KpiCard, Sidebar, Topbar, PaperCard, PageHead, StubPage });
+
+</script>
+
+<!-- Knowledge Graph -->
+<script type="text/babel">
+/* FrontierOS — Knowledge Graph (force-directed, interactive) */
+const NODE_COLORS = {
+  paper: 'var(--n-paper)', method: 'var(--n-method)', dataset: 'var(--n-dataset)',
+  benchmark: 'var(--n-benchmark)', claim: 'var(--n-claim)', limitation: 'var(--n-limitation)',
+  future: 'var(--n-future)', gap: 'var(--n-gap)', author: 'var(--n-author)', institution: 'var(--n-inst)',
+};
+const NODE_HEX = {
+  paper: '#5b9bff', method: '#a78bfa', dataset: '#2fcf9e', benchmark: '#34d9e0', claim: '#f4cf4a',
+  limitation: '#f2607d', future: '#f4a52a', gap: '#ff8fc7', author: '#9aa6b2', institution: '#d8dee6',
+};
+const TYPE_LABEL = {
+  paper: 'Paper', method: 'Method', dataset: 'Dataset', benchmark: 'Benchmark', claim: 'Claim',
+  limitation: 'Limitation', future: 'Future Work', gap: 'Research Gap', author: 'Author', institution: 'Institution',
+};
+
+function useForceSim(graph, W, H) {
+  const stateRef = useRef(null);
+  const [, tick] = useState(0);
+
+  if (!stateRef.current) {
+    const nodes = graph.nodes.map((n, i) => ({
+      ...n,
+      x: W / 2 + Math.cos(i) * 140 + (Math.random() - .5) * 60,
+      y: H / 2 + Math.sin(i) * 140 + (Math.random() - .5) * 60,
+      vx: 0, vy: 0,
+      r: n.type === 'paper' ? 11 : 6 + Math.min(7, Math.sqrt(n.freq) * 1.3),
+    }));
+    const idx = Object.fromEntries(nodes.map((n, i) => [n.id, i]));
+    const links = graph.links.map(([a, b]) => ({ a: idx[a], b: idx[b] }));
+    stateRef.current = { nodes, links, idx, alpha: 1 };
+  }
+
+  useEffect(() => {
+    let raf;
+    const step = () => {
+      const st = stateRef.current;
+      if (!st) return;
+      const { nodes, links } = st;
+      st.alpha *= 0.992;
+      const k = 0.04 + st.alpha * 0.06;
+      // repulsion
+      for (let i = 0; i < nodes.length; i++) {
+        for (let j = i + 1; j < nodes.length; j++) {
+          const A = nodes[i], B = nodes[j];
+          let dx = A.x - B.x, dy = A.y - B.y;
+          let d2 = dx * dx + dy * dy || 1;
+          const f = 4400 / d2;
+          const d = Math.sqrt(d2);
+          const fx = (dx / d) * f, fy = (dy / d) * f;
+          A.vx += fx; A.vy += fy; B.vx -= fx; B.vy -= fy;
+        }
+      }
+      // springs
+      for (const l of links) {
+        const A = nodes[l.a], B = nodes[l.b];
+        let dx = B.x - A.x, dy = B.y - A.y;
+        const d = Math.sqrt(dx * dx + dy * dy) || 1;
+        const f = (d - 118) * 0.012;
+        const fx = (dx / d) * f, fy = (dy / d) * f;
+        A.vx += fx; A.vy += fy; B.vx -= fx; B.vy -= fy;
+      }
+      // center gravity + integrate
+      for (const n of nodes) {
+        if (n.fixed) { n.vx = 0; n.vy = 0; continue; }
+        n.vx += (W / 2 - n.x) * 0.0015;
+        n.vy += (H / 2 - n.y) * 0.0015;
+        n.vx *= 0.86; n.vy *= 0.86;
+        n.x += n.vx * k * 6; n.y += n.vy * k * 6;
+        n.x = Math.max(n.r + 6, Math.min(W - n.r - 6, n.x));
+        n.y = Math.max(n.r + 6, Math.min(H - n.r - 6, n.y));
+      }
+      tick(t => t + 1);
+      raf = requestAnimationFrame(step);
+    };
+    raf = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(raf);
+  }, [W, H]);
+
+  return stateRef.current;
+}
+
+function KnowledgeGraph() {
+  const { GRAPH } = window.RR_DATA;
+  const W = 1000, H = 620;
+  const sim = useForceSim(GRAPH, W, H);
+  const [sel, setSel] = useState(null);
+  const [hover, setHover] = useState(null);
+  const [view, setView] = useState({ x: 0, y: 0, z: 1 });
+  const [filter, setFilter] = useState('all');
+  const [depth, setDepth] = useState(2);
+  const dragRef = useRef(null);
+  const panRef = useRef(null);
+  const stageRef = useRef(null);
+
+  // neighbor set for highlight
+  const neighbors = useMemo(() => {
+    const focus = sel || hover;
+    if (focus == null) return null;
+    const adj = new Set([focus]);
+    let frontier = [focus];
+    for (let d = 0; d < depth; d++) {
+      const next = [];
+      for (const l of GRAPH.links) {
+        const a = sim.idx[l[0]], b = sim.idx[l[1]];
+        if (adj.has(a) && !adj.has(b)) { adj.add(b); next.push(b); }
+        if (adj.has(b) && !adj.has(a)) { adj.add(a); next.push(a); }
+      }
+      frontier = next;
+    }
+    return adj;
+  }, [sel, hover, depth, sim]);
+
+  const selNode = sel != null ? sim.nodes[sel] : null;
+  const connectedPapers = useMemo(() => {
+    if (sel == null) return [];
+    const out = new Set();
+    for (const l of GRAPH.links) {
+      const a = sim.idx[l[0]], b = sim.idx[l[1]];
+      if (a === sel && sim.nodes[b].type === 'paper') out.add(sim.nodes[b].label);
+      if (b === sel && sim.nodes[a].type === 'paper') out.add(sim.nodes[a].label);
+    }
+    return [...out];
+  }, [sel, sim]);
+
+  function onNodeDown(e, i) {
+    e.stopPropagation();
+    const n = sim.nodes[i];
+    n.fixed = true;
+    dragRef.current = { i, startX: e.clientX, startY: e.clientY, nx: n.x, ny: n.y };
+    setSel(i);
+  }
+  function onMove(e) {
+    if (dragRef.current) {
+      const d = dragRef.current; const n = sim.nodes[d.i];
+      n.x = d.nx + (e.clientX - d.startX) / view.z;
+      n.y = d.ny + (e.clientY - d.startY) / view.z;
+    } else if (panRef.current) {
+      const p = panRef.current;
+      setView(v => ({ ...v, x: p.vx + (e.clientX - p.sx), y: p.vy + (e.clientY - p.sy) }));
+    }
+  }
+  function onUp() {
+    if (dragRef.current) sim.nodes[dragRef.current.i].fixed = false;
+    dragRef.current = null; panRef.current = null;
+  }
+  function onStageDown(e) { panRef.current = { sx: e.clientX, sy: e.clientY, vx: view.x, vy: view.y }; }
+  function zoom(dz) { setView(v => ({ ...v, z: Math.max(0.4, Math.min(2.4, v.z + dz)) })); }
+
+  const types = ['all', ...Object.keys(TYPE_LABEL)];
+
+  return (
+    <div className="page wide fade-in">
+      <PageHead crumb="Research Memory" title="Knowledge Graph"
+        sub="Explore how papers, methods, datasets, claims, limitations and research gaps connect over time. Drag nodes, click to inspect, scroll the legend to filter.">
+        <button className="btn" onClick={() => { setSel(null); setView({ x: 0, y: 0, z: 1 }); }}><Icon name="reset" size={14} /> Reset view</button>
+      </PageHead>
+
+      <div className="controls">
+        <div className="search-field" style={{ maxWidth: 280, flex: 'none' }}>
+          <Icon name="search" size={15} stroke="var(--d-text-3)" />
+          <input placeholder="Search entity…" />
+        </div>
+        <select className="ctl" value={filter} onChange={e => setFilter(e.target.value)}>
+          {types.map(t => <option key={t} value={t}>{t === 'all' ? 'All entity types' : TYPE_LABEL[t]}</option>)}
+        </select>
+        <select className="ctl" value={depth} onChange={e => setDepth(+e.target.value)}>
+          <option value={1}>Depth · 1 hop</option>
+          <option value={2}>Depth · 2 hops</option>
+          <option value={3}>Depth · 3 hops</option>
+        </select>
+        <span className="mono-label" style={{ color: 'var(--d-text-3)', marginLeft: 'auto' }}>
+          {GRAPH.nodes.length} entities · {GRAPH.links.length} relationships
+        </span>
+      </div>
+
+      <div className="split" style={{ gridTemplateColumns: '1fr 340px' }}>
+        <div className="graph-stage" ref={stageRef}
+          onMouseDown={onStageDown} onMouseMove={onMove} onMouseUp={onUp} onMouseLeave={onUp}
+          onWheel={e => { e.preventDefault(); zoom(-e.deltaY * 0.0012); }}>
+          <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid meet">
+            <g transform={`translate(${view.x} ${view.y}) scale(${view.z})`} style={{ transformOrigin: 'center' }}>
+              {sim.links.map((l, i) => {
+                const A = sim.nodes[l.a], B = sim.nodes[l.b];
+                const dim = neighbors && !(neighbors.has(l.a) && neighbors.has(l.b));
+                return <line key={i} className="glink" x1={A.x} y1={A.y} x2={B.x} y2={B.y}
+                  style={{ opacity: dim ? 0.06 : 0.5, stroke: (neighbors && !dim) ? 'var(--accent)' : 'var(--d-border-2)' }} />;
+              })}
+              {sim.nodes.map((n, i) => {
+                const dimType = filter !== 'all' && n.type !== filter;
+                const dim = (neighbors && !neighbors.has(i)) || dimType;
+                const isSel = sel === i;
+                return (
+                  <g key={n.id} className="gnode" transform={`translate(${n.x} ${n.y})`}
+                    style={{ opacity: dim ? 0.18 : 1 }}
+                    onMouseDown={e => onNodeDown(e, i)}
+                    onMouseEnter={() => setHover(i)} onMouseLeave={() => setHover(null)}>
+                    {(isSel || hover === i) && !dim &&
+                      <circle r={n.r + 9} fill={NODE_HEX[n.type]} opacity={isSel ? 0.18 : 0.1} />}
+                    <circle r={n.r + (isSel ? 4 : 0)} fill={NODE_HEX[n.type]}
+                      stroke={isSel ? 'var(--d-text)' : 'rgba(0,0,0,.28)'} strokeWidth={isSel ? 2 : 1} />
+                    {(n.r > 9 || isSel || hover === i) &&
+                      <text x={n.r + 5} y={4} style={{ fontSize: 11, fontWeight: isSel ? 600 : 400, fill: isSel ? 'var(--d-text)' : 'var(--d-text-2)' }}>{n.label}</text>}
+                  </g>
+                );
+              })}
+            </g>
+          </svg>
+
+          <div className="graph-tools">
+            <button className="icon-btn" onClick={() => zoom(0.2)}><Icon name="plus" size={15} /></button>
+            <button className="icon-btn" onClick={() => zoom(-0.2)}><Icon name="minus" size={15} /></button>
+          </div>
+
+          <div className="graph-legend">
+            {Object.keys(TYPE_LABEL).map(t => (
+              <div className="lg" key={t} onClick={() => setFilter(filter === t ? 'all' : t)} style={{ cursor: 'pointer', opacity: filter !== 'all' && filter !== t ? .4 : 1 }}>
+                <i style={{ background: NODE_HEX[t] }}></i>{TYPE_LABEL[t]}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <div className="card entity-panel">
+            {selNode ? (
+              <div className="fade-in">
+                <span className="etype" style={{ color: NODE_HEX[selNode.type] }}>{TYPE_LABEL[selNode.type]}</span>
+                <h3>{selNode.label}</h3>
+                <p style={{ color: 'var(--d-text-2)', fontSize: 14, lineHeight: 1.5, margin: '0 0 8px' }}>
+                  {selNode.type === 'gap' ? 'An unresolved research direction recurring across multiple papers and categories.'
+                    : selNode.type === 'method' ? 'A technique appearing across the corpus, linked to the papers that employ it.'
+                    : selNode.type === 'paper' ? 'A paper in research memory, connected to its methods, datasets, claims and gaps.'
+                    : 'An entity in the shared research memory graph.'}
+                </p>
+                <div className="entity-stat"><span>Frequency in memory</span><b>{selNode.freq}×</b></div>
+                <div className="entity-stat"><span>First seen</span><b>2026-04-11</b></div>
+                <div className="entity-stat"><span>Last seen</span><b>2026-05-29</b></div>
+                <div className="entity-stat"><span>Connected papers</span><b>{connectedPapers.length}</b></div>
+                {connectedPapers.length > 0 && (
+                  <div style={{ marginTop: 14 }}>
+                    <div className="sb-cap" style={{ padding: '0 0 8px' }}>Connected papers</div>
+                    {connectedPapers.map(p => (
+                      <div key={p} style={{ fontSize: 13, color: 'var(--d-text-2)', padding: '7px 0', borderTop: '1px solid var(--d-border)', display: 'flex', gap: 8 }}>
+                        <span style={{ color: 'var(--n-paper)' }}>●</span>{p}
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <button className="btn btn-accent btn-sm" style={{ marginTop: 16, width: '100%', justifyContent: 'center' }}>Expand neighborhood</button>
+              </div>
+            ) : (
+              <div style={{ textAlign: 'center', padding: '30px 0', color: 'var(--d-text-3)' }}>
+                <div className="stub-ic" style={{ margin: '0 auto 16px' }}><Icon name="graph" size={26} /></div>
+                <p style={{ fontSize: 14, lineHeight: 1.5 }}>Click any node to inspect an entity, its frequency, and connected papers.</p>
+              </div>
+            )}
+          </div>
+
+          <div className="card card-pad" style={{ marginTop: 16 }}>
+            <div className="section-title" style={{ fontSize: 15 }}>Top connected entities</div>
+            {[...GRAPH.nodes].filter(n => n.type !== 'paper').sort((a, b) => b.freq - a.freq).slice(0, 6).map(n => (
+              <div key={n.id} className="trend-row" onClick={() => setSel(sim.idx[n.id])} style={{ cursor: 'pointer' }}>
+                <span style={{ display: 'flex', gap: 8, alignItems: 'center' }}><i style={{ width: 8, height: 8, borderRadius: '50%', background: NODE_HEX[n.type], display: 'inline-block' }}></i>{n.label}</span>
+                <b>{n.freq}×</b>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+Object.assign(window, { KnowledgeGraph, NODE_HEX, TYPE_LABEL });
+
+</script>
+
+<!-- Dashboard + core pages -->
+<script type="text/babel">
+/* FrontierOS — pages (dashboard, daily, deep dive, trends, gaps) */
+
+/* =================== DASHBOARD =================== */
+function DashboardPage({ setPage, onOpen, onAction }) {
+  const { KPIS, INTEL, PAPERS } = window.RR_DATA;
+  return (
+    <div className="page fade-in">
+      <div className="cmd-hero">
+        <div className="mono-label" style={{ color: 'var(--accent)', marginBottom: 14 }}>Research command center</div>
+        <h2>Today's CS research, ranked by novelty, impact, reproducibility, and opportunity.</h2>
+        <p>50 new papers analyzed and folded into your research memory this morning. Here's what's worth your attention.</p>
+        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+          <button className="btn btn-accent" onClick={async()=>{ flash('Fetching papers…'); const r=await fetch('/api/actions/fetch',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'}); const d=await r.json(); flash(d.message||'Fetch complete'); }}><Icon name="feed" size={15} /> Fetch today's papers</button>
+          <button className="btn" onClick={() => setPage('reports')}><Icon name="report" size={15} /> Generate daily report</button>
+          <button className="btn" onClick={() => setPage('memory')}><Icon name="spark" size={15} /> Ask Research Memory</button>
+        </div>
+        <div className="status">
+          <div>Last updated<b>{new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</b></div>
+          <div>Papers in memory<b>{(KPIS.find(k=>k.label==='Total Papers')||{}).value||'—'}</b></div>
+          <div>KG entities<b>{(KPIS.find(k=>k.label==='KG Entities')||{}).value||'—'}</b></div>
+          <div>High-opp today<b>{(KPIS.find(k=>k.label==='High-Opportunity Papers')||{}).value||'—'}</b></div>
+          <div>Code-ready<b>{(KPIS.find(k=>k.label==='Code-Ready Papers')||{}).value||'—'}</b></div>
+        </div>
+      </div>
+
+      <div style={{ height: 22 }} />
+      <div className="kpi-grid">{KPIS.map(k => <KpiCard key={k.label} kpi={k} />)}</div>
+
+      <div style={{ height: 30 }} />
+      <div className="section-title">Today's intelligence</div>
+      <div className="intel-strip">
+        {INTEL.map(it => (
+          <div key={it.k} className="card intel">
+            <div className="ik">{it.k}</div>
+            <div className="iv">{it.v}</div>
+          </div>
+        ))}
+      </div>
+
+      <div style={{ height: 30 }} />
+      <div className="section-title">Top papers today <span className="count">ranked by opportunity</span>
+        <button className="btn btn-sm btn-ghost" style={{ marginLeft: 'auto' }} onClick={() => setPage('daily')}>View all 50 <Icon name="arrow" size={13} /></button>
+      </div>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+        {[...PAPERS].sort((a, b) => b.scores.opportunity - a.scores.opportunity).slice(0, 4).map(p => (
+          <PaperCard key={p.id} paper={p} onOpen={onOpen} onAction={onAction} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* =================== DAILY PAPERS =================== */
+function DailyPapersPage({ onOpen, onAction, activeCats }) {
+  const { PAPERS, CATS } = window.RR_DATA;
+  const [q, setQ] = useState('');
+  const [cat, setCat] = useState('all');
+  const [sort, setSort] = useState('opportunity');
+  const [onlyCode, setOnlyCode] = useState(false);
+  const [colab, setColab] = useState(false);
+
+  const list = useMemo(() => {
+    let r = PAPERS.filter(p =>
+      (cat === 'all' || p.cat === cat) &&
+      (!onlyCode || p.code) && (!colab || p.colab) &&
+      (q === '' || (p.title + p.summary + p.tags.join()).toLowerCase().includes(q.toLowerCase()))
+    );
+    const key = { opportunity: 'opportunity', novelty: 'novelty', impact: 'impact', build: 'build' }[sort];
+    if (sort === 'date') r = [...r].sort((a, b) => b.date.localeCompare(a.date));
+    else if (sort === 'reprod') r = [...r].sort((a, b) => a.scores.reprod.localeCompare(b.scores.reprod));
+    else r = [...r].sort((a, b) => b.scores[key] - a.scores[key]);
+    return r;
+  }, [q, cat, sort, onlyCode, colab]);
+
+  return (
+    <div className="page fade-in">
+      <PageHead crumb="Feed" title="Daily Papers" sub={`${list.length} CS papers ranked by research opportunity.`} />
+      <div className="controls">
+        <div className="search-field">
+          <Icon name="search" size={15} stroke="var(--d-text-3)" />
+          <input placeholder="Search papers…" value={q} onChange={e => setQ(e.target.value)} />
+        </div>
+        <select className="ctl" value={cat} onChange={e => setCat(e.target.value)}>
+          <option value="all">All categories</option>
+          {CATS.map(c => <option key={c} value={c}>{c}</option>)}
+        </select>
+        <select className="ctl" value={sort} onChange={e => setSort(e.target.value)}>
+          <option value="opportunity">Sort · Opportunity</option>
+          <option value="novelty">Sort · Novelty</option>
+          <option value="impact">Sort · Impact</option>
+          <option value="reprod">Sort · Reproducibility</option>
+          <option value="build">Sort · Buildability</option>
+          <option value="date">Sort · Date</option>
+        </select>
+        <span className={`toggle-chip${onlyCode ? ' on' : ''}`} onClick={() => setOnlyCode(v => !v)}><span className="sw"></span> Only with code</span>
+        <span className={`toggle-chip${colab ? ' on' : ''}`} onClick={() => setColab(v => !v)}><span className="sw"></span> Colab-friendly</span>
+      </div>
+      <div style={{ display: 'grid', gap: 16 }}>
+        {list.map(p => <PaperCard key={p.id} paper={p} onOpen={onOpen} onAction={onAction} />)}
+        {list.length === 0 && <div className="card card-pad" style={{ textAlign: 'center', color: 'var(--d-text-3)' }}>No papers match these filters.</div>}
+      </div>
+    </div>
+  );
+}
+
+/* =================== PAPER DEEP DIVE =================== */
+function DeepDivePage({ paper, onAction, setPage }) {
+  const { PAPERS } = window.RR_DATA;
+  const p = paper || PAPERS[0];
+  const [tab, setTab] = useState('Summary');
+  const tabs = ['Summary', 'Method', 'Claims', 'Datasets', 'Limitations', 'Future Work', 'Related', 'Memory', 'Code'];
+  const s = p.scores;
+
+  const claims = [
+    { claim: 'Outperforms baseline on multi-step tasks', dataset: p.datasets[0] || 'HotpotQA', metric: 'Success@1', base: '61.2', imp: '+8.4', ev: 'Table 3', conf: 'High' },
+    { claim: 'Reduces failure repetition', dataset: p.datasets[1] || 'BEIR', metric: 'Repeat-err', base: '14.1%', imp: '−9.3pp', ev: 'Fig 5', conf: 'Medium' },
+    { claim: 'Maintains latency budget', dataset: 'Internal', metric: 'p95 ms', base: '820', imp: '+6%', ev: 'App. B', conf: 'Medium' },
+  ];
+  const limits = [
+    { l: 'Evaluated mostly on English benchmarks', ev: 'Datasets section', sev: 'Medium', ext: 'Multilingual long-horizon eval suite' },
+    { l: 'Compute cost grows with memory size', ev: 'Section 6', sev: 'High', ext: 'Adaptive memory pruning' },
+  ];
+
+  const Pane = () => {
+    switch (tab) {
+      case 'Summary': return (<div className="fade-in">
+        <DDBlock t="One-line summary" v={p.summary} />
+        <DDBlock t="Problem" v={p.problem} />
+        <DDBlock t="Main contribution" v={p.contribution} />
+        <DDBlock t="Why it matters" v={p.matters} />
+        <DDBlock t="Who should read this" v={p.who} />
+      </div>);
+      case 'Method': return (<div className="fade-in">
+        <DDBlock t="Main technical idea" v={p.contribution} />
+        <DDBlock t="Architecture" v={`A ${p.methods[0]} module feeds a downstream policy; inputs are encoded, routed through ${p.methods[1] || 'the core component'}, and decoded into actions.`} />
+        <DDBlock t="Key methods" v={p.methods.join(' · ')} />
+        <DDBlock t="Inputs → outputs" v="Natural-language task + context → structured plan + verified tool calls → final response." />
+      </div>);
+      case 'Claims': return (<div className="fade-in card" style={{ overflow: 'hidden' }}>
+        <table className="rr"><thead><tr><th>Claim</th><th>Dataset</th><th>Metric</th><th>Baseline</th><th>Improve</th><th>Evidence</th><th>Conf.</th></tr></thead>
+          <tbody>{claims.map((c, i) => <tr key={i}><td><b>{c.claim}</b></td><td>{c.dataset}</td><td>{c.metric}</td><td>{c.base}</td><td style={{ color: 'var(--green-300)' }}>{c.imp}</td><td>{c.ev}</td><td>{c.conf}</td></tr>)}</tbody>
+        </table></div>);
+      case 'Datasets': return (<div className="fade-in" style={{ display: 'grid', gap: 12 }}>
+        {p.datasets.map(d => <div key={d} className="card card-pad" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}><div><b style={{ fontFamily: 'var(--font-display)' }}>{d}</b><div style={{ fontSize: 12.5, color: 'var(--d-text-3)', marginTop: 4 }}>Used for evaluation · public</div></div><Badge variant="green">in memory</Badge></div>)}
+      </div>);
+      case 'Limitations': return (<div className="fade-in" style={{ display: 'grid', gap: 12 }}>
+        {limits.map((l, i) => <div key={i} className="card card-pad" style={{ borderLeft: '2px solid var(--rose)' }}>
+          <div style={{ fontWeight: 500, marginBottom: 8 }}>{l.l}</div>
+          <div className="entity-stat" style={{ borderTop: 'none', padding: '4px 0' }}><span>Evidence</span><b>{l.ev}</b></div>
+          <div className="entity-stat" style={{ padding: '4px 0' }}><span>Severity</span><b>{l.sev}</b></div>
+          <div className="entity-stat" style={{ padding: '4px 0' }}><span>Possible extension</span><b style={{ color: 'var(--accent)' }}>{l.ext}</b></div>
+        </div>)}
+      </div>);
+      case 'Future Work': return (<div className="fade-in"><DDBlock t="Authors' stated directions" v="Scaling the memory router to multi-agent settings; learning when to forget; benchmarking long-horizon reliability." /><DDBlock t="FrontierOS extension" v="Combine with a typed-contract tool layer to bound failure modes during long-horizon execution." /></div>);
+      case 'Related': return (<div className="fade-in" style={{ display: 'grid', gap: 12 }}>{PAPERS.filter(x => x.id !== p.id).slice(0, 4).map(x => <div key={x.id} className="card card-pad" style={{ cursor: 'pointer' }} onClick={() => onAction('open', x)}><b style={{ fontFamily: 'var(--font-display)' }}>{x.title}</b><div style={{ fontSize: 12.5, color: 'var(--d-text-3)', marginTop: 6 }}>{x.cat} · shares {x.methods[0]}</div></div>)}</div>);
+      case 'Memory': return (<div className="fade-in">
+        <div className="kpi-grid" style={{ gridTemplateColumns: 'repeat(3,1fr)' }}>
+          {[['Similar papers', 12], ['Shared methods', 5], ['Shared datasets', 3], ['Repeated limitations', 4], ['Related research gaps', 2], ['Co-authors in memory', 7]].map(([k, v]) =>
+            <div key={k} className="card kpi"><span className="k-label">{k}</span><div className="k-val">{v}</div></div>)}
+        </div>
+        <button className="btn btn-accent" style={{ marginTop: 18 }} onClick={() => setPage('graph')}><Icon name="graph" size={15} /> View in knowledge graph</button>
+      </div>);
+      case 'Code': return (<div className="fade-in card card-pad" style={{ fontFamily: 'var(--font-mono)', fontSize: 13, color: 'var(--d-text-2)', lineHeight: 1.7, whiteSpace: 'pre-wrap' }}>
+        <span style={{ color: 'var(--accent)' }}>{'# generate a runnable skeleton from this paper'}</span>{`\nfrom frontieros import MemoryRouter, Planner\n\nrouter = MemoryRouter(index="`}{p.datasets[0] || 'corpus'}{`")\nplanner = Planner(router=router, tools=[...])\n\nplan = planner.solve(task, max_steps=12)`}
+        <div style={{ marginTop: 16 }}><button className="btn btn-accent btn-sm" onClick={() => setPage('p2c')}>Open in Paper-to-Code <Icon name="arrow" size={13} /></button></div>
+      </div>);
+      default: return null;
+    }
+  };
+
+  return (
+    <div className="page fade-in">
+      <PageHead crumb="Paper Deep Dive" title={p.title} />
+      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 18 }}>
+        {['arXiv', 'PDF', 'Official Code', 'Project Page', 'Hugging Face'].map(l => <button key={l} className="btn btn-sm">{l} <Icon name="external" size={12} /></button>)}
+      </div>
+      <div className="split">
+        <div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7, marginBottom: 18 }}>
+            <Badge variant="blue">{p.cat}</Badge>{p.tags.map(t => <Badge key={t} variant="gray">{t}</Badge>)}{p.badges.map(b => <Badge key={b}>{b}</Badge>)}
+          </div>
+          <div className="tabs">{tabs.map(t => <button key={t} className={`tab${tab === t ? ' active' : ''}`} onClick={() => setTab(t)}>{t}</button>)}</div>
+          <Pane />
+        </div>
+        <div>
+          <div className="card card-pad">
+            <div className="sb-cap" style={{ padding: '0 0 12px' }}>Scores</div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+              <Score label="Novelty" value={s.novelty} /><Score label="Impact" value={s.impact} />
+              <Score label="Reprod." value={s.reprod} /><Score label="Build" value={s.build} /><Score label="Opp." value={s.opportunity} />
+            </div>
+            <div style={{ margintop: 16, display: 'grid', gap: 8, marginTop: 18 }}>
+              <button className="btn btn-accent" onClick={() => setPage('p2c')}><Icon name="code" size={15} /> Generate code</button>
+              <button className="btn" onClick={() => onAction('save', p)}><Icon name="bookmark" size={15} /> Add to library</button>
+              <button className="btn" onClick={() => setPage('builder')}><Icon name="build" size={15} /> Build a project</button>
+            </div>
+          </div>
+          <div className="card card-pad" style={{ marginTop: 16 }}>
+            <div className="sb-cap" style={{ padding: '0 0 10px' }}>Graph links</div>
+            {p.methods.concat(p.datasets).slice(0, 6).map(m => <div key={m} className="trend-row" style={{ cursor: 'pointer' }} onClick={() => setPage('graph')}><span>{m}</span><Icon name="chevron" size={13} /></div>)}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+function DDBlock({ t, v }) {
+  return <div style={{ marginBottom: 20 }}><div className="sb-cap" style={{ padding: '0 0 7px', color: 'var(--accent)' }}>{t}</div><p style={{ margin: 0, fontSize: 15.5, lineHeight: 1.6, color: 'var(--d-text)' }}>{v}</p></div>;
+}
+
+/* =================== TREND RADAR =================== */
+function TrendRadarPage({ setPage }) {
+  const { TRENDS } = window.RR_DATA;
+  const maxPapers = Math.max(...TRENDS.map(t => t.papers));
+  return (
+    <div className="page fade-in">
+      <PageHead crumb="Intelligence" title="Trend Radar" sub="Where computer-science research is moving — velocity, saturation, and open opportunity across tracked categories." />
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 28 }}>
+        <div className="card card-pad">
+          <div className="section-title" style={{ fontSize: 15 }}>Topic velocity <span className="count">week over week</span></div>
+          <div className="barchart">
+            {[...TRENDS].sort((a, b) => b.velocity - a.velocity).map(t => (
+              <div className="bc-row" key={t.name}>
+                <span className="bc-label">{t.name}</span>
+                <div className="bc-track"><div className="bc-fill" style={{ width: `${Math.min(100, Math.abs(t.velocity) * 1.4)}%`, background: t.velocity < 0 ? 'var(--rose)' : 'var(--accent)' }}></div></div>
+                <span className="bc-val" style={{ color: t.velocity < 0 ? 'var(--rose)' : 'var(--green-300)' }}>{t.velocity > 0 ? '+' : ''}{t.velocity}%</span>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="card card-pad">
+          <div className="section-title" style={{ fontSize: 15 }}>Novelty vs. saturation</div>
+          <div className="scatter">
+            <span className="sc-axis" style={{ left: 8, top: 6 }}>↑ novelty</span>
+            <span className="sc-axis" style={{ right: 8, bottom: 6 }}>saturation →</span>
+            {TRENDS.map(t => {
+              const sx = { Low: 18, Medium: 50, High: 82 }[t.saturation];
+              return <div key={t.name} className="sc-pt" title={`${t.name} · ${t.saturation} saturation`}
+                style={{ left: `${sx}%`, bottom: `${(t.novelty / 10) * 88 + 6}%`, background: t.opportunity === 'High' ? 'var(--accent)' : t.opportunity === 'Medium' ? 'var(--amber)' : 'var(--d-text-3)', boxShadow: t.opportunity === 'High' ? '0 0 12px var(--accent)' : 'none' }} />;
+            })}
+          </div>
+          <div style={{ display: 'flex', gap: 16, marginTop: 12, fontSize: 12, color: 'var(--d-text-3)' }}>
+            <span><i style={{ color: 'var(--accent)' }}>●</i> High opp.</span><span><i style={{ color: 'var(--amber)' }}>●</i> Medium</span><span><i style={{ color: 'var(--d-text-3)' }}>●</i> Low</span>
+          </div>
+        </div>
+      </div>
+      <div className="section-title">Trend cards</div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(320px,1fr))', gap: 16 }}>
+        {TRENDS.map(t => (
+          <div key={t.name} className="card trend-card">
+            <h4>{t.name}<span className={`vel ${t.velocity < 0 ? 'down' : 'up'}`}>{t.velocity > 0 ? '+' : ''}{t.velocity}%</span></h4>
+            <div className="trend-row"><span>Saturation</span><b>{t.saturation}</b></div>
+            <div className="trend-row"><span>Opportunity</span><b style={{ color: t.opportunity === 'High' ? 'var(--accent)' : 'var(--d-text-2)' }}>{t.opportunity}</b></div>
+            <div className="trend-row"><span>Related papers</span><b>{t.papers}</b></div>
+            <div style={{ fontSize: 12.5, color: 'var(--d-text-3)', margin: '10px 0 4px' }}>Methods: {t.methods.join(', ')}</div>
+            <div style={{ fontSize: 12.5, color: 'var(--d-text-3)' }}>Open gaps: {t.gaps.join(', ')}</div>
+            <div style={{ display: 'flex', gap: 8, marginTop: 14 }}>
+              <button className="btn btn-sm" onClick={() => setPage('daily')}>View papers</button>
+              <button className="btn btn-sm btn-ghost" onClick={() => setPage('builder')}>Research ideas</button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* =================== RESEARCH GAPS =================== */
+function GapsPage({ setPage }) {
+  const { GAPS } = window.RR_DATA;
+  return (
+    <div className="page fade-in">
+      <PageHead crumb="Intelligence" title="Research Gap Finder" sub="High-opportunity, under-served directions surfaced from repeated limitations and unsolved future work across the corpus." />
+      <div style={{ display: 'grid', gap: 16 }}>
+        {GAPS.map(g => (
+          <div key={g.gap} className="card gap-card">
+            <div style={{ display: 'flex', justifyContent: 'space-between', gap: 20, flexWrap: 'wrap' }}>
+              <div style={{ flex: 1, minWidth: 280 }}>
+                <div style={{ display: 'flex', gap: 7, marginBottom: 12, flexWrap: 'wrap' }}>{g.cats.map(c => <Badge key={c} variant="blue">{c}</Badge>)}<Badge variant="orange">Difficulty · {g.difficulty}</Badge></div>
+                <h3 style={{ fontFamily: 'var(--font-display)', fontWeight: 500, fontSize: 21, letterSpacing: '-.01em', margin: '0 0 14px' }}>{g.gap}</h3>
+                <div className="sb-cap" style={{ padding: '0 0 8px', color: 'var(--accent)' }}>Evidence</div>
+                {g.evidence.map(e => <div key={e} style={{ fontSize: 13.5, color: 'var(--d-text-2)', padding: '5px 0', display: 'flex', gap: 8 }}><span style={{ color: 'var(--accent)' }}>→</span>{e}</div>)}
+                <div className="sb-cap" style={{ padding: '14px 0 6px', color: 'var(--accent)' }}>Possible project</div>
+                <p style={{ margin: 0, fontSize: 14.5, color: 'var(--d-text)', lineHeight: 1.55 }}>{g.project}</p>
+              </div>
+              <div style={{ textAlign: 'center', minWidth: 120 }}>
+                <div className="sb-cap" style={{ padding: 0 }}>Opportunity</div>
+                <div className="opp">{g.score}</div>
+                <div style={{ display: 'grid', gap: 8, marginTop: 16 }}>
+                  <button className="btn btn-accent btn-sm" onClick={() => setPage('builder')}>Generate project</button>
+                  <button className="btn btn-sm" onClick={() => setPage('daily')}>Related papers</button>
+                  <button className="btn btn-sm btn-ghost">Add to ideas</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+Object.assign(window, { DashboardPage, DailyPapersPage, DeepDivePage, TrendRadarPage, GapsPage });
+
+</script>
+
+<!-- Context Engine pages (Near My Work, Directives, Novelty Radar, etc.) -->
+<script type="text/babel">
+/* FrontierOS — Context Engine pages (the differentiator)
+   Near My Work · Research Context · Directives · Novelty Radar · Living Related Work · Citation Advisor */
+
+const CTX = () => window.RR_DATA.CONTEXT;
+const PBY = (id) => window.RR_DATA.PAPERS.find(p => p.id === id) || window.RR_DATA.PAPERS[0];
+
+/* classification → label + color */
+const CLS = {
+  'must-cite': { label: 'Must cite', c: 'var(--accent)', ic: 'check' },
+  'competing': { label: 'Competing work', c: '#f2607d', ic: 'flame' },
+  'baseline': { label: 'Useful baseline', c: '#5b9bff', ic: 'compare' },
+  'dataset': { label: 'Useful dataset', c: '#34d9e0', ic: 'layers' },
+  'method': { label: 'Useful method', c: '#a78bfa', ic: 'code' },
+  'collab': { label: 'Potential collaborator', c: '#f4a52a', ic: 'spark' },
+  'low': { label: 'Low relevance', c: 'var(--d-text-3)', ic: 'minus' },
+};
+const CONF = { High: '#2fcf9e', Medium: '#f4a52a', Low: '#f2607d' };
+
+/* ---- shared: score ring ---- */
+function Ring({ value, size = 64, label }) {
+  const r = (size - 10) / 2, c = 2 * Math.PI * r, off = c * (1 - value / 100);
+  const col = value >= 80 ? 'var(--accent)' : value >= 55 ? '#5b9bff' : value >= 40 ? '#f4a52a' : 'var(--d-text-3)';
+  return (
+    <div className="ring-wrap" style={{ width: size, height: size }}>
+      <svg width={size} height={size}>
+        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--d-border)" strokeWidth="5" />
+        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={col} strokeWidth="5" strokeLinecap="round"
+          strokeDasharray={c} strokeDashoffset={off} transform={`rotate(-90 ${size / 2} ${size / 2})`}
+          style={{ transition: 'stroke-dashoffset 1s cubic-bezier(.22,.61,.36,1)' }} />
+      </svg>
+      <div className="ring-num"><b>{value}</b>{label && <span>{label}</span>}</div>
+    </div>
+  );
+}
+
+/* ---- shared: classification badge ---- */
+function ClsBadge({ cls, sm }) {
+  const x = CLS[cls] || CLS.low;
+  return <span className={`cls-badge${sm ? ' sm' : ''}`} style={{ color: x.c, borderColor: x.c, background: `color-mix(in srgb, ${x.c} 12%, transparent)` }}>
+    <Icon name={x.ic} size={sm ? 11 : 13} /> {x.label}
+  </span>;
+}
+
+/* ---- shared: overlap dimension bar ---- */
+function OverlapBar({ dim, pct }) {
+  return (
+    <div className="ov-row">
+      <span className="ov-dim">{dim}</span>
+      <div className="ov-track"><div className="ov-fill" style={{ width: pct + '%' }} /></div>
+      <span className="ov-pct">{pct}%</span>
+    </div>
+  );
+}
+
+/* ---- shared: evidence + uncertainty line ---- */
+function Evidence({ quote, conf, uncertainty, paperId }) {
+  return (
+    <div className="evidence">
+      <div className="ev-quote"><Icon name="quote" size={13} stroke="var(--d-text-3)" /> {quote}</div>
+      <div className="ev-meta">
+        <span className="conf-pill" style={{ color: CONF[conf], borderColor: CONF[conf] }}>
+          <span className="conf-dot" style={{ background: CONF[conf] }} /> {conf} confidence
+        </span>
+        <span className="ev-unc"><Icon name="eye" size={12} /> {uncertainty}</span>
+        {paperId && <span className="ev-src">arXiv:{paperId}</span>}
+      </div>
+    </div>
+  );
+}
+
+/* =================== NEAR MY WORK (signature) =================== */
+function NearMyWorkPage({ onOpen, setPage, flash }) {
+  const data = CTX();
+  const [filter, setFilter] = useState('all');
+  const [open, setOpen] = useState(data.nearWork[0].dupKey || data.nearWork[0].ref);
+  const actions = ['all', 'must-cite', 'competing', 'baseline', 'dataset', 'low'];
+
+  const rows = data.nearWork.filter(r => filter === 'all' || r.cls === filter);
+
+  return (
+    <div className="page fade-in">
+      <PageHead crumb="Context Engine" title="Near My Work"
+        sub="FrontierOS compares today's frontier against your private research memory — and tells you why each paper matters to your work.">
+        <button className="btn" onClick={() => setPage('context')}><Icon name="layers" size={15} /> Your context</button>
+        <button className="btn btn-accent" onClick={async()=>{ flash('Re-scanning…'); const r=await fetch('/api/near-my-work/rescan',{method:'POST'}); const d=await r.json(); flash(d.papers_scored ? `Scored ${d.papers_scored} papers` : 'Rescan complete'); }}><Icon name="reset" size={15} /> Re-scan frontier</button>
+      </PageHead>
+
+      <div className="ctx-claimbar">
+        <div className="ccb-ic"><Icon name="target" size={18} stroke="var(--accent)" /></div>
+        <div>
+          <div className="ccb-cap">Scoring against your claimed contribution</div>
+          <div className="ccb-claim">{data.claim}</div>
+        </div>
+      </div>
+
+      <div className="seg-filter">
+        {actions.map(a => (
+          <button key={a} className={`seg-btn${filter === a ? ' on' : ''}`} onClick={() => setFilter(a)}>
+            {a === 'all' ? 'All nearby' : (CLS[a] || {}).label}
+            <span className="seg-n">{a === 'all' ? data.nearWork.length : data.nearWork.filter(r => r.cls === a).length}</span>
+          </button>
+        ))}
+      </div>
+
+      <div className="nmw-list">
+        {rows.map((r, i) => {
+          const p = PBY(r.ref); const key = r.dupKey || r.ref; const isOpen = open === key;
+          return (
+            <div key={key} className={`nmw-card${isOpen ? ' open' : ''}`}>
+              <div className="nmw-top" onClick={() => setOpen(isOpen ? null : key)}>
+                <Ring value={r.score} label="near" />
+                <div className="nmw-mid">
+                  <div className="nmw-badges">
+                    <ClsBadge cls={r.cls} />
+                    <span className="act-pill"><Icon name="arrow" size={12} /> {r.action}</span>
+                  </div>
+                  <h3>{p.title}</h3>
+                  <div className="nmw-meta">{p.authors.join(', ')} · {p.date} · arXiv:{p.id}</div>
+                  <p className="nmw-note">{r.note}</p>
+                </div>
+                <button className="nmw-exp"><Icon name="chevron" size={16} /></button>
+              </div>
+              {isOpen && (
+                <div className="nmw-detail fade-in">
+                  <div className="nmw-cols">
+                    <div>
+                      <div className="mini-cap">Why it matches your work</div>
+                      <div className="ov-list">{r.why.map(([d, pct]) => <OverlapBar key={d} dim={d} pct={pct} />)}</div>
+                    </div>
+                    <div>
+                      <div className="mini-cap">Evidence &amp; uncertainty</div>
+                      <Evidence quote={r.evidence} conf={r.conf} uncertainty={r.uncertainty} paperId={p.id} />
+                      <div className="nmw-actions">
+                        <button className="btn btn-sm btn-accent" onClick={() => onOpen(p)}><Icon name="doc" size={13} /> Deep dive</button>
+                        <button className="btn btn-sm" onClick={() => setPage('cite')}><Icon name="quote" size={13} /> Citation advice</button>
+                        <button className="btn btn-sm" onClick={() => setPage('novelty')}><Icon name="shield" size={13} /> Novelty impact</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+/* =================== RESEARCH CONTEXT (private memory) =================== */
+const TYPE_IC = { draft: 'doc', notes: 'feed', dataset: 'layers', proposal: 'report', paper: 'bookmark' };
+function ResearchContextPage({ flash }) {
+  const [items, setItems] = React.useState(CTX().items || []);
+  const [uploading, setUploading] = React.useState(false);
+  const [fname, setFname] = React.useState('');
+  const [content, setContent] = React.useState('');
+  const [atype, setAtype] = React.useState('notes');
+  const [showForm, setShowForm] = React.useState(false);
+
+  React.useEffect(()=>{
+    fetch('/api/context/artifacts').then(r=>r.json()).then(d=>{ if(d.artifacts) setItems(d.artifacts); }).catch(()=>{});
+  },[]);
+
+  const upload = async () => {
+    if (!fname.trim()||!content.trim()){ flash('Enter a name and paste content'); return; }
+    setUploading(true);
+    try {
+      const r=await fetch('/api/context/upload',{method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({name:fname.trim(),content,artifact_type:atype})});
+      const d=await r.json();
+      if(d.ok){
+        flash('Uploaded '+d.name+' — extracted '+(d.topics||[]).length+' topics');
+        setItems(prev=>[{id:String(d.id),name:d.name,type:atype,topics:d.topics||[],date:new Date().toISOString().slice(0,10),size:'—'},...prev]);
+        setFname(''); setContent(''); setShowForm(false);
+      }
+    } catch(e){ flash('Upload failed — is the server running?'); }
+    finally{ setUploading(false); }
+  };
+
+  const remove=async(id)=>{
+    await fetch('/api/context/artifacts/'+id,{method:'DELETE'}).catch(()=>{});
+    setItems(prev=>prev.filter(x=>x.id!==id));
+    flash('Removed');
+  };
+
+  const TICON={draft:'doc',notes:'report',proposal:'build',dataset:'layers',paper:'feed',other:'gear'};
+
+  return (
+    <div className="page fade-in">
+      <PageHead crumb="Context Engine" title="Research Context"
+        sub="Upload drafts, notes, proposals, and datasets. FrontierOS extracts private entities and uses them to personalise Near My Work, Citation Advisor, and Novelty Radar.">
+        <button className="btn btn-accent" onClick={()=>setShowForm(v=>!v)}>
+          <Icon name={showForm?'minus':'doc'} size={15}/> {showForm?'Cancel':'Upload context'}
+        </button>
+      </PageHead>
+
+      {showForm && (
+        <div className="card card-pad" style={{marginBottom:20}}>
+          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:12}}>
+            <div>
+              <label style={{fontSize:12,color:'var(--d-text-3)',display:'block',marginBottom:4}}>Name</label>
+              <input className="g-input" value={fname} onChange={e=>setFname(e.target.value)}
+                placeholder="thesis_draft_v3" style={{width:'100%'}}/>
+            </div>
+            <div>
+              <label style={{fontSize:12,color:'var(--d-text-3)',display:'block',marginBottom:4}}>Type</label>
+              <select className="g-input" value={atype} onChange={e=>setAtype(e.target.value)} style={{width:'100%'}}>
+                {['draft','notes','proposal','dataset','paper','other'].map(t=>(
+                  <option key={t} value={t}>{t[0].toUpperCase()+t.slice(1)}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+          <label style={{fontSize:12,color:'var(--d-text-3)',display:'block',marginBottom:4}}>Paste content</label>
+          <textarea className="g-input" rows={6} value={content} onChange={e=>setContent(e.target.value)}
+            placeholder="Paste your draft abstract, lab notes, or proposal here..."
+            style={{width:'100%',resize:'vertical',fontFamily:'var(--font-mono)',fontSize:12}}/>
+          <div style={{marginTop:12,display:'flex',gap:10,alignItems:'center'}}>
+            <button className="btn btn-accent" onClick={upload} disabled={uploading}>
+              <Icon name={uploading?'reset':'doc'} size={14}/> {uploading?'Extracting...':'Upload and extract'}
+            </button>
+            <span style={{fontSize:12,color:'var(--d-text-3)'}}>Extracts topics, methods, claims, open questions.</span>
+          </div>
+        </div>
+      )}
+
+      {items.filter(x=>x.id!=='c0').length===0 ? (
+        <div className="stub"><div>
+          <div className="stub-ic"><Icon name="layers" size={28}/></div>
+          <h2>No context uploaded yet</h2>
+          <p>Upload a draft or notes to enable personalised Near My Work scoring.</p>
+          <div style={{marginTop:20}}>
+            <button className="btn btn-accent" onClick={()=>setShowForm(true)}>Upload context <Icon name="arrow" size={14}/></button>
+          </div>
+        </div></div>
+      ) : (
+        <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(280px,1fr))',gap:16,marginBottom:24}}>
+          {items.filter(x=>x.id!=='c0').map(item=>(
+            <div key={item.id} className="card card-pad" style={{position:'relative'}}>
+              <div style={{display:'flex',gap:10,alignItems:'center',marginBottom:10}}>
+                <Icon name={TICON[item.type]||'doc'} size={18} stroke="var(--accent)"/>
+                <div style={{flex:1}}>
+                  <div style={{fontWeight:600,fontSize:13,color:'var(--d-text)'}}>{item.name}</div>
+                  <div style={{fontSize:11,color:'var(--d-text-3)'}}>{item.type} · {item.date} · {item.size}</div>
+                </div>
+                <button onClick={()=>remove(item.id)} className="btn btn-sm btn-ghost"
+                  style={{padding:'3px 7px',fontSize:11,color:'var(--rose)'}}>x</button>
+              </div>
+              {(item.topics||[]).length>0 && (
+                <div style={{display:'flex',flexWrap:'wrap',gap:5}}>
+                  {(item.topics||[]).slice(0,6).map(t=>(
+                    <span key={t} style={{fontSize:11,background:'color-mix(in srgb,var(--accent) 12%,transparent)',
+                      color:'var(--accent)',border:'1px solid color-mix(in srgb,var(--accent) 25%,transparent)',
+                      padding:'2px 8px',borderRadius:999}}>{t}</span>
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+
+      <div className="section-title">Extracted private entities <span className="count">from your uploads</span></div>
+      <div className="ctx-entity-grid">
+        {Object.entries(CTX().myEntities||{}).map(function(pair){ var k=pair[0],v=pair[1]; return (
+          <div key={k} className="card card-pad ctx-ent">
+            <div className="v">{v}</div><div className="k">{k}</div>
+          </div>
+        ); })}
+      </div>
+    </div>
+  );
+}
+
+/* =================== RESEARCH DIRECTIVES =================== */
+const TEMPLATES = [
+  'Track new papers near my thesis',
+  'Watch for new benchmarks in this area',
+  'Alert me if someone publishes similar work',
+  'Find reproducible papers I can build from',
+  'Maintain related work for a draft',
+];
+function DirectivesPage({ flash, setPage }) {
+  const [dirs, setDirs] = React.useState(CTX().directives || []);
+  const [newText, setNewText] = React.useState('');
+  const [cadence, setCadence] = React.useState('daily');
+  const [saving, setSaving] = React.useState(false);
+
+  React.useEffect(()=>{
+    fetch('/api/directives').then(r=>r.json())
+      .then(d=>{ if(d.directives&&d.directives.length) setDirs(d.directives); })
+      .catch(()=>{});
+  },[]);
+
+  const add=async()=>{
+    if(!newText.trim()) return;
+    setSaving(true);
+    try{
+      const r=await fetch('/api/directives',{method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({goal_text:newText.trim(),cadence})});
+      const d=await r.json();
+      if(d.ok){ setDirs(prev=>[{id:String(d.id),text:d.text,cadence,active:true,matches:0,new:0},...prev]); setNewText(''); flash('Directive saved'); }
+    } catch(e){ flash('Could not save — is the server running?'); }
+    finally{ setSaving(false); }
+  };
+
+  const remove=async(id)=>{
+    await fetch('/api/directives/'+id,{method:'DELETE'}).catch(()=>{});
+    setDirs(prev=>prev.filter(d=>d.id!==id)); flash('Removed');
+  };
+
+  const toggle=async(id)=>{
+    const r=await fetch('/api/directives/'+id+'/toggle',{method:'PUT'}).catch(()=>null);
+    const d=r?await r.json().catch(()=>null):null;
+    if(d&&d.ok) setDirs(prev=>prev.map(x=>x.id===id?Object.assign({},x,{active:d.active}):x));
+  };
+
+  const SUGG=[
+    'Track papers near my thesis on agent reliability',
+    'Watch for new benchmarks in long-horizon evaluation',
+    'Alert me if someone publishes work overlapping my novelty',
+    'Find reproducible papers I can build baselines from',
+  ];
+
+  return (
+    <div className="page fade-in">
+      <PageHead crumb="Context Engine" title="Research Directives"
+        sub="Create a directive once. FrontierOS continuously tracks the field for you."/>
+      <div className="card card-pad" style={{marginBottom:24}}>
+        <div style={{fontSize:13,fontWeight:600,color:'var(--d-text)',marginBottom:12}}>New directive</div>
+        <textarea className="g-input" rows={3} value={newText} onChange={e=>setNewText(e.target.value)}
+          placeholder="e.g. Track papers near my thesis and alert me on novelty risks"
+          style={{width:'100%',resize:'vertical',marginBottom:10}}/>
+        <div style={{display:'flex',gap:10,alignItems:'center',flexWrap:'wrap'}}>
+          <select className="g-input" value={cadence} onChange={e=>setCadence(e.target.value)}>
+            <option value="realtime">Realtime</option>
+            <option value="daily">Daily</option>
+            <option value="weekly">Weekly</option>
+          </select>
+          <button className="btn btn-accent" onClick={add} disabled={saving||!newText.trim()}>
+            <Icon name="spark" size={14}/> {saving?'Saving...':'Add directive'}
+          </button>
+        </div>
+        <div style={{marginTop:12}}>
+          <div style={{fontSize:11,color:'var(--d-text-3)',marginBottom:6}}>Quick add:</div>
+          <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
+            {SUGG.map(s=>(
+              <button key={s} className="btn btn-sm btn-ghost" style={{fontSize:11}} onClick={()=>setNewText(s)}>{s.slice(0,44)}...</button>
+            ))}
+          </div>
+        </div>
+      </div>
+      {dirs.length===0 ? (
+        <div style={{textAlign:'center',padding:40,color:'var(--d-text-3)',fontSize:14}}>No directives yet. Add one above.</div>
+      ) : dirs.map(d=>(
+        <div key={d.id} className="card card-pad" style={{marginBottom:10,borderLeft:'3px solid '+(d.active?'var(--accent)':'var(--d-border)'),opacity:d.active?1:0.6}}>
+          <div style={{display:'flex',gap:10,alignItems:'flex-start'}}>
+            <div style={{flex:1}}>
+              <div style={{fontWeight:500,fontSize:14,color:'var(--d-text)',marginBottom:6}}>{d.text}</div>
+              <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
+                <span style={{fontSize:11,fontFamily:'var(--font-mono)',color:'var(--d-text-3)',background:'var(--d-elev)',padding:'2px 8px',borderRadius:4}}>{d.cadence}</span>
+                {d.new>0 && <span style={{fontSize:11,color:'var(--accent)',fontWeight:600}}>{d.new} new matches</span>}
+                <span style={{fontSize:11,color:'var(--d-text-3)'}}>{d.matches} total matches</span>
+              </div>
+            </div>
+            <div style={{display:'flex',gap:6,flexShrink:0}}>
+              <button className="btn btn-sm" onClick={()=>toggle(d.id)} style={{fontSize:11}}>{d.active?'Pause':'Resume'}</button>
+              <button className="btn btn-sm" onClick={()=>remove(d.id)} style={{fontSize:11,color:'var(--rose)'}}>Remove</button>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/* =================== NOVELTY RISK RADAR =================== */
+function NoveltyRadarPage({ onOpen, setPage }) {
+  const n = CTX().novelty; const claim = CTX().claim;
+  const drop = n.lastWeek - n.remaining;
+  return (
+    <div className="page fade-in">
+      <PageHead crumb="Context Engine" title="Novelty Risk Radar"
+        sub="FrontierOS watches for papers that overlap your claimed contribution — and tells you how to reposition before a reviewer does." />
+
+      <div className="nov-top">
+        <div className="card card-pad nov-meter-card">
+          <div className="sb-cap">Remaining novelty</div>
+          <div className="nov-big" style={{ color: n.remaining >= 70 ? 'var(--accent)' : n.remaining >= 50 ? '#f4a52a' : '#f2607d' }}>{n.remaining}%</div>
+          <div className="nov-meter"><div className="nm-fill" style={{ width: n.remaining + '%', background: n.remaining >= 70 ? 'var(--accent)' : n.remaining >= 50 ? '#f4a52a' : '#f2607d' }} /></div>
+          <div className="nov-trend"><Icon name="arrow" size={13} stroke="#f2607d" /> Down {drop} pts this week as 3 papers landed nearby</div>
+        </div>
+        <div className="card card-pad nov-claim-card">
+          <div className="sb-cap">Your claimed contribution</div>
+          <p className="nov-claim">{claim}</p>
+          <div className="mini-cap" style={{ marginTop: 14 }}>Still defensible — lead with these</div>
+          <div className="def-chips">{n.defensible.map(d => <span key={d}><Icon name="shield" size={11} /> {d}</span>)}</div>
+        </div>
+      </div>
+
+      <div className="section-title" style={{ marginTop: 26 }}>Overlapping papers <span className="count">ranked by threat</span></div>
+      <div className="nov-list">
+        {n.overlaps.map((o, i) => {
+          const p = PBY(o.ref);
+          const lc = o.level === 'High' ? '#f2607d' : o.level === 'Medium' ? '#f4a52a' : '#5b9bff';
+          return (
+            <div key={i} className="nov-row" onClick={() => onOpen(p)}>
+              <div className="nov-lvl" style={{ color: lc, borderColor: lc, background: `color-mix(in srgb, ${lc} 12%, transparent)` }}>
+                <Icon name="flame" size={13} /> {o.level}
+              </div>
+              <div className="nov-rb">
+                <h4>{p.title}</h4>
+                <div className="nov-od">
+                  <span className="nov-ov"><b>Overlaps:</b> {o.overlaps}</span>
+                  <span className="nov-mi"><b>Doesn't cover:</b> {o.missing}</span>
+                </div>
+              </div>
+              <span className="nov-date">{o.date}</span>
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="reposition-card">
+        <div className="rc-ic"><Icon name="spark" size={20} stroke="var(--accent)" /></div>
+        <div>
+          <div className="mini-cap">Suggested repositioning</div>
+          <p>{n.reposition}</p>
+          <button className="btn btn-sm btn-accent" onClick={() => setPage('related')} style={{ marginTop: 6 }}><Icon name="compare" size={13} /> Update related work</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* =================== LIVING RELATED WORK =================== */
+function RelatedWorkPage({ onOpen, flash }) {
+  const r = CTX().related;
+  const [copied, setCopied] = useState(null);
+  const copy = (i, s) => { try { navigator.clipboard.writeText(s); } catch (e) { } setCopied(i); flash('Citation sentence copied'); setTimeout(() => setCopied(null), 1500); };
+  return (
+    <div className="page fade-in">
+      <PageHead crumb="Context Engine" title="Living Related Work"
+        sub="Never let your related work go stale. FrontierOS suggests new citations, tells you where they fit, and writes the sentence — updating your literature map as the field moves.">
+        <span className="fresh-pill"><span className="led" /> {r.freshness}</span>
+      </PageHead>
+
+      <div className="rw-draftbar">
+        <Icon name="report" size={16} stroke="var(--accent)" /> Maintaining related work for <b>{r.draft}</b>
+      </div>
+
+      <div className="section-title">Suggested citations <span className="count">where they fit</span></div>
+      <div className="rw-list">
+        {r.candidates.map((c, i) => {
+          const p = PBY(c.ref);
+          return (
+            <div key={i} className="rw-card">
+              <div className="rw-head">
+                <div>
+                  <div className="rw-section">{c.section}</div>
+                  <h4 onClick={() => onOpen(p)}>{p.title}</h4>
+                  <div className="rw-fit"><Icon name="target" size={12} stroke="var(--accent)" /> {c.fit}</div>
+                </div>
+                <span className="rw-cat"><Badge variant="blue">{p.cat}</Badge></span>
+              </div>
+              <div className="rw-sentence">
+                <span className="rws-cap">Generated citation sentence</span>
+                <p>“{c.sentence}”</p>
+                <button className="btn btn-sm btn-ghost rws-copy" onClick={() => copy(i, c.sentence)}>
+                  <Icon name={copied === i ? 'check' : 'doc'} size={13} /> {copied === i ? 'Copied' : 'Copy'}
+                </button>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="section-title" style={{ marginTop: 26 }}>Comparison table <span className="count">auto-maintained</span></div>
+      <div className="rw-table card">
+        <table>
+          <thead><tr><th>Approach</th>{r.table.cols.map(c => <th key={c}>{c}</th>)}</tr></thead>
+          <tbody>
+            {r.table.rows.map(([name, vals], ri) => (
+              <tr key={name} className={ri === 0 ? 'row-you' : ''}>
+                <td className="rt-name">{name}{ri === 0 && <span className="you-tag">you</span>}</td>
+                {vals.map((v, ci) => <td key={ci} className="rt-cell">{v ? <Icon name="check" size={15} stroke="var(--accent)" /> : <span className="rt-no">—</span>}</td>)}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+/* =================== CITATION ADVISOR =================== */
+function CitationAdvisorPage() {
+  const { PAPERS } = window.RR_DATA;
+  const pool = CTX().nearWork.map(r => r.ref).filter((v, i, a) => a.indexOf(v) === i);
+  const [sel, setSel] = useState(pool[0]);
+  const [advice, setAdvice] = React.useState(null);
+  const [advLoading, setAdvLoading] = React.useState(false);
+  const getAdvice=async(pid)=>{ if(!pid) return; setAdvice(null); setAdvLoading(true);
+    try{ const r=await fetch('/api/papers/'+pid+'/cite',{method:'POST'});
+      if(r.ok) setAdvice(await r.json()); } catch(e){}  finally{ setAdvLoading(false); } };
+  React.useEffect(()=>{ if(sel) getAdvice(sel); },[sel]);
+  const [phase, setPhase] = useState('idle'); // idle | thinking | done
+  const p = PBY(sel);
+
+  const VERDICTS = {
+    '2605.14021': { v: 'Yes — cite', pos: true, where: '§2 Long-horizon agents (primary mechanism)', why: 'It is the closest prior mechanism to your trace-reuse intuition and a natural object of comparison for your benchmark.', diff: 'They optimize a routing mechanism; you contribute the evaluation protocol and failure taxonomy that measures it.', sentence: 'Mehta et al. (2026) route agent steps through a persistent retrieval memory; our benchmark is designed to stress-test exactly this class of long-horizon mechanism.', conf: 'High', unc: 'Full-text verified' },
+    '2605.13310': { v: 'Yes — but contrast', pos: true, where: '§4 Evaluation (as a competing metric)', why: 'It proposes an evaluation metric adjacent to your contribution, so reviewers will expect a contrast.', diff: 'They measure decomposition via routing entropy; you offer a reproducibility-first protocol with an explicit failure taxonomy.', sentence: 'Whereas [13310] assess decomposition quality through routing entropy, we prioritise reproducibility and a standardized failure taxonomy.', conf: 'Medium', unc: 'Abstract-only — full text pending' },
+    '2605.13455': { v: 'Optional — baseline', pos: false, where: '§3 Reliability & tooling (baseline)', why: 'A clean reliability baseline, but it targets call validity rather than long-horizon evaluation — cite only if you use it as a baseline.', diff: 'They verify single tool calls; you evaluate end-to-end reliability across many steps.', sentence: 'We adopt the typed-contract checks of [13455] as a per-call baseline, extending evaluation to full multi-step horizons.', conf: 'High', unc: 'Full-text verified' },
+    '2605.13177': { v: 'No — tangential', pos: false, where: '—', why: 'Surfaced on a shared dataset keyword only; no method or claim overlap with your contribution.', diff: 'Embodied failure replay is a different setting from your text-agent reliability benchmark.', sentence: '—', conf: 'Low', unc: 'Weak signal — topic only' },
+  };
+  const ans = VERDICTS[sel] || VERDICTS['2605.14021'];
+
+  const ask = () => {
+    setPhase('thinking');
+    getAdvice(sel).then(() => setPhase('done')).catch(() => { setPhase('done'); });
+  };
+  useEffect(() => { setPhase('idle'); }, [sel]);
+
+  return (
+    <div className="page fade-in">
+      <PageHead crumb="Context Engine" title="Citation Advisor"
+        sub="Should you cite this? FrontierOS answers with a verdict, where to cite, why it matters, how it differs from your work — and the sentence, all backed by evidence." />
+
+      <div className="ca-pick">
+        <div className="sb-cap" style={{ marginBottom: 8 }}>Ask about a paper near your work</div>
+        <div className="ca-chips">
+          {pool.map(id => <button key={id} className={`ca-chip${sel === id ? ' on' : ''}`} onClick={() => setSel(id)}>{PBY(id).title.slice(0, 40)}…</button>)}
+        </div>
+        <div className="ca-q">
+          <span>“Should I cite <b>{p.title}</b> in my proposal?”</span>
+          <button className="btn btn-accent btn-sm" onClick={ask} disabled={phase === 'thinking'}>
+            <Icon name="spark" size={14} /> {phase === 'done' ? 'Re-evaluate' : 'Ask advisor'}
+          </button>
+        </div>
+      </div>
+
+      {phase === 'thinking' && (
+        <div className="ca-thinking fade-in">
+          <span className="dots"><i /><i /><i /></span> Comparing against your private context…
+        </div>
+      )}
+
+      {phase === 'done' && (
+        <div className="ca-answer fade-in">
+          {advice && (
+            <div className="card card-pad" style={{marginBottom:16,borderLeft:'3px solid '+(advice.should_cite?'var(--accent)':'#f2607d'),padding:'14px 16px'}}>
+              <div style={{display:'flex',gap:10,alignItems:'center',marginBottom:10}}>
+                <span style={{fontSize:20,color:advice.should_cite?'var(--accent)':'#f2607d'}}>{advice.should_cite?'✓':'✗'}</span>
+                <div style={{flex:1}}>
+                  <div style={{fontWeight:600,color:'var(--d-text)',fontSize:14}}>{advice.should_cite?'Yes — cite this':'Not recommended'}</div>
+                  <div style={{fontSize:12,color:'var(--d-text-3)'}}>Relevance {advice.citation_relevance_score}/100 · {advice.where_to_cite||'—'} · {advice.citation_role||'—'}</div>
+                </div>
+                <span style={{fontSize:11,fontFamily:'var(--font-mono)',color:advice.confidence>=0.7?'var(--accent)':'#f4a52a'}}>{Math.round((advice.confidence||0)*100)}% conf</span>
+              </div>
+              {advice.suggested_citation_sentence && <div style={{background:'var(--d-elev)',borderRadius:8,padding:'10px 14px',fontSize:13,color:'var(--d-text)',fontStyle:'italic',marginBottom:8}}>"{advice.suggested_citation_sentence}"</div>}
+              {advice.difference_from_user_work && <div style={{fontSize:12.5,color:'var(--d-text-2)',lineHeight:1.6}}>{advice.difference_from_user_work}</div>}
+            </div>
+          )}
+          <div className={`ca-verdict${ans.pos ? ' yes' : ' no'}`}>
+            <Icon name={ans.pos ? 'check' : 'minus'} size={20} />
+            <div><b>{ans.v}</b><span>{p.authors.join(', ')} · arXiv:{p.id}</span></div>
+          </div>
+          <div className="ca-rows">
+            <div className="ca-row"><span className="ca-k"><Icon name="target" size={14} /> Where to cite</span><p>{ans.where}</p></div>
+            <div className="ca-row"><span className="ca-k"><Icon name="spark" size={14} /> Why it matters</span><p>{ans.why}</p></div>
+            <div className="ca-row"><span className="ca-k"><Icon name="compare" size={14} /> How it differs from your work</span><p>{ans.diff}</p></div>
+            {ans.sentence !== '—' && (
+              <div className="ca-row"><span className="ca-k"><Icon name="quote" size={14} /> Suggested sentence</span>
+                <p className="ca-sentence">“{ans.sentence}”</p></div>
+            )}
+          </div>
+          <Evidence quote={`Closest evidence span from the paper supporting this verdict.`} conf={ans.conf} uncertainty={ans.unc} paperId={p.id} />
+        </div>
+      )}
+    </div>
+  );
+}
+
+Object.assign(window, { NearMyWorkPage, ResearchContextPage, DirectivesPage, NoveltyRadarPage, RelatedWorkPage, CitationAdvisorPage });
+
+</script>
+
+<!-- Memory + stub pages -->
+<script type="text/babel">
+/* FrontierOS — Ask Research Memory (simulated streaming) + stubs */
+
+function MemoryPage() {
+  const chips = [
+    'What are the fastest-growing RAG topics this week?',
+    'Which LLM agent papers have code?',
+    'What are unresolved gaps in multimodal reasoning?',
+    'Which datasets are overused in cs.CL?',
+    'Find papers combining robotics and language models.',
+    'Generate a thesis idea from recent AI papers.',
+  ];
+  const [msgs, setMsgs] = useState([]);
+  const [input, setInput] = useState('');
+  const [busy, setBusy] = useState(false);
+  const endRef = useRef(null);
+
+  useEffect(() => { endRef.current && endRef.current.scrollTo({ top: 1e6 }); });
+
+  function answerFor(q) {
+    const ql = q.toLowerCase();
+    if (ql.includes('rag') || ql.includes('retriev')) return {
+      lead: 'Agentic RAG is the fastest-growing retrieval theme this week, up +42% in paper volume. The momentum is concentrated in planning and memory, not in raw retrieval quality.',
+      bullets: ['Tool-use + retrieval planning appears in 18 papers, vs 11 last week.', 'Late-interaction retrieval is displacing two-stage re-ranking for throughput.', 'Evaluation remains the dominant open gap — few papers benchmark long-horizon reliability.'],
+      papers: ['Memory-Routed Agents (cs.CL)', 'Retrieval Without Re-ranking (cs.IR)', 'Verifiable Tool Use (cs.SE)'],
+      ents: ['Retrieval Planning', 'Tool-Use Agents', 'Long-horizon agent eval'],
+      next: ['Open the Trend Radar for velocity detail', 'Generate a reproduction plan for Memory-Routed Agents'],
+    };
+    if (ql.includes('gap') || ql.includes('multimodal')) return {
+      lead: 'The clearest unresolved gap in multimodal reasoning is cross-frame consistency — models are scored in aggregate, which hides systematic temporal failures.',
+      bullets: ['Mentioned across 9 papers, concentrated in cs.CV with no shared protocol.', 'CrossModal-Eval proposes a 9-class failure taxonomy but stops short of a temporal-consistency suite.', 'Opportunity score 8.4 / difficulty Hard.'],
+      papers: ['CrossModal-Eval (cs.CV)'],
+      ents: ['Cross-frame consistency', 'Failure taxonomy', 'MMMU'],
+      next: ['Open Research Gaps for the full evidence trail', 'Send this gap to Project Builder'],
+    };
+    if (ql.includes('thesis') || ql.includes('idea') || ql.includes('project')) return {
+      lead: 'A strong, scoped thesis direction from this week: a benchmark for multi-step agent reliability with a failure taxonomy.',
+      bullets: ['Sits on a 9.1 opportunity gap recurring in 14 papers across cs.CL / cs.AI / cs.SE.', 'Buildable on a single GPU using existing agent traces.', 'Pairs naturally with typed-contract tool use to bound failure modes.'],
+      papers: ['Memory-Routed Agents (cs.CL)', 'Verifiable Tool Use (cs.SE)'],
+      ents: ['Long-horizon agent eval', 'Agent reliability benchmark'],
+      next: ['Open Project Builder to scope an MVP', 'Generate a reproduction plan'],
+    };
+    return {
+      lead: ((window.RR_DATA.KPIS||[]).find(k=>k.label==='Total Papers')||{value:'?'}).value + ' indexed papers — ' + new Date().toLocaleDateString(),
+      bullets: ['Three papers this week ship runnable code with buildability ≥ 8.', 'Small-model reasoning is rising (+38%) and remains low-saturation.', 'LLM benchmarking is saturating (−12%) — diminishing returns for new entrants.'],
+      papers: ['Sub-Billion Reasoners (cs.LG)', 'Verifiable Tool Use (cs.SE)'],
+      ents: ['Distillation', 'Tool-Use Agents'],
+      next: ['Open Daily Papers filtered to code-ready', 'Ask a follow-up to narrow by category'],
+    };
+  }
+
+  function ask(q) {
+    if (!q.trim() || busy) return;
+    const a = answerFor(q);
+    setMsgs(m => [...m, { role: 'user', text: q }, { role: 'ai', a, streamed: '' }]);
+    setInput(''); setBusy(true);
+    const full = a.lead;
+    let i = 0;
+    const iv = setInterval(() => {
+      i += 2;
+      setMsgs(m => { const c = [...m]; c[c.length - 1] = { ...c[c.length - 1], streamed: full.slice(0, i) }; return c; });
+      if (i >= full.length) { clearInterval(iv); setMsgs(m => { const c = [...m]; c[c.length - 1] = { ...c[c.length - 1], done: true }; return c; }); setBusy(false); }
+    }, 16);
+  }
+
+  return (
+    <div className="page fade-in">
+      <PageHead crumb="Agentic query" title="Ask Research Memory" sub="Every answer is grounded in papers from your local research database, with connected graph entities and suggested next actions." />
+      <div className="chat-wrap" ref={endRef} style={{ maxHeight: 'calc(100vh - 280px)', overflowY: 'auto', paddingRight: 6 }}>
+        {msgs.length === 0 && (
+          <div className="chips-row">{chips.map(c => <span key={c} className="prompt-chip" onClick={() => ask(c)}>{c}</span>)}</div>
+        )}
+        {msgs.map((m, i) => m.role === 'user'
+          ? <div key={i} className="msg user"><div className="role">You</div><div className="bubble">{m.text}</div></div>
+          : <div key={i} className="msg ai"><div className="role">◎ Research Memory</div>
+              <div className="bubble">
+                <p>{m.streamed}{!m.done && <span className="cursor-blink"></span>}</p>
+                {m.done && <div className="fade-in">
+                  {m.a.bullets.map((b, j) => <div key={j} className="ev">{b} <span className="cite">[{j + 1}]</span></div>)}
+                  <div style={{ marginTop: 14 }}><div className="sb-cap" style={{ padding: '0 0 8px', color: 'var(--accent)' }}>Relevant papers</div>
+                    {m.a.papers.map(p => <div key={p} style={{ fontSize: 13.5, padding: '5px 0', color: 'var(--d-text-2)', display: 'flex', gap: 8 }}><span style={{ color: 'var(--n-paper)' }}>●</span>{p}</div>)}
+                  </div>
+                  <div style={{ display: 'flex', gap: 7, flexWrap: 'wrap', marginTop: 12 }}>{m.a.ents.map(e => <Badge key={e} variant="purple">{e}</Badge>)}</div>
+                  <div style={{ marginTop: 14 }}><div className="sb-cap" style={{ padding: '0 0 8px', color: 'var(--accent)' }}>Suggested next actions</div>
+                    {m.a.next.map(n => <div key={n} style={{ fontSize: 13.5, padding: '5px 0', color: 'var(--d-text-2)', display: 'flex', gap: 8 }}><Icon name="arrow" size={14} stroke="var(--accent)" />{n}</div>)}
+                  </div>
+                </div>}
+              </div>
+            </div>
+        )}
+      </div>
+      <div className="chat-wrap">
+        <div className="composer">
+          <Icon name="spark" size={18} stroke="var(--accent)" />
+          <input placeholder="Ask anything about your research memory…" value={input}
+            onChange={e => setInput(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') ask(input); }} />
+          <button className="send-btn" onClick={() => ask(input)}><Icon name="arrow" size={17} stroke="#042b23" /></button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* =================== PAPER-TO-CODE =================== */
+function PaperToCodePage() {
+  const { PAPERS } = window.RR_DATA;
+  const [paper, setPaper] = useState(PAPERS[0].id);
+  const [mode, setMode] = useState('PyTorch skeleton');
+  const [tab, setTab] = useState('Code');
+  const [out, setOut] = useState('');
+  const [gen, setGen] = useState(false);
+  const p = PAPERS.find(x => x.id === paper);
+  const modes = ['Pseudocode', 'PyTorch skeleton', 'Training pipeline', 'Dataset preparation', 'Evaluation script', 'Reproduction plan', 'Minimal prototype', 'Colab notebook', 'GitHub README'];
+
+  const code = `# ${p.title}\n# mode: ${mode} · generated by FrontierOS\n\nimport torch, torch.nn as nn\nfrom frontieros import MemoryRouter, Planner\n\nclass ${p.methods[0].replace(/[^a-z]/gi,'')}(nn.Module):\n    def __init__(self, dim=768):\n        super().__init__()\n        self.router = MemoryRouter(dim)\n        self.policy = nn.TransformerDecoder(...)\n\n    def forward(self, task, context):\n        plan = self.router.retrieve(task)        # ${p.methods[1] || 'retrieval'}\n        return self.policy(plan, context)\n\nif __name__ == "__main__":\n    model = ${p.methods[0].replace(/[^a-z]/gi,'')}()\n    # train on ${p.datasets.join(', ')}`;
+
+  function generate() {
+    setGen(true); setOut('');
+    let i = 0;
+    const iv = setInterval(() => { i += 6; setOut(code.slice(0, i)); if (i >= code.length) { clearInterval(iv); setGen(false); } }, 12);
+  }
+
+  return (
+    <div className="page fade-in">
+      <PageHead crumb="Build" title="Paper-to-Code" sub="Turn a method section into runnable scaffolding scoped to your compute budget." />
+      <div className="split" style={{ gridTemplateColumns: '300px 1fr' }}>
+        <div>
+          <div className="card card-pad">
+            <div className="sb-cap" style={{ padding: '0 0 8px' }}>Select paper</div>
+            <select className="ctl" style={{ width: '100%' }} value={paper} onChange={e => setPaper(e.target.value)}>
+              {PAPERS.map(x => <option key={x.id} value={x.id}>{x.title.slice(0, 40)}…</option>)}
+            </select>
+            <div className="sb-cap" style={{ padding: '16px 0 8px' }}>Code mode</div>
+            <select className="ctl" style={{ width: '100%' }} value={mode} onChange={e => setMode(e.target.value)}>
+              {modes.map(m => <option key={m}>{m}</option>)}
+            </select>
+            <div className="sb-cap" style={{ padding: '16px 0 8px' }}>Options</div>
+            {['Use full PDF text', 'Use related papers from memory', 'Prefer Colab-friendly', 'Assume single GPU'].map((o, i) =>
+              <label key={o} style={{ display: 'flex', gap: 9, fontSize: 13, color: 'var(--d-text-2)', padding: '6px 0', cursor: 'pointer' }}>
+                <input type="checkbox" defaultChecked={i < 2} /> {o}</label>)}
+            <button className="btn btn-accent" style={{ width: '100%', justifyContent: 'center', marginTop: 16 }} onClick={generate}>
+              <Icon name="code" size={15} /> {gen ? 'Generating…' : 'Generate'}</button>
+          </div>
+        </div>
+        <div>
+          <div className="tabs">{['Implementation Plan', 'Code', 'Dataset', 'Evaluation', 'README', 'Risks'].map(t => <button key={t} className={`tab${tab === t ? ' active' : ''}`} onClick={() => setTab(t)}>{t}</button>)}</div>
+          <div className="card card-pad" style={{ fontFamily: 'var(--font-mono)', fontSize: 13, lineHeight: 1.7, color: 'var(--d-text-2)', whiteSpace: 'pre-wrap', minHeight: 360 }}>
+            {tab === 'Code'
+              ? (out || <span style={{ color: 'var(--d-text-3)' }}>{'// press Generate to scaffold an implementation from this paper'}</span>)
+              : <span style={{ color: 'var(--d-text-3)' }}>{`// ${tab} for "${p.title}"\n// generated content appears here after running the agent`}</span>}
+            {gen && <span className="cursor-blink"></span>}
+          </div>
+          <div style={{ display: 'flex', gap: 8, marginTop: 14 }}>
+            <button className="btn btn-sm"><Icon name="download" size={13} /> Download .py</button>
+            <button className="btn btn-sm"><Icon name="download" size={13} /> README.md</button>
+            <button className="btn btn-sm"><Icon name="download" size={13} /> Colab outline</button>
+            <button className="btn btn-sm btn-ghost"><Icon name="bookmark" size={13} /> Save to library</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* =================== STUBS =================== */
+function ProjectBuilderPage() {
+  const papers = (window.RR_DATA.PAPERS||[]).slice().sort(function(a,b){
+    return (b.scores&&b.scores.opportunity||0)-(a.scores&&a.scores.opportunity||0); }).slice(0,10);
+  const [sel, setSel] = React.useState(null);
+  const [plan, setPlan] = React.useState(null);
+  const [loading, setLoading] = React.useState(false);
+  const generate=async(paper)=>{
+    setSel(paper); setPlan(null); setLoading(true);
+    try{
+      const r=await fetch('/api/code/generate',{method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({paper_id:paper.id,db_id:paper.db_id,mode:'project_plan',use_memory:true})});
+      const d=await r.json();
+      setPlan(d.ok?d.code:'Error: '+(d.detail||'unknown'));
+    } catch(e){ setPlan('Server not reachable. Run ./start.sh'); }
+    finally{ setLoading(false); }
+  };
+  return (
+    <div className="page fade-in">
+      <PageHead crumb="Build" title="Project Builder"
+        sub="Turn any paper into a reproduction plan, code skeleton, dataset checklist, and 1-week roadmap."/>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1.4fr',gap:20,alignItems:'start'}}>
+        <div>
+          <div className="section-title">Pick a paper <span className="count">by opportunity</span></div>
+          <div style={{display:'flex',flexDirection:'column',gap:8}}>
+            {papers.map(p=>(
+              <div key={p.id} onClick={()=>generate(p)} style={{background:sel&&sel.id===p.id?'var(--d-elev-2)':'var(--d-surface)',
+                border:'1px solid '+(sel&&sel.id===p.id?'var(--accent)':'var(--d-border)'),
+                borderRadius:'var(--radius-md)',padding:'12px 14px',cursor:'pointer',transition:'all .15s'}}>
+                <div style={{fontWeight:500,fontSize:13,color:'var(--d-text)',lineHeight:1.4,marginBottom:4}}>{p.title.slice(0,68)+(p.title.length>68?'...':'')}</div>
+                <div style={{display:'flex',gap:6}}>
+                  <Badge variant="blue">{p.cat}</Badge>
+                  <span style={{fontSize:11,color:'var(--accent)'}}>Opp {p.scores&&p.scores.opportunity}</span>
+                  {p.code&&<Badge variant="cyan">Code</Badge>}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div>
+          {loading&&<div style={{padding:40,textAlign:'center',color:'var(--d-text-3)',fontSize:13}}>Generating project plan...</div>}
+          {plan&&!loading&&(
+            <div className="card card-pad" style={{maxHeight:'70vh',overflowY:'auto'}}>
+              <div style={{fontFamily:'var(--font-mono)',fontSize:12.5,color:'var(--d-text)',lineHeight:1.7,whiteSpace:'pre-wrap'}}>{plan}</div>
+            </div>
+          )}
+          {!sel&&!loading&&<div style={{padding:40,textAlign:'center',color:'var(--d-text-3)',fontSize:13}}>Select a paper on the left to generate a project plan.</div>}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ===================== THREAT OR OPPORTUNITY PAGE ===================== */
+function ThreatPage({ onOpen }) {
+  const data = window.RR_DATA.THREAT_OPP || [];
+  const [sel, setSel] = React.useState(data[0]);
+  const [filter, setFilter] = React.useState('all');
+
+  const CLS_META = {
+    'must-cite':  { label:'Must cite',        color:'var(--accent)',   bg:'rgba(47,207,158,.12)' },
+    'competing':  { label:'Competing work',   color:'#f2607d',         bg:'rgba(242,96,125,.12)' },
+    'baseline':   { label:'Useful baseline',  color:'#5b9bff',         bg:'rgba(91,155,255,.12)' },
+    'dataset':    { label:'Useful dataset',   color:'#34d9e0',         bg:'rgba(52,217,224,.12)' },
+    'method':     { label:'Useful method',    color:'#a78bfa',         bg:'rgba(167,139,250,.12)' },
+    'low':        { label:'Low relevance',    color:'var(--d-text-3)', bg:'rgba(100,100,100,.08)' },
+  };
+  const THREAT_COL = { 'None':'var(--accent)', 'Low':'#f4a52a', 'Medium':'#f2607d', 'High':'#ff4040' };
+
+  const filters = ['all','must-cite','competing','baseline','dataset','method','low'];
+  const visible = filter === 'all' ? data : data.filter(d => d.cls === filter);
+
+  function PaperRef({ ref }) {
+    const p = (window.RR_DATA.PAPERS||[]).find(x => x.id === ref) || { title: ref, authors:[] };
+    return <div><div style={{fontWeight:600,fontSize:14,color:'var(--d-text)',lineHeight:1.4}}>{p.title}</div>
+      {p.authors && <div style={{fontSize:12,color:'var(--d-text-3)',marginTop:3}}>{(p.authors||[]).slice(0,3).join(', ')}</div>}
+    </div>;
+  }
+
+  return (
+    <div className="page fade-in">
+      <PageHead crumb="Intelligence" title="Threat or Opportunity"
+        sub="Each nearby paper is classified by what it means for your work — must cite, competing, useful, or ignore.">
+      </PageHead>
+
+      <div className="seg-filter" style={{marginBottom:20}}>
+        {filters.map(f => {
+          const meta = CLS_META[f];
+          const count = f === 'all' ? data.length : data.filter(d=>d.cls===f).length;
+          return <button key={f} className={`seg-btn${filter===f?' on':''}`} onClick={() => setFilter(f)}
+            style={filter===f && meta ? {background: meta.bg, color: meta.color, borderColor: meta.color} : {}}>
+            {f === 'all' ? 'All' : meta?.label}
+            <span className="seg-n">{count}</span>
+          </button>;
+        })}
+      </div>
+
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1.4fr',gap:16,alignItems:'start'}}>
+        {/* LEFT: list */}
+        <div style={{display:'flex',flexDirection:'column',gap:10}}>
+          {visible.map(d => {
+            const meta = CLS_META[d.cls] || CLS_META.low;
+            const active = sel?.ref === d.ref;
+            return (
+              <div key={d.ref} onClick={() => setSel(d)}
+                style={{background: active ? 'var(--d-elev-2)' : 'var(--d-surface)',
+                  border: `1px solid ${active ? meta.color : 'var(--d-border)'}`,
+                  borderRadius:'var(--radius-md)', padding:'14px 16px', cursor:'pointer',
+                  transition:'all .15s'}}>
+                <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:8,gap:8}}>
+                  <span style={{fontSize:12,fontWeight:600,color:meta.color,background:meta.bg,padding:'3px 10px',borderRadius:999,border:`1px solid ${meta.color}`}}>
+                    {meta.label}
+                  </span>
+                  <span style={{fontSize:11,color: THREAT_COL[d.threat_level], fontFamily:'var(--font-mono)',letterSpacing:'.04em'}}>
+                    {d.threat_level !== 'None' && '⚑ '}Threat: {d.threat_level}
+                  </span>
+                </div>
+                <PaperRef ref={d.ref} />
+                <div style={{fontSize:12.5,color:'var(--d-text-2)',marginTop:8,lineHeight:1.5}}>{d.summary}</div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* RIGHT: detail */}
+        {sel && (() => {
+          const meta = CLS_META[sel.cls] || CLS_META.low;
+          const p = (window.RR_DATA.PAPERS||[]).find(x => x.id === sel.ref) || {};
+          return (
+            <div style={{background:'var(--d-surface)',border:`1px solid ${meta.color}`,borderRadius:'var(--radius-md)',padding:22,position:'sticky',top:80}}>
+              <div style={{display:'flex',gap:10,alignItems:'center',marginBottom:16}}>
+                <span style={{fontSize:13,fontWeight:600,color:meta.color,background:meta.bg,padding:'4px 12px',borderRadius:999,border:`1px solid ${meta.color}`}}>{meta.label}</span>
+                <span style={{fontSize:12,color:THREAT_COL[sel.threat_level],fontFamily:'var(--font-mono)'}}>Threat: {sel.threat_level}</span>
+              </div>
+              <div style={{fontWeight:600,fontSize:15,color:'var(--d-text)',marginBottom:4,lineHeight:1.4}}>{p.title || sel.ref}</div>
+              {p.authors && <div style={{fontSize:12,color:'var(--d-text-3)',marginBottom:16}}>{p.authors.slice(0,3).join(', ')}</div>}
+
+              <div style={{background:'var(--d-elev)',borderRadius:8,padding:'12px 14px',marginBottom:16}}>
+                <div style={{fontSize:11,fontFamily:'var(--font-mono)',letterSpacing:'.06em',color:'var(--d-text-3)',marginBottom:6}}>YOUR ANGLE</div>
+                <div style={{fontSize:13.5,color:'var(--d-text)',lineHeight:1.6}}>{sel.angle}</div>
+              </div>
+
+              <div style={{marginBottom:16}}>
+                <div style={{fontSize:11,fontFamily:'var(--font-mono)',letterSpacing:'.06em',color:'var(--d-text-3)',marginBottom:8}}>EVIDENCE</div>
+                <div style={{background:'var(--d-elev)',borderLeft:`3px solid ${meta.color}`,padding:'10px 14px',borderRadius:'0 8px 8px 0',fontSize:13,color:'var(--d-text-2)',fontStyle:'italic',lineHeight:1.5}}>
+                  {sel.evidence}
+                  <div style={{marginTop:6,fontSize:11,color:'var(--d-text-3)'}}>
+                    <span style={{color:sel.conf==='High'?'var(--accent)':sel.conf==='Medium'?'#f4a52a':'#f2607d'}}>● {sel.conf} confidence</span>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <div style={{fontSize:11,fontFamily:'var(--font-mono)',letterSpacing:'.06em',color:'var(--d-text-3)',marginBottom:10}}>SUGGESTED ACTIONS</div>
+                <div style={{display:'flex',flexDirection:'column',gap:8}}>
+                  {sel.actions.map((a,i) => (
+                    <button key={i} className="btn" style={{justifyContent:'flex-start',fontSize:13,color:'var(--d-text)',textAlign:'left'}}>
+                      <Icon name="arrow" size={13} stroke={meta.color} /> {a}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          );
+        })()}
+      </div>
+    </div>
+  );
+}
+
+</script>
+
+<!-- NEW: Lab Brief page -->
+<script type="text/babel">
+
+/* ===================== LAB BRIEF PAGE ===================== */
+function LabBriefPage({ onOpen, setPage }) {
+  const { PAPERS, TRENDS, GAPS } = window.RR_DATA;
+  const today = new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
+
+  const sections = [
+    { id:'near', label:'Near Your Work', icon:'target', color:'var(--accent)',
+      items:[
+        { title:'Memory-Routed Agents', tag:'Must cite', note:'Directly adjacent to your thesis claim.', action:'nearwork' },
+        { title:'Verifiable Tool Use', tag:'Useful baseline', note:'Strong baseline for your benchmark harness.', action:'nearwork' },
+        { title:'Sparse MoE Routers', tag:'Competing — medium threat', note:'Overlaps evaluation metric claim. Reposition.', action:'novelty' },
+      ]},
+    { id:'trends', label:'Emerging Trends', icon:'radar', color:'#a78bfa',
+      items: TRENDS.filter(t=>t.velocity>20).slice(0,3).map(t=>({
+        title: t.name, tag:`+${t.velocity}% velocity`,
+        note: `${t.papers} new papers · gaps: ${(t.gaps||[]).join(', ')||'none yet'}`,
+        action:'trends'
+      }))},
+    { id:'gaps', label:'Buildable Research Gaps', icon:'spark', color:'#f4a52a',
+      items: GAPS.slice(0,3).map(g=>({
+        title: g.gap, tag:`Opp. ${g.score}`, note: g.project, action:'gaps'
+      }))},
+    { id:'code', label:'Paper-to-Code Ready', icon:'code', color:'#5b9bff',
+      items: PAPERS.filter(p=>p.code&&p.scores.build>=8).slice(0,3).map(p=>({
+        title: p.title, tag:`Build ${p.scores.build}`, note:`${p.methods.slice(0,2).join(', ')}`, action:'p2c'
+      }))},
+    { id:'recs', label:'Agent Recommendations', icon:'compare', color:'#34d9e0',
+      items:[
+        { title:'Citation window closing', tag:'Action needed', note:'3 papers from the past 30 days fit your related work section.', action:'related' },
+        { title:'Novelty risk: medium', tag:'Review', note:'2605.13310 overlaps your metric contribution.', action:'novelty' },
+        { title:'Directive match: 6 new papers', tag:'Today', note:'Your agent-reliability directive returned 6 matches today.', action:'directives' },
+      ]},
+  ];
+
+  return (
+    <div className="page fade-in">
+      <PageHead crumb="Intelligence" title="Lab Brief"
+        sub={`Your automated research intelligence brief for ${today}. Generated by the FrontierOS agent pipeline at 06:04 UTC.`}>
+        <button className="btn btn-accent"><Icon name="report" size={14}/> Export PDF</button>
+      </PageHead>
+
+      {/* Agent pipeline provenance */}
+      <div style={{background:'var(--d-surface)',border:'1px solid var(--d-border)',borderRadius:'var(--radius-md)',padding:'12px 16px',marginBottom:24,display:'flex',gap:8,alignItems:'center',flexWrap:'wrap'}}>
+        <Icon name="spark" size={14} stroke="var(--accent)"/>
+        <span style={{fontSize:12.5,color:'var(--d-text-2)'}}>Generated by</span>
+        {['FetchAgent','SummarizerAgent','KGBuilderAgent','NearMyWorkAgent','TrendAnalyst','RecommendationAgent','DigestAgent'].map((a,i,arr)=>
+          <React.Fragment key={a}>
+            <span style={{fontSize:12,fontFamily:'var(--font-mono)',color:'var(--d-text)',background:'var(--d-elev)',padding:'2px 8px',borderRadius:4}}>{a}</span>
+            {i<arr.length-1 && <span style={{color:'var(--d-text-3)',fontSize:11}}>→</span>}
+          </React.Fragment>
+        )}
+        <span style={{fontSize:12,color:'var(--d-text-3)',marginLeft:'auto'}}>06:04 UTC · 4m 3s total</span>
+      </div>
+
+      <div style={{display:'flex',flexDirection:'column',gap:20}}>
+        {sections.map(sec => (
+          <div key={sec.id} style={{background:'var(--d-surface)',border:'1px solid var(--d-border)',borderRadius:'var(--radius-md)',overflow:'hidden'}}>
+            <div style={{padding:'14px 18px',borderBottom:'1px solid var(--d-border)',display:'flex',alignItems:'center',gap:10}}>
+              <Icon name={sec.icon} size={16} stroke={sec.color}/>
+              <span style={{fontWeight:600,fontSize:14,color:'var(--d-text)'}}>{sec.label}</span>
+              <span style={{fontSize:11,color:'var(--d-text-3)',marginLeft:'auto',fontFamily:'var(--font-mono)'}}>{sec.items.length} items</span>
+            </div>
+            <div>
+              {sec.items.map((item,i) => (
+                <div key={i} style={{padding:'12px 18px',borderBottom:i<sec.items.length-1?'1px solid var(--d-border-2)':'none',display:'flex',gap:12,alignItems:'flex-start'}}>
+                  <div style={{flex:1}}>
+                    <div style={{display:'flex',gap:8,alignItems:'center',marginBottom:4,flexWrap:'wrap'}}>
+                      <span style={{fontSize:13.5,fontWeight:500,color:'var(--d-text)'}}>{item.title}</span>
+                      <span style={{fontSize:11,color:sec.color,background:`color-mix(in srgb, ${sec.color} 12%, transparent)`,border:`1px solid color-mix(in srgb, ${sec.color} 30%, transparent)`,padding:'2px 8px',borderRadius:999}}>{item.tag}</span>
+                    </div>
+                    <div style={{fontSize:12.5,color:'var(--d-text-2)',lineHeight:1.5}}>{item.note}</div>
+                  </div>
+                  <button className="btn btn-sm" style={{flexShrink:0,fontSize:12}} onClick={() => setPage(item.action)}>
+                    Open <Icon name="arrow" size={12}/>
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+</script>
+
+<!-- NEW: Agent Activity Log page -->
+<script type="text/babel">
+
+/* ===================== AGENT ACTIVITY LOG PAGE ===================== */
+function AgentLogPage() {
+  const log = window.RR_DATA.AGENT_LOG || [];
+  const [filter, setFilter] = React.useState('all');
+  const [live, setLive] = React.useState(true);
+  const [visible, setVisible] = React.useState(log.slice(0, 8));
+  const endRef = React.useRef(null);
+
+  React.useEffect(() => {
+    if (!live) return;
+    if (visible.length >= log.length) { setLive(false); return; }
+    const t = setTimeout(() => {
+      setVisible(v => log.slice(0, v.length + 1));
+    }, 600);
+    return () => clearTimeout(t);
+  }, [live, visible]);
+
+  const TYPE_META = {
+    fetch:     { color:'var(--accent)',  label:'Fetch' },
+    dispatch:  { color:'var(--accent)',  label:'Dispatch' },
+    summarized:{ color:'#a78bfa',        label:'Summary' },
+    ingest:    { color:'#5b9bff',        label:'KG Ingest' },
+    evidence:  { color:'#34d9e0',        label:'Evidence' },
+    trend:     { color:'#f4a52a',        label:'Trend' },
+    compare:   { color:'#a78bfa',        label:'Compare' },
+    near:      { color:'var(--accent)',  label:'Near Work' },
+    recs:      { color:'#5b9bff',        label:'Recs' },
+    risk:      { color:'#f2607d',        label:'Risk' },
+    alert:     { color:'#f2607d',        label:'Alert' },
+    related:   { color:'var(--accent)',  label:'Related' },
+    digest:    { color:'#f4a52a',        label:'Digest' },
+    learn:     { color:'#34d9e0',        label:'Learning' },
+    signal:    { color:'#f4a52a',        label:'Signal' },
+  };
+
+  const AGENTS = ['all','FetchAgent','SummarizerAgent','KGBuilderAgent','EvidenceExtractor',
+    'TrendAnalyst','ResearchMemoryEngine','NearMyWorkAgent','RecommendationAgent',
+    'AlertAgent','NoveltyRadar','LivingRelatedWork','DigestAgent','ContinualLearning'];
+
+  const filtered = filter === 'all' ? visible : visible.filter(e => e.from === filter || e.to === filter);
+
+  /* pipeline stage summary */
+  const stages = [
+    {name:'Fetch', agent:'FetchAgent', done: log.some(e=>e.from==='FetchAgent')},
+    {name:'Summarize', agent:'SummarizerAgent', done: log.some(e=>e.from==='SummarizerAgent')},
+    {name:'KG Build', agent:'KGBuilderAgent', done: log.some(e=>e.from==='KGBuilderAgent')},
+    {name:'Near Work', agent:'NearMyWorkAgent', done: log.some(e=>e.from==='NearMyWorkAgent')},
+    {name:'Trends', agent:'TrendAnalyst', done: log.some(e=>e.from==='TrendAnalyst')},
+    {name:'Recs', agent:'RecommendationAgent', done: log.some(e=>e.from==='RecommendationAgent')},
+    {name:'Alerts', agent:'AlertAgent', done: log.some(e=>e.from==='AlertAgent')},
+    {name:'Learn', agent:'ContinualLearning', done: log.some(e=>e.from==='ContinualLearning')},
+  ];
+
+  return (
+    <div className="page fade-in">
+      <PageHead crumb="Intelligence" title="Agent Activity"
+        sub="Live inter-agent communication from today's 06:00 UTC pipeline run. Agents hand off work to each other in sequence, with the ResearchMemoryEngine as shared state.">
+        <button className="btn" onClick={() => { setVisible(log.slice(0,8)); setLive(true); }}>
+          <Icon name="reset" size={14}/> Replay
+        </button>
+        <button className={`btn${live?' btn-accent':''}`} onClick={() => setLive(l => !l)}>
+          <span style={{width:7,height:7,borderRadius:'50%',background:live?'var(--d-bg)':'var(--accent)',display:'inline-block'}}/>
+          {live ? 'Live' : 'Paused'}
+        </button>
+      </PageHead>
+
+      {/* Pipeline progress bar */}
+      <div style={{background:'var(--d-surface)',border:'1px solid var(--d-border)',borderRadius:'var(--radius-md)',padding:'16px 20px',marginBottom:20}}>
+        <div style={{fontSize:11,fontFamily:'var(--font-mono)',letterSpacing:'.08em',color:'var(--d-text-3)',marginBottom:12}}>DAILY PIPELINE · 06:00 UTC RUN</div>
+        <div style={{display:'flex',gap:0,alignItems:'center'}}>
+          {stages.map((s,i) => (
+            <React.Fragment key={s.name}>
+              <div style={{display:'flex',flexDirection:'column',alignItems:'center',gap:4}}>
+                <div style={{width:32,height:32,borderRadius:'50%',border:`2px solid ${s.done?'var(--accent)':'var(--d-border)'}`,background:s.done?'color-mix(in srgb,var(--accent) 15%,transparent)':'var(--d-elev)',display:'flex',alignItems:'center',justifyContent:'center'}}>
+                  {s.done ? <Icon name="check" size={13} stroke="var(--accent)"/> : <span style={{width:8,height:8,borderRadius:'50%',background:'var(--d-border)',display:'block'}}/>}
+                </div>
+                <span style={{fontSize:10,color:s.done?'var(--accent)':'var(--d-text-3)',fontFamily:'var(--font-mono)',whiteSpace:'nowrap'}}>{s.name}</span>
+              </div>
+              {i < stages.length-1 && <div style={{flex:1,height:2,background: stages[i+1].done?'var(--accent)':'var(--d-border)',margin:'0 4px',marginBottom:18,transition:'background .4s'}}/>}
+            </React.Fragment>
+          ))}
+        </div>
+      </div>
+
+      {/* Agent filter */}
+      <div style={{display:'flex',gap:6,flexWrap:'wrap',marginBottom:16}}>
+        {AGENTS.slice(0,8).map(a => (
+          <button key={a} className={`seg-btn${filter===a?' on':''}`} style={{fontSize:11,padding:'4px 10px'}} onClick={() => setFilter(a)}>
+            {a === 'all' ? 'All agents' : a.replace('Agent','').replace('Analyzer','Analyst')}
+          </button>
+        ))}
+      </div>
+
+      {/* Event feed */}
+      <div style={{display:'flex',flexDirection:'column',gap:8}}>
+        {filtered.map((ev, i) => {
+          const meta = TYPE_META[ev.type] || {color:'var(--d-text-3)',label:ev.type};
+          const isWarn = ev.status === 'warn';
+          return (
+            <div key={i} className="fade-in" style={{background:'var(--d-surface)',border:`1px solid ${isWarn?'rgba(242,96,125,.3)':'var(--d-border)'}`,borderRadius:'var(--radius-sm)',padding:'10px 14px',display:'flex',gap:12,alignItems:'flex-start'}}>
+              <span style={{fontSize:11,fontFamily:'var(--font-mono)',color:'var(--d-text-3)',minWidth:60,paddingTop:2}}>{ev.ts}</span>
+              <div style={{flex:1}}>
+                <div style={{display:'flex',gap:8,alignItems:'center',marginBottom:3,flexWrap:'wrap'}}>
+                  <span style={{fontSize:12,fontWeight:600,color:'var(--d-text)',fontFamily:'var(--font-mono)'}}>{ev.from}</span>
+                  <span style={{fontSize:11,color:'var(--d-text-3)'}}>→</span>
+                  <span style={{fontSize:12,color:'var(--d-text-2)',fontFamily:'var(--font-mono)'}}>{ev.to}</span>
+                  <span style={{fontSize:10,color:meta.color,background:`color-mix(in srgb, ${meta.color} 12%, transparent)`,border:`1px solid color-mix(in srgb, ${meta.color} 25%, transparent)`,padding:'1px 7px',borderRadius:999,marginLeft:4}}>{meta.label}</span>
+                  {isWarn && <span style={{fontSize:10,color:'#f2607d',marginLeft:'auto'}}>⚑ Risk detected</span>}
+                </div>
+                <div style={{fontSize:13,color: isWarn?'#f2607d':'var(--d-text-2)',lineHeight:1.5}}>{ev.msg}</div>
+              </div>
+            </div>
+          );
+        })}
+        {live && visible.length < log.length && (
+          <div style={{display:'flex',gap:8,alignItems:'center',padding:'8px 14px',color:'var(--d-text-3)',fontSize:12}}>
+            <div style={{width:8,height:8,borderRadius:'50%',background:'var(--accent)',animation:'pulse 1s infinite'}}/>
+            Agent pipeline running…
+          </div>
+        )}
+        <div ref={endRef}/>
+      </div>
+    </div>
+  );
+}
+
+</script>
+
+<!-- App root (routes + tweaks) -->
+<script type="text/babel">
+/* ===== FrontierOS Personal Graph — IndexedDB (browser-local) ===== */
+const PG = (() => {
+  const DB_NAME = 'frontieros_personal';
+  const DB_VER  = 1;
+  let db = null;
+
+  async function open() {
+    if (db) return db;
+    return new Promise((res, rej) => {
+      const req = indexedDB.open(DB_NAME, DB_VER);
+      req.onupgradeneeded = e => {
+        const d = e.target.result;
+        if (!d.objectStoreNames.contains('interactions'))
+          d.createObjectStore('interactions', { keyPath: 'key' });
+        if (!d.objectStoreNames.contains('saved'))
+          d.createObjectStore('saved', { keyPath: 'id' });
+        if (!d.objectStoreNames.contains('ignored'))
+          d.createObjectStore('ignored', { keyPath: 'id' });
+        if (!d.objectStoreNames.contains('prefs'))
+          d.createObjectStore('prefs', { keyPath: 'key' });
+      };
+      req.onsuccess = e => { db = e.target.result; res(db); };
+      req.onerror   = () => rej(req.error);
+    });
+  }
+
+  async function put(store, obj) {
+    const d = await open();
+    return new Promise((res, rej) => {
+      const tx = d.transaction(store, 'readwrite');
+      tx.objectStore(store).put(obj).onsuccess = e => res(e.target.result);
+      tx.onerror = () => rej(tx.error);
+    });
+  }
+
+  async function getAll(store) {
+    const d = await open();
+    return new Promise((res, rej) => {
+      const tx  = d.transaction(store, 'readonly');
+      const req = tx.objectStore(store).getAll();
+      req.onsuccess = () => res(req.result);
+      req.onerror   = () => rej(req.error);
+    });
+  }
+
+  async function del(store, key) {
+    const d = await open();
+    return new Promise((res, rej) => {
+      const tx = d.transaction(store, 'readwrite');
+      tx.objectStore(store).delete(key).onsuccess = () => res();
+      tx.onerror = () => rej(tx.error);
+    });
+  }
+
+  return {
+    savePaper:   p  => put('saved',    { id: p.id, title: p.title, cat: p.cat, ts: Date.now() }),
+    ignorePaper: p  => put('ignored',  { id: p.id, ts: Date.now() }),
+    logInteract: (paperId, type) => put('interactions', { key: `${paperId}:${type}`, paperId, type, ts: Date.now() }),
+    getSaved:    ()  => getAll('saved'),
+    getIgnored:  ()  => getAll('ignored'),
+    getInteractions: () => getAll('interactions'),
+    setPref:     (k,v) => put('prefs', { key: k, value: v }),
+    getSavedIds: async () => (await getAll('saved')).map(x=>x.id),
+    getIgnoredIds: async () => (await getAll('ignored')).map(x=>x.id),
+  };
+})();
+
+// Sync compact context to server for recommendations
+async function syncPersonalContext() {
+  try {
+    const [saved, ignored] = await Promise.all([PG.getSavedIds(), PG.getIgnoredIds()]);
+    const interactions = (await PG.getInteractions()).slice(-20);
+    await fetch('/api/near-my-work/rescan', { method: 'POST' }).catch(()=>{});
+    window.__personalContext = { saved_paper_ids: saved, ignored_paper_ids: ignored,
+      recent_interactions: interactions };
+  } catch(e) {}
+}
+
+/* ===== FrontierOS — app root, routing, tweaks ===== */
+
+const { useState, useEffect, useCallback } = React;
+
+const ACCENTS = {
+  'Signal green': { a: '#2fcf9e', d: '#66e0bb' },
+  'Deep teal': { a: '#14b8a6', d: '#5eead4' },
+  'Electric violet': { a: '#a78bfa', d: '#c4b5fd' },
+  'Arctic cyan': { a: '#34d9e0', d: '#7eebf0' },
+};
+
+const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+  "accent": "Signal green",
+  "theme": "light",
+  "display": "Space Grotesk",
+  "density": "regular",
+  "radius": 14
+}/*EDITMODE-END*/;
+
+function Toast({ msg }) {
+  if (!msg) return null;
+  return <div style={{ position: 'fixed', bottom: 26, left: '50%', transform: 'translateX(-50%)', background: 'var(--d-elev-2)', border: '1px solid var(--accent)', color: 'var(--d-text)', padding: '12px 20px', borderRadius: 999, fontSize: 14, zIndex: 200, boxShadow: '0 10px 30px rgba(0,0,0,.4)' }} className="fade-in"><Icon name="check" size={15} stroke="var(--accent)" /> {msg}</div>;
+}
+
+function App() {
+  const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
+  const [page, setPage] = useState('dashboard');
+  const [paper, setPaper] = useState(null);
+  const [activeCats, setActiveCats] = useState(['cs.CL', 'cs.AI', 'cs.LG', 'cs.CV']);
+  const [toast, setToast] = useState('');
+  const { CATS } = window.RR_DATA;
+
+  // apply tweaks
+  useEffect(() => {
+    const ac = ACCENTS[t.accent] || ACCENTS['Signal green'];
+    const r = document.documentElement.style;
+    r.setProperty('--accent', ac.a);
+    r.setProperty('--n-dataset', ac.a);
+    document.body.classList.toggle('light', t.theme === 'light');
+    r.setProperty('--font-display', `'${t.display}', 'Space Grotesk', sans-serif`);
+    r.setProperty('--radius-md', t.radius + 'px');
+    r.setProperty('--pad', t.density === 'compact' ? '14px' : t.density === 'comfy' ? '26px' : '20px');
+  }, [t]);
+
+  const flash = useCallback((m) => { setToast(m); setTimeout(() => setToast(''), 1900); }, []);
+  const openPaper = useCallback((p) => { setPaper(p); setPage('deepdive'); window.scrollTo(0, 0); }, []);
+  const goto = useCallback((pg) => { setPage(pg); window.scrollTo(0, 0); }, []);
+
+  const onAction = useCallback((kind, p) => {
+    if (kind === 'open') openPaper(p);
+    else if (kind === 'code') { setPaper(p); goto('p2c'); }
+    else if (kind === 'save') flash(`Added “${p.title.slice(0, 32)}…” to library`);
+    else if (kind === 'compare') flash('Added to comparison tray');
+  }, []);
+
+  const toggleCat = (c) => setActiveCats(a => a.includes(c) ? a.filter(x => x !== c) : [...a, c]);
+
+  const onSearch = (q) => { goto('memory'); flash('Asking research memory…'); };
+
+  let view;
+  switch (page) {
+    case 'dashboard': view = <DashboardPage setPage={goto} onOpen={openPaper} onAction={onAction} />; break;
+    case 'nearwork': view = <NearMyWorkPage onOpen={openPaper} setPage={goto} flash={flash} />; break;
+    case 'context': view = <ResearchContextPage flash={flash} />; break;
+    case 'directives': view = <DirectivesPage flash={flash} setPage={goto} />; break;
+    case 'novelty': view = <NoveltyRadarPage onOpen={openPaper} setPage={goto} />; break;
+    case 'related': view = <RelatedWorkPage onOpen={openPaper} flash={flash} />; break;
+    case 'cite': view = <CitationAdvisorPage />; break;
+    case 'daily': view = <DailyPapersPage onOpen={openPaper} onAction={onAction} activeCats={activeCats} />; break;
+    case 'deepdive': view = <DeepDivePage paper={paper} onAction={onAction} setPage={goto} />; break;
+    case 'memory': view = <MemoryPage />; break;
+    case 'graph': view = <KnowledgeGraph />; break;
+    case 'trends': view = <TrendRadarPage setPage={goto} />; break;
+    case 'gaps': view = <GapsPage setPage={goto} />; break;
+    case 'p2c': view = <PaperToCodePage />; break;
+    case 'builder': view = <ProjectBuilderPage />; break;
+    case 'reports': view = <ReportsPage />; break;
+    case 'collections': view = <CollectionsPage />; break;
+    case 'settings': view = <SettingsPage />; break;
+    case 'threat': view = <ThreatPage onOpen={openPaper} setPage={goto} />; break;
+    case 'labbrief': view = <LabBriefPage onOpen={openPaper} setPage={goto} />; break;
+    case 'agentlog': view = <AgentLogPage />; break;
+    default: view = <DashboardPage setPage={goto} onOpen={openPaper} onAction={onAction} />;
+  }
+
+  return (
+    <div className="app-shell">
+      <Sidebar page={page} setPage={goto} cats={CATS} activeCats={activeCats} toggleCat={toggleCat} />
+      <div className="main">
+        <Topbar onSearch={onSearch} />
+        {view}
+      </div>
+      <Toast msg={toast} />
+
+      <TweaksPanel>
+        <TweakSection label="Theme" />
+        <TweakColor label="Accent" value={(ACCENTS[t.accent] || {}).a}
+          options={Object.values(ACCENTS).map(x => x.a)}
+          onChange={(v) => { const name = Object.keys(ACCENTS).find(k => ACCENTS[k].a === v); setTweak('accent', name || 'Signal green'); }} />
+        <TweakRadio label="Mode" value={t.theme} options={['dark', 'light']} onChange={(v) => setTweak('theme', v)} />
+        <TweakSection label="Typography" />
+        <TweakSelect label="Display font" value={t.display}
+          options={['Space Grotesk', 'Hanken Grotesk', 'JetBrains Mono']} onChange={(v) => setTweak('display', v)} />
+        <TweakSection label="Layout" />
+        <TweakRadio label="Density" value={t.density} options={['compact', 'regular', 'comfy']} onChange={(v) => setTweak('density', v)} />
+        <TweakSlider label="Card radius" value={t.radius} min={4} max={24} unit="px" onChange={(v) => setTweak('radius', v)} />
+      </TweaksPanel>
+    </div>
+  );
+}
+
+// Wait for RR_DATA to be loaded by the async fetch above before mounting
+function mountApp() {
+  if (window.__RR_DATA_READY) {
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  } else {
+    setTimeout(mountApp, 50);
+  }
+}
+mountApp();
+
+</script>
+
 </body>
 </html>
