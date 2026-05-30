@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FrontierOS — Research Terminal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles/system.css">
+<link rel="stylesheet" href="styles/app.css">
+<style>:root { --accent: #2fcf9e; }</style>
+</head>
+<body class="app">
+  <div id="root"></div>
+
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin="anonymous"></script>
+  <!-- Dexie powers the browser-local personal memory graph -->
+  <script src="https://unpkg.com/dexie@3.2.7/dist/dexie.js" crossorigin="anonymous"></script>
+
+  <!-- Live data: fetches /api/rr-data synchronously, populates window.RR_DATA -->
+  <script src="app/data.js"></script>
+  <!-- Browser-local personal memory graph -->
+  <script src="app/personalGraph.js"></script>
+
+  <script type="text/babel" src="app/icons.jsx"></script>
+  <script type="text/babel" src="app/tweaks-panel.jsx"></script>
+  <script type="text/babel" src="app/components.jsx"></script>
+  <script type="text/babel" src="app/graph.jsx"></script>
+  <script type="text/babel" src="app/pages.jsx"></script>
+  <script type="text/babel" src="app/memory.jsx"></script>
+  <script type="text/babel" src="app/v2pages.jsx"></script>
+  <script type="text/babel" src="app/main.jsx"></script>
+</body>
+</html>

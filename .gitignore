@@ -1,0 +1,15 @@
+.env
+.env.local
+*.pyc
+__pycache__/
+.venv/
+venv/
+data/*.db
+data/mem0_home/
+data/mem0_store/
+.DS_Store
+.cursor/
+*.log
+static/index.html.bak
+static/index.export.html
+static/terminal.reference.html

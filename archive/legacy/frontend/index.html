@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ResearchRadar — Daily arXiv intelligence</title>
+<link rel="stylesheet" href="styles/system.css">
+<style>
+  body { background: var(--paper); color: var(--ink); }
+  a { color: inherit; }
+  .wrap { max-width: 1240px; margin: 0 auto; padding: 0 32px; }
+
+  /* announcement */
+  .announce {
+    background: var(--ink); color: #fff; height: 40px;
+    display: flex; align-items: center; justify-content: center; gap: 14px;
+    font-size: 13.5px; letter-spacing: .01em;
+  }
+  .announce a { border-bottom: 1px solid rgba(255,255,255,.5); padding-bottom: 1px; }
+  .announce .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green-400); }
+
+  /* nav */
+  nav.top {
+    position: sticky; top: 0; z-index: 50; background: rgba(255,255,255,.86);
+    backdrop-filter: blur(14px); border-bottom: 1px solid var(--hairline);
+  }
+  .nav-row { display: flex; align-items: center; justify-content: space-between; height: 72px; }
+  .brand { display: flex; align-items: center; gap: 11px; font-family: var(--font-display); font-weight: 600; font-size: 19px; letter-spacing: -.02em; }
+  .mark { width: 30px; height: 30px; position: relative; display: grid; place-items: center; }
+  .mark svg { display: block; }
+  .nav-links { display: flex; gap: 34px; font-size: 15px; color: var(--ink-soft); }
+  .nav-links a { text-decoration: none; transition: color .2s; }
+  .nav-links a:hover { color: var(--ink); }
+  .nav-actions { display: flex; align-items: center; gap: 18px; }
+  .nav-actions .signin { font-size: 15px; text-decoration: none; }
+
+  /* hero */
+  .hero { padding: 96px 0 56px; text-align: center; }
+  .eyebrow { color: var(--green-800); margin-bottom: 26px; }
+  h1.display {
+    font-family: var(--font-display); font-weight: 500;
+    font-size: clamp(46px, 7.4vw, 100px); line-height: .98; letter-spacing: -.035em;
+    margin: 0 auto; max-width: 14ch;
+  }
+  h1.display em { font-style: normal; color: var(--green-700); }
+  .hero p.sub {
+    margin: 28px auto 0; max-width: 640px; font-size: 19px; line-height: 1.5; color: var(--ink-soft);
+  }
+  .hero-cta { display: flex; gap: 14px; justify-content: center; margin-top: 36px; }
+
+  /* hero media composition */
+  .hero-media { display: grid; grid-template-columns: 1.55fr 1fr; gap: 18px; margin-top: 64px; }
+  @media (max-width: 860px){ .hero-media { grid-template-columns: 1fr; } }
+
+  .console {
+    background: var(--d-bg-2); border-radius: var(--radius-lg); padding: 22px;
+    border: 1px solid #0c1713; box-shadow: 0 30px 70px rgba(6,40,30,.18); text-align: left;
+    color: var(--d-text); position: relative; overflow: hidden; min-height: 380px;
+  }
+  .console::after {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background: radial-gradient(120% 80% at 80% -10%, rgba(47,207,158,.12), transparent 60%);
+  }
+  .console .ctrlbar { display: flex; align-items: center; gap: 8px; margin-bottom: 18px; }
+  .console .ctrlbar .lights { display: flex; gap: 6px; }
+  .console .ctrlbar .lights i { width: 10px; height: 10px; border-radius: 50%; background: #243029; display: block; }
+  .console .ctrlbar .tag { margin-left: auto; font-family: var(--font-mono); font-size: 11px; letter-spacing: .12em; color: var(--green-400); text-transform: uppercase; }
+  .c-row { display: flex; gap: 10px; margin-bottom: 11px; align-items: flex-start; }
+  .c-chip { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .08em; padding: 4px 9px; border-radius: 6px; text-transform: uppercase; }
+  .c-chip.paper { background: rgba(91,155,255,.16); color: #9cc1ff; }
+  .c-chip.opp { background: rgba(47,207,158,.16); color: var(--green-300); }
+  .c-chip.code { background: rgba(52,217,224,.14); color: #8be8ee; }
+  .c-title { font-family: var(--font-display); font-weight: 500; font-size: 16.5px; line-height: 1.25; color: #eef5f1; }
+  .c-meta { font-family: var(--font-mono); font-size: 11px; color: var(--d-text-3); margin-top: 6px; }
+  .c-card { background: var(--d-surface); border: 1px solid var(--d-border); border-radius: 12px; padding: 15px 16px; margin-bottom: 11px; }
+  .c-scores { display: flex; gap: 7px; margin-top: 12px; flex-wrap: wrap; }
+  .score-pill { font-family: var(--font-mono); font-size: 11px; color: var(--d-text-2); background: var(--d-elev); border: 1px solid var(--d-border); border-radius: var(--radius-pill); padding: 4px 11px; }
+  .score-pill b { color: var(--green-300); font-weight: 600; }
+  .c-prompt { display: flex; align-items: center; gap: 10px; margin-top: 16px; background: var(--d-elev); border: 1px solid var(--d-border-2); border-radius: var(--radius-pill); padding: 11px 16px; color: var(--d-text-3); font-size: 13px; }
+  .c-prompt .send { margin-left: auto; width: 26px; height: 26px; border-radius: 50%; background: var(--green-500); display: grid; place-items: center; color: #042b23; }
+
+  .photo-card {
+    border-radius: var(--radius-lg); overflow: hidden; position: relative; min-height: 380px;
+    background:
+      repeating-linear-gradient(45deg, #e8e5dc, #e8e5dc 11px, #efece5 11px, #efece5 22px);
+    border: 1px solid var(--hairline);
+    display: flex; align-items: flex-end; padding: 22px;
+  }
+  .photo-card .ph { font-family: var(--font-mono); font-size: 12px; color: var(--ink-mute); background: rgba(255,255,255,.78); padding: 8px 12px; border-radius: 8px; }
+
+  /* trust strip */
+  .trust { padding: 64px 0 30px; text-align: center; }
+  .trust .lbl { color: var(--ink-mute); font-size: 14px; margin-bottom: 32px; }
+  .logos { display: flex; flex-wrap: wrap; justify-content: center; gap: 18px 56px; align-items: center; }
+  .logos span { font-family: var(--font-display); font-weight: 500; font-size: 20px; color: #b7b3a8; letter-spacing: -.01em; }
+
+  /* value pillars */
+  .pillars { padding: 90px 0; border-top: 1px solid var(--hairline); }
+  .sec-head { max-width: 620px; }
+  .sec-head h2 { font-family: var(--font-display); font-weight: 500; font-size: clamp(32px,4vw,52px); line-height: 1.02; letter-spacing: -.025em; margin: 0; }
+  .sec-head p { font-size: 18px; color: var(--ink-soft); line-height: 1.5; margin-top: 18px; }
+  .pillar-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 0; margin-top: 56px; border-top: 1px solid var(--hairline); }
+  @media (max-width: 900px){ .pillar-grid { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 520px){ .pillar-grid { grid-template-columns: 1fr; } }
+  .pillar { padding: 30px 26px 30px 0; border-right: 1px solid var(--hairline); }
+  .pillar:last-child { border-right: none; }
+  .pillar .num { font-family: var(--font-mono); font-size: 12px; color: var(--green-700); letter-spacing: .1em; }
+  .pillar h3 { font-family: var(--font-display); font-weight: 500; font-size: 25px; margin: 16px 0 10px; letter-spacing: -.02em; }
+  .pillar ul { margin: 0; padding: 0; list-style: none; }
+  .pillar li { font-size: 14.5px; color: var(--ink-soft); padding: 7px 0; border-top: 1px dashed var(--hairline); display: flex; gap: 9px; }
+  .pillar li::before { content: '→'; color: var(--green-600); }
+
+  /* dark feature band */
+  .band { background: var(--green-950); color: #dff5ec; border-radius: 30px; margin: 0 0 90px; padding: 78px 64px; position: relative; overflow: hidden; }
+  .band::before { content:''; position:absolute; inset:0; background: radial-gradient(80% 120% at 110% -20%, rgba(47,207,158,.16), transparent 55%); }
+  .band-inner { position: relative; }
+  .band .mono-label { color: var(--green-400); }
+  .band h2 { font-family: var(--font-display); font-weight: 500; font-size: clamp(32px,4.4vw,56px); line-height: 1.02; letter-spacing: -.03em; margin: 20px 0 0; max-width: 18ch; }
+  .band-feats { display: grid; grid-template-columns: repeat(3,1fr); gap: 22px; margin-top: 56px; }
+  @media (max-width: 820px){ .band-feats { grid-template-columns: 1fr; } }
+  .feat { background: rgba(255,255,255,.035); border: 1px solid rgba(255,255,255,.1); border-radius: var(--radius-md); padding: 26px; }
+  .feat .ic { width: 40px; height: 40px; border-radius: 10px; border: 1px solid rgba(47,207,158,.4); display: grid; place-items: center; color: var(--green-300); margin-bottom: 18px; }
+  .feat h4 { font-family: var(--font-display); font-weight: 500; font-size: 20px; margin: 0 0 9px; letter-spacing: -.01em; }
+  .feat p { font-size: 14.5px; color: #a7c3b8; line-height: 1.55; margin: 0; }
+
+  /* use cases */
+  .usecases { padding: 0 0 90px; }
+  .uc-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 18px; margin-top: 48px; }
+  @media (max-width: 820px){ .uc-grid { grid-template-columns: 1fr; } }
+  .uc { background: var(--stone); border-radius: var(--radius-md); padding: 26px; border: 1px solid var(--hairline); }
+  .uc .role { color: var(--green-800); font-family: var(--font-mono); font-size: 12px; letter-spacing: .1em; text-transform: uppercase; }
+  .uc p { font-size: 17px; line-height: 1.4; margin: 14px 0 0; letter-spacing: -.01em; }
+
+  /* final cta */
+  .final { text-align: center; padding: 30px 0 110px; }
+  .final h2 { font-family: var(--font-display); font-weight: 500; font-size: clamp(36px,5vw,68px); line-height: 1; letter-spacing: -.035em; margin: 0; }
+  .final .hero-cta { margin-top: 34px; }
+
+  /* footer */
+  footer { background: var(--ink); color: #cfd3d8; padding: 64px 0 40px; }
+  .foot-top { display: flex; justify-content: space-between; gap: 40px; flex-wrap: wrap; padding-bottom: 48px; border-bottom: 1px solid #2a2d33; }
+  .foot-news .lbl { color: var(--coral); font-family: var(--font-mono); font-size: 12px; letter-spacing: .12em; text-transform: uppercase; }
+  .foot-news h3 { font-family: var(--font-display); font-weight: 500; font-size: 30px; color: #fff; margin: 12px 0 20px; letter-spacing: -.02em; }
+  .news-field { display: flex; align-items: center; gap: 10px; border-bottom: 1px solid #3a3d44; padding-bottom: 10px; max-width: 360px; }
+  .news-field input { background: transparent; border: none; color: #fff; font-size: 15px; font-family: var(--font-body); flex: 1; outline: none; }
+  .news-field input::placeholder { color: #6f747c; }
+  .news-field button { background: none; border: none; color: var(--green-400); cursor: pointer; font-size: 18px; }
+  .foot-cols { display: flex; gap: 64px; flex-wrap: wrap; }
+  .foot-col h5 { color: #fff; font-size: 13px; margin: 0 0 16px; font-weight: 600; }
+  .foot-col a { display: block; color: #8b9098; text-decoration: none; font-size: 14px; padding: 5px 0; transition: color .2s; }
+  .foot-col a:hover { color: #fff; }
+  .foot-bottom { display: flex; justify-content: space-between; padding-top: 30px; color: #6f747c; font-size: 13px; flex-wrap: wrap; gap: 12px; }
+
+  .reveal { opacity: 0; transform: translateY(18px); transition: opacity .7s ease, transform .7s ease; }
+  .reveal.in { opacity: 1; transform: none; }
+</style>
+</head>
+<body>
+  <div class="announce">
+    <span class="dot"></span>
+    <span>ResearchRadar now indexes 50 new CS papers every day at 06:00 UTC.</span>
+    <a href="#">Read the changelog</a>
+  </div>
+
+  <nav class="top">
+    <div class="wrap nav-row">
+      <div class="brand">
+        <span class="mark">
+          <svg width="30" height="30" viewBox="0 0 30 30" fill="none">
+            <circle cx="15" cy="15" r="14" stroke="#063f33" stroke-width="1.4"/>
+            <circle cx="15" cy="15" r="8.5" stroke="#0e8a6c" stroke-width="1.4"/>
+            <circle cx="15" cy="15" r="3" fill="#14a883"/>
+            <path d="M15 15 L27 6" stroke="#14a883" stroke-width="1.6" stroke-linecap="round"/>
+          </svg>
+        </span>
+        ResearchRadar
+      </div>
+      <div class="nav-links">
+        <a href="#product">Product</a>
+        <a href="#how">How it works</a>
+        <a href="#features">Intelligence</a>
+        <a href="#use">Use cases</a>
+      </div>
+      <div class="nav-actions">
+        <a class="signin" href="app.html">Sign in</a>
+        <a class="pill-cta pill-dark" href="app.html">Launch dashboard</a>
+      </div>
+    </div>
+  </nav>
+
+  <header class="hero wrap">
+    <div class="mono-label eyebrow">Daily arXiv CS intelligence</div>
+    <h1 class="display">Stop reading papers <em>in isolation.</em></h1>
+    <p class="sub">ResearchRadar reads new computer-science papers every day, connects them to a shared research-memory graph, detects trends, finds gaps, and turns papers into code-ready projects.</p>
+    <div class="hero-cta">
+      <a class="pill-cta pill-green" href="app.html">Launch dashboard →</a>
+      <a class="pill-cta pill-light" href="#how">See how it works</a>
+    </div>
+
+    <div class="hero-media">
+      <div class="console">
+        <div class="ctrlbar">
+          <span class="lights"><i></i><i></i><i></i></span>
+          <span class="tag">research feed · live</span>
+        </div>
+        <div class="c-card">
+          <div class="c-row">
+            <span class="c-chip paper">cs.CL</span>
+            <span class="c-chip opp">High opportunity</span>
+            <span class="c-chip code">Code · 8</span>
+          </div>
+          <div class="c-title">Memory-Routed Agents: Persistent Retrieval Planning for Long-Horizon Reasoning</div>
+          <div class="c-meta">A. Mehta · L. Okafor · R. Tanaka — arXiv:2605.14021</div>
+          <div class="c-scores">
+            <span class="score-pill">Novelty <b>8.6</b></span>
+            <span class="score-pill">Impact <b>7.9</b></span>
+            <span class="score-pill">Reprod. <b>B</b></span>
+            <span class="score-pill">Build <b>8</b></span>
+          </div>
+        </div>
+        <div class="c-prompt">
+          Ask Research Memory — "RAG papers with code this week"
+          <span class="send">→</span>
+        </div>
+      </div>
+      <div class="photo-card">
+        <span class="ph">[ enterprise research photography ]</span>
+      </div>
+    </div>
+  </header>
+
+  <section class="trust wrap">
+    <div class="lbl">Trusted by research teams shipping at the frontier</div>
+    <div class="logos">
+      <span>Helix Labs</span><span>Northwind AI</span><span>Vector Foundry</span>
+      <span>Meridian</span><span>OpenCircuit</span><span>Atlas Research</span>
+    </div>
+  </section>
+
+  <section class="pillars wrap" id="how">
+    <div class="sec-head">
+      <div class="mono-label" style="color:var(--green-700);margin-bottom:18px;">The loop</div>
+      <h2>Read, understand, build, publish.</h2>
+      <p>One continuous intelligence layer over arXiv — from the morning paper drop to a reproduction plan you can run before lunch.</p>
+    </div>
+    <div class="pillar-grid">
+      <div class="pillar">
+        <div class="num">01 / READ</div>
+        <h3>Read</h3>
+        <ul><li>50 new CS papers daily</li><li>Summaries & methods</li><li>Datasets & claims</li></ul>
+      </div>
+      <div class="pillar">
+        <div class="num">02 / UNDERSTAND</div>
+        <h3>Understand</h3>
+        <ul><li>Trend analysis</li><li>Knowledge graph</li><li>Research memory</li></ul>
+      </div>
+      <div class="pillar">
+        <div class="num">03 / BUILD</div>
+        <h3>Build</h3>
+        <ul><li>Paper-to-code</li><li>Project ideas</li><li>Reproduction plans</li></ul>
+      </div>
+      <div class="pillar">
+        <div class="num">04 / PUBLISH</div>
+        <h3>Publish</h3>
+        <ul><li>Literature reviews</li><li>Research gaps</li><li>Conference-fit</li></ul>
+      </div>
+    </div>
+  </section>
+
+  <div class="wrap" id="features">
+    <section class="band">
+      <div class="band-inner">
+        <div class="mono-label">A research operating system</div>
+        <h2>Every paper, connected to everything you already know.</h2>
+        <div class="band-feats">
+          <div class="feat">
+            <div class="ic">◎</div>
+            <h4>Memory graph</h4>
+            <p>12,406 entities and 38,920 relationships linking papers, methods, datasets, claims and gaps as they accumulate.</p>
+          </div>
+          <div class="feat">
+            <div class="ic">⟁</div>
+            <h4>Trend radar</h4>
+            <p>Topic velocity, saturation and novelty scatter — see what's rising and what's already crowded before you commit.</p>
+          </div>
+          <div class="feat">
+            <div class="ic">⌥</div>
+            <h4>Paper-to-code</h4>
+            <p>Turn a method section into a PyTorch skeleton, reproduction plan, and Colab outline scoped to your compute budget.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <section class="usecases wrap" id="use">
+    <div class="sec-head">
+      <div class="mono-label" style="color:var(--green-700);margin-bottom:18px;">Who it's for</div>
+      <h2>One radar, many vantage points.</h2>
+    </div>
+    <div class="uc-grid">
+      <div class="uc"><div class="role">Researchers</div><p>Find open gaps and related work without drowning in the feed.</p></div>
+      <div class="uc"><div class="role">Students</div><p>Discover project and thesis ideas scoped to a weekend or a semester.</p></div>
+      <div class="uc"><div class="role">ML engineers</div><p>Turn promising papers into code-ready reproduction plans.</p></div>
+      <div class="uc"><div class="role">Labs</div><p>Track where research is moving across categories over time.</p></div>
+      <div class="uc"><div class="role">Founders</div><p>Spot emerging technical opportunities before they're obvious.</p></div>
+      <div class="uc"><div class="role">Reviewers</div><p>Check claims, baselines and reproducibility at a glance.</p></div>
+    </div>
+  </section>
+
+  <section class="final wrap">
+    <h2>Your daily research<br>intelligence layer.</h2>
+    <div class="hero-cta">
+      <a class="pill-cta pill-dark" href="app.html">Launch dashboard →</a>
+      <a class="pill-cta pill-light" href="#">View on GitHub</a>
+    </div>
+  </section>
+
+  <footer>
+    <div class="wrap">
+      <div class="foot-top">
+        <div class="foot-news">
+          <div class="lbl">Research moves fast</div>
+          <h3>Get the daily brief in your inbox.</h3>
+          <div class="news-field">
+            <input type="email" placeholder="you@lab.edu" aria-label="email">
+            <button aria-label="subscribe">→</button>
+          </div>
+        </div>
+        <div class="foot-cols">
+          <div class="foot-col"><h5>Product</h5><a href="app.html">Dashboard</a><a href="app.html">Daily Papers</a><a href="app.html">Knowledge Graph</a><a href="app.html">Trend Radar</a></div>
+          <div class="foot-col"><h5>Build</h5><a href="app.html">Paper-to-Code</a><a href="app.html">Project Builder</a><a href="app.html">Reports</a><a href="app.html">Collections</a></div>
+          <div class="foot-col"><h5>Company</h5><a href="#">About</a><a href="#">Changelog</a><a href="#">GitHub</a><a href="#">Contact</a></div>
+        </div>
+      </div>
+      <div class="foot-bottom">
+        <span>© 2026 ResearchRadar — an independent research-intelligence tool.</span>
+        <span>Papers sourced from arXiv · Not affiliated with arXiv or Cornell University.</span>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const obs = new IntersectionObserver((es)=>es.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('in'); }), {threshold:.12});
+    document.querySelectorAll('.pillars, .band, .usecases, .final, .trust').forEach((el,i)=>{ el.classList.add('reveal'); obs.observe(el); });
+  </script>
+</body>
+</html>

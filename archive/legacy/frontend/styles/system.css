@@ -1,0 +1,113 @@
+/* ============================================================
+   ResearchRadar — shared design system
+   Light editorial (marketing) + dark terminal (app)
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Hanken+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+:root {
+  /* type */
+  --font-display: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
+  --font-body: 'Hanken Grotesk', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  /* light palette */
+  --paper: #ffffff;
+  --stone: #f1efe9;
+  --stone-2: #e8e5dc;
+  --ink: #14161a;
+  --ink-soft: #3d4148;
+  --ink-mute: #797f88;
+  --hairline: #e3e0d8;
+  --hairline-2: #d6d2c8;
+
+  /* green identity */
+  --green-950: #042b23;
+  --green-900: #063f33;
+  --green-800: #0a5645;
+  --green-600: #0e8a6c;
+  --green-700: #0b755e;
+  --green-500: #14a883;
+  --green-400: #2fcf9e;
+  --green-300: #66e0bb;
+  --green-100: #c8f3e3;
+  --green-050: #e9faf3;
+
+  /* warm + functional accents */
+  --coral: #ff7759;
+  --coral-soft: #ffcabb;
+  --blue: #2f6df0;
+  --amber: #f4a52a;
+  --rose: #f2607d;
+
+  /* dark terminal palette */
+  --d-bg: #0a0f0d;
+  --d-bg-2: #0d1411;
+  --d-surface: #111a16;
+  --d-elev: #16221c;
+  --d-elev-2: #1c2b24;
+  --d-border: #25342c;
+  --d-border-2: #2f4238;
+  --d-text: #eaf2ed;
+  --d-text-2: #9fb0a7;
+  --d-text-3: #6a7c73;
+
+  /* node taxonomy colors (graph) */
+  --n-paper: #5b9bff;
+  --n-method: #a78bfa;
+  --n-dataset: #2fcf9e;
+  --n-benchmark: #34d9e0;
+  --n-claim: #f4cf4a;
+  --n-limitation: #f2607d;
+  --n-future: #f4a52a;
+  --n-gap: #ff8fc7;
+  --n-author: #9aa6b2;
+  --n-inst: #d8dee6;
+
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 22px;
+  --radius-pill: 999px;
+
+  --shadow-soft: 0 1px 2px rgba(8,20,16,.04), 0 12px 30px rgba(8,20,16,.06);
+}
+
+* { box-sizing: border-box; }
+html { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+body { margin: 0; font-family: var(--font-body); }
+
+/* ---- shared primitives ---- */
+.mono-label {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+
+.pill-cta {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-family: var(--font-body); font-weight: 500; font-size: 15px;
+  padding: 13px 24px; border-radius: var(--radius-pill);
+  border: 1px solid transparent; cursor: pointer; text-decoration: none;
+  transition: transform .15s ease, background .2s ease, color .2s ease, border-color .2s ease;
+}
+.pill-cta:active { transform: translateY(1px); }
+
+.pill-dark { background: var(--ink); color: #fff; }
+.pill-dark:hover { background: #000; }
+.pill-green { background: var(--green-900); color: #eafaf4; }
+.pill-green:hover { background: var(--green-800); }
+.pill-light { background: #fff; color: var(--ink); border-color: var(--hairline-2); }
+.pill-light:hover { background: var(--stone); }
+.pill-ghost { background: transparent; color: var(--ink); }
+.pill-ghost:hover { background: rgba(0,0,0,.04); }
+
+.link-underline {
+  color: var(--ink); text-decoration: none; font-weight: 500;
+  border-bottom: 1px solid var(--ink); padding-bottom: 1px;
+  transition: opacity .2s ease;
+}
+.link-underline:hover { opacity: .55; }
+
+::selection { background: var(--green-300); color: var(--green-950); }
