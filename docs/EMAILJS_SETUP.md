@@ -2,7 +2,7 @@
 
 Use this when your API runs on **Render free tier** (SMTP blocked). The landing page saves signups on the server, then sends the access code email **from the browser** via EmailJS over HTTPS.
 
-**Flow:** User submits form → `POST /api/waitlist` → if `email_sent` is false → EmailJS sends to `{{to_email}}`.
+**Flow:** User submits form → `POST /api/waitlist` (saves signup + code) → **EmailJS sends the code** to `{{to_email}}` when configured (primary on GitHub Pages).
 
 ---
 
