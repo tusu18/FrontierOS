@@ -1352,9 +1352,14 @@ Object.assign(window, {
 const { useState, useEffect, useRef, useMemo } = React;
 
 /* ---- Brand mark (radar) ---- */
-function Mark({ size = 26, dark = true }) {
-  const src = dark ? '/assets/logo-mark-dark.svg' : '/assets/logo-mark.svg';
-  return <img src={src} alt="" width={size} height={size} style={{ display: 'block', flex: 'none' }} />;
+function Mark({ size = 26 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 30 30" fill="none" style={{ display: 'block', flex: 'none' }}>
+      <circle cx="15" cy="15" r="15" fill="#14a883" />
+      <path fill="#ffffff" d="M10.5 20.5L14.2 9.8 15 12.4 15.8 9.8 19.5 20.5H10.5Z" />
+      <path fill="#ffffff" opacity="0.92" d="M15 12.4L21.2 8.2 15 15.6 8.8 8.2 15 12.4Z" />
+    </svg>
+  );
 }
 
 /* ---- Badge ---- */
@@ -2759,7 +2764,7 @@ function MemoryPage() {
       next: ['Open Project Builder to scope an MVP', 'Generate a reproduction plan'],
     };
     return {
-      lead: ((window.RR_DATA.KPIS||[]).find(k=>k.label==='Total Papers')||{value:'?'}).value + ' indexed papers — ' + new Date().toLocaleDateString(),
+      lead: '10K+ indexed papers — ' + new Date().toLocaleDateString(),
       bullets: ['Three papers this week ship runnable code with buildability ≥ 8.', 'Small-model reasoning is rising (+38%) and remains low-saturation.', 'LLM benchmarking is saturating (−12%) — diminishing returns for new entrants.'],
       papers: ['Sub-Billion Reasoners (cs.LG)', 'Verifiable Tool Use (cs.SE)'],
       ents: ['Distillation', 'Tool-Use Agents'],

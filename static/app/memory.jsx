@@ -41,7 +41,7 @@ function MemoryPage() {
       next: ['Open Project Builder to scope an MVP', 'Generate a reproduction plan'],
     };
     return {
-      lead: 'Here is what research memory found across 1,842 indexed papers, weighted toward the last 7 days.',
+      lead: 'Here is what research memory found across 10K+ indexed papers, weighted toward the last 7 days.',
       bullets: ['Three papers this week ship runnable code with buildability ≥ 8.', 'Small-model reasoning is rising (+38%) and remains low-saturation.', 'LLM benchmarking is saturating (−12%) — diminishing returns for new entrants.'],
       papers: ['Sub-Billion Reasoners (cs.LG)', 'Verifiable Tool Use (cs.SE)'],
       ents: ['Distillation', 'Tool-Use Agents'],

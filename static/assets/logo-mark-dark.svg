@@ -1,7 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30" fill="none" role="img" aria-label="FrontierOS">
   <title>FrontierOS</title>
-  <circle cx="15" cy="15" r="14" stroke="#2fcf9e" stroke-width="1.4" opacity="0.45"/>
-  <circle cx="15" cy="15" r="8.5" stroke="#2fcf9e" stroke-width="1.4" opacity="0.75"/>
-  <circle cx="15" cy="15" r="3" fill="#14a883"/>
-  <path d="M15 15 L27 6" stroke="#2fcf9e" stroke-width="1.6" stroke-linecap="round"/>
+  <circle cx="15" cy="15" r="15" fill="#14a883"/>
+  <path fill="#ffffff" d="M10.5 20.5L14.2 9.8 15 12.4 15.8 9.8 19.5 20.5H10.5Z"/>
+  <path fill="#ffffff" opacity="0.92" d="M15 12.4L21.2 8.2 15 15.6 8.8 8.2 15 12.4Z"/>
 </svg>
